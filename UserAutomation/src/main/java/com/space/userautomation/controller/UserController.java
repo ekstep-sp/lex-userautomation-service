@@ -51,7 +51,7 @@ public class UserController {
             userService.createUser(userDTO);
            // JSONObject response = userService.createUser(userDTO);
           //  return new ResponseEntity<JSONObject>(response,HttpStatus.OK);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.CREATED);
         }
         catch (Exception ex) {
             ex.printStackTrace();
@@ -62,7 +62,7 @@ public class UserController {
 
     }
     @RequestMapping(value = "/uploadexcelfile", method = RequestMethod.POST, consumes = {"multipart/form-data"})
-    public ResponseEntity<?> uploadExcelfile(@ModelAttribute ExpenseBaseDto expenseBaseDto, @PathVariable long groupId, Principal principal) {
+    public ResponseEntity<?> uploadExcelfile(@RequestBody File input) {
         try {
             excelReader.readExcelSheet(input);
             return new ResponseEntity<>(HttpStatus.OK);

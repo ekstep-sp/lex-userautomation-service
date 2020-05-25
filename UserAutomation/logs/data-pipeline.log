@@ -1,2 +1,27 @@
 2020-05-25 17:11:18 INFO   - Received Request to send mail from the Email Executor.
 2020-05-25 17:11:21 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-25 19:13:45 INFO   - Received Request to send mail from the Email Executor.
+2020-05-25 19:13:47 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-25 19:24:49 INFO   - Username==subha created in keycloak successfully
+2020-05-25 19:24:49 INFO   - Received Request to send mail from the Email Executor.
+2020-05-25 19:24:54 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-25 19:29:13 INFO   - password generator[org.keycloak.representations.idm.CredentialRepresentation@72b8a5a8]
+2020-05-25 19:29:13 INFO   - Keycloak create user response code>>>>201
+2020-05-25 19:29:13 INFO   - User created with userId:c1ee5717-0b6d-4693-8e59-2ec7a8cb95c7
+2020-05-25 19:29:14 INFO   - Username==subhashini created in keycloak successfully
+2020-05-25 19:29:14 INFO   - Received Request to send mail from the Email Executor.
+2020-05-25 19:29:18 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-25 19:31:40 INFO   - random generatedPaawordOhM6p2QcaVFP3Ehq
+2020-05-25 19:31:40 INFO   - password generator[org.keycloak.representations.idm.CredentialRepresentation@4443bc29]
+2020-05-25 19:31:40 INFO   - Keycloak create user response code>>>>201
+2020-05-25 19:31:40 INFO   - User created with userId:c0faf40f-46d0-4f13-acbe-b14638546d9a
+2020-05-25 19:31:40 INFO   - Username==santhosh created in keycloak successfully
+2020-05-25 19:31:40 INFO   - Received Request to send mail from the Email Executor.
+2020-05-25 19:31:43 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-25 19:32:56 INFO   - random generatedPaaword is  :ddeb2E9NbRHO2mpg
+2020-05-25 19:32:56 INFO   - password generator[org.keycloak.representations.idm.CredentialRepresentation@c6744eeb]
+2020-05-25 19:32:57 INFO   - Keycloak create user response code>>>>201
+2020-05-25 19:32:57 INFO   - User created with userId:1a2c2384-1a73-42ab-a59f-5187b5d8607a
+2020-05-25 19:32:57 INFO   - Username==santh created in keycloak successfully
+2020-05-25 19:32:57 INFO   - Received Request to send mail from the Email Executor.
+2020-05-25 19:33:00 INFO   - Successfully sent the mail. Response Code : 202

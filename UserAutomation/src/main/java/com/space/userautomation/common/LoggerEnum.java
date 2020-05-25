@@ -1,4 +1,4 @@
-package com.space.userautomation.common.logger;
+package com.space.userautomation.common;
 
 public enum LoggerEnum {
 

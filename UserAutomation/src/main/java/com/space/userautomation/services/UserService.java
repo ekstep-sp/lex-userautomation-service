@@ -11,6 +11,7 @@ import java.util.List;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
 
+import com.space.userautomation.common.LoggerEnum;
 import com.space.userautomation.model.User;
 import com.space.userautomation.model.UserCredentials;
 import org.apache.http.HttpResponse;
@@ -22,6 +23,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.json.simple.JSONObject;
+import com.space.userautomation.common.ProjectLogger;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -85,8 +87,8 @@ public class UserService  {
             passwordCred.setType(CredentialRepresentation.PASSWORD);
             String password = generateRandomPassword(16,22,122);
             passwordCred.setValue(password);
-            System.out.println("password cred" + passwordCred);
-            System.out.println(passwordCred.getValue());
+           // System.out.println("password cred" + passwordCred);
+            ProjectLogger.log ("random generatedPaaword is  :"   +passwordCred.getValue(),LoggerEnum.INFO.name());
 
 
             UsersResource userRessource = getKeycloakUserResource();
@@ -100,35 +102,35 @@ public class UserService  {
             user.setEnabled(true);
             user.setEmailVerified(false);
             user.setCredentials(Arrays.asList(passwordCred));
-            System.out.println("password generator" + Arrays.asList(passwordCred));
+            ProjectLogger.log("password generator" + Arrays.asList(passwordCred),LoggerEnum.INFO.name());
 
 
             // Create user
             Response result = userRessource.create(user);
-            System.out.println("Keycloak create user response code>>>>" + result.getStatus());
+            ProjectLogger.log("Keycloak create user response code>>>>" + result.getStatus(),LoggerEnum.INFO.name());
 
             statusId = result.getStatus();
 
             if (statusId == 201) {
 
                 String userId = result.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
-                System.out.println("User created with userId:" + userId);
+                ProjectLogger.log("User created with userId:" + userId, LoggerEnum.INFO.name());
 
                 // set role
                 RealmResource realmResource = getRealmResource();
                 RoleRepresentation savedRoleRepresentation = realmResource.roles().get("user").toRepresentation();
                 realmResource.users().get(userId).roles().realmLevel().add(Arrays.asList(savedRoleRepresentation));
 
-                System.out.println("Username==" + userDTO.getUsername() + " created in keycloak successfully");
+                ProjectLogger.log("Username==" + userDTO.getUsername() + " created in keycloak successfully", LoggerEnum.INFO.name());
 
                 new EmailService().userCreationSuccessMail(user.getUsername(), user.getEmail(), password);
             }
 
                 else if (statusId == 409) {
-                    System.out.println("Username==" + userDTO.getUsername() + " already present in keycloak");
+                ProjectLogger.log ("Username==" + userDTO.getUsername() + " already present in keycloak",LoggerEnum.ERROR.name());
 
                 } else {
-                    System.out.println("Username==" + userDTO.getUsername() + " could not be created in keycloak");
+                ProjectLogger.log("Username==" + userDTO.getUsername() + " could not be created in keycloak",LoggerEnum.ERROR.name());
 
                 }
 

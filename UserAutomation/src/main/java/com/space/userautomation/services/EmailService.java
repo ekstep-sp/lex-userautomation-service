@@ -6,12 +6,8 @@ import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
 import com.sendgrid.helpers.mail.objects.Personalization;
-import com.space.userautomation.common.logger.LoggerEnum;
-import com.space.userautomation.common.logger.ProjectLogger;
-
-
-import java.time.LocalDate;
-import java.util.TimerTask;
+import com.space.userautomation.common.LoggerEnum;
+import com.space.userautomation.common.ProjectLogger;
 
 
 public class EmailService {

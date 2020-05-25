@@ -1,4 +1,4 @@
-package com.space.userautomation.common.logger;
+package com.space.userautomation.common;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
