@@ -2,16 +2,18 @@ package com.space.userautomation.controller;
 
 import com.space.userautomation.model.User;
 import com.space.userautomation.model.UserCredentials;
+import com.space.userautomation.services.ExcelReader;
 import com.space.userautomation.services.UserService;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.File;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -20,6 +22,7 @@ public class UserController {
 
     @Autowired
     UserService userService;
+    ExcelReader excelReader;
 
     @RequestMapping(value = "/token", method = RequestMethod.POST)
     public ResponseEntity<?> getTokenUsingCredentials(@RequestBody UserCredentials userCredentials) {
@@ -46,15 +49,27 @@ public class UserController {
         try {
             System.out.println("USERS created:" + userDTO);
             userService.createUser(userDTO);
+           // JSONObject response = userService.createUser(userDTO);
+          //  return new ResponseEntity<JSONObject>(response,HttpStatus.OK);
             return new ResponseEntity<>(HttpStatus.OK);
         }
-
         catch (Exception ex) {
-
             ex.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
         }
 
+
+    }
+    @RequestMapping(value = "/uploadexcelfile", method = RequestMethod.POST, consumes = {"multipart/form-data"})
+    public ResponseEntity<?> uploadExcelfile(@ModelAttribute ExpenseBaseDto expenseBaseDto, @PathVariable long groupId, Principal principal) {
+        try {
+            excelReader.readExcelSheet(input);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+        }
     }
 }

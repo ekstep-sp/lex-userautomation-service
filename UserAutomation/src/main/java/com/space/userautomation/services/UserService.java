@@ -21,6 +21,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.json.simple.JSONObject;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -28,10 +29,7 @@ import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
 
@@ -49,15 +47,6 @@ public class UserService  {
 
     @Value("${keycloak.realm}")
     private String REALM;
-//    @Value("${keycloak.mail.protocol}")
-//    private String MAILPROTOCOL;
-//    @Value("${keycloak.mail.host}")
-//    private String MAILHOST;
-
-//    @Autowired
-//    private JavaMailSender javaMailSender;
-
-
 
 
     public String getToken(UserCredentials userCredentials) {
@@ -82,17 +71,20 @@ public class UserService  {
         return responseToken;
 
     }
-
     public int createUser(User userDTO) throws IOException{
+   // public JSONObject createUser(User userDTO) throws IOException{
 
         int statusId = 0;
+
+
 
         try {
             // Define password credential
             CredentialRepresentation passwordCred = new CredentialRepresentation();
             passwordCred.setTemporary(false);
             passwordCred.setType(CredentialRepresentation.PASSWORD);
-            passwordCred.setValue(generateRandomPassword(16,22,122));
+            String password = generateRandomPassword(16,22,122);
+            passwordCred.setValue(password);
             System.out.println("password cred" + passwordCred);
             System.out.println(passwordCred.getValue());
 
@@ -116,28 +108,38 @@ public class UserService  {
             System.out.println("Keycloak create user response code>>>>" + result.getStatus());
 
             statusId = result.getStatus();
-            String userId = result.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
-            System.out.println("User created with userId:" + userId);
 
-            // set role
+            if (statusId == 201) {
+
+                String userId = result.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
+                System.out.println("User created with userId:" + userId);
+
+                // set role
                 RealmResource realmResource = getRealmResource();
                 RoleRepresentation savedRoleRepresentation = realmResource.roles().get("user").toRepresentation();
                 realmResource.users().get(userId).roles().realmLevel().add(Arrays.asList(savedRoleRepresentation));
 
-                System.out.println("Username==" + userDTO.getUsername()  +" created in keycloak successfully");
+                System.out.println("Username==" + userDTO.getUsername() + " created in keycloak successfully");
 
+                new EmailService().userCreationSuccessMail(user.getUsername(), user.getEmail(), password);
+            }
 
-           // sendEmail();
+                else if (statusId == 409) {
+                    System.out.println("Username==" + userDTO.getUsername() + " already present in keycloak");
 
-        } catch (Exception e) {
-            e.printStackTrace();
+                } else {
+                    System.out.println("Username==" + userDTO.getUsername() + " could not be created in keycloak");
 
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+
+            }
+
+            return statusId;
 
         }
-
-        return statusId;
-
-    }
 
 
     private UsersResource getKeycloakUserResource() {
@@ -171,30 +173,6 @@ public class UserService  {
                         StringBuilder::append)
                 .toString();
     }
-
-    // sending mail to user
-
-//    public void sendMail(String toEmail, String subject, String message) {
-//        SimpleMailMessage mailMessage = new SimpleMailMessage();
-//        mailMessage.setTo(toEmail);
-//        mailMessage.setSubject(subject);
-//        mailMessage.setText(message);
-//        mailMessage.setFrom("umapamisetty123@gmail.com");
-//        javaMailSender.send(mailMessage);
-//    }
-
-//    void sendEmail() {
-//
-//        SimpleMailMessage msg = new SimpleMailMessage();
-//        msg.setTo("umapamisetty123@gmail.com");
-//        msg.setFrom("anjitha.r98@gmail.com");
-//        msg.setSubject("Testing from Spring Boot");
-//        msg.setText("Hello World \n Spring Boot Email");
-//        System.out.println("mgs sent" +msg);
-//        javaMailSender.send(msg);
-//
-//    }
-
 
     private String sendPost(List<NameValuePair> urlParameters) throws Exception {
 
