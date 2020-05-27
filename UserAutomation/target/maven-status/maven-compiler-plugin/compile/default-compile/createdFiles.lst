@@ -1,0 +1,9 @@
+com/space/userautomation/controller/UserController.class
+com/space/userautomation/common/ProjectLogger.class
+com/space/userautomation/model/User.class
+com/space/userautomation/UserAutomationApplication.class
+com/space/userautomation/services/UserService.class
+com/space/userautomation/model/UserCredentials.class
+com/space/userautomation/services/EmailService.class
+com/space/userautomation/common/LoggerEnum.class
+com/space/userautomation/services/ExcelReader.class

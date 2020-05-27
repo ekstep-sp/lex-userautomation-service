@@ -17,6 +17,7 @@ public class ProjectLogger {
             Properties p = new Properties();
             InputStream is = ProjectLogger.class.getResourceAsStream("/logger/log4j.properties");
             p.load(is);
+            p.setProperty("log4j.appender.file.File" ,System.getenv("logger_path"));
             PropertyConfigurator.configure(p);
         }
         catch (IOException e) {

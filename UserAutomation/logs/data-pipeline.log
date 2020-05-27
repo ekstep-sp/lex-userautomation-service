@@ -529,3 +529,15 @@ java.lang.Exception: {"errors":[{"message":"The from address does not match a ve
 2020-05-27 13:56:30 INFO   - Create User Api called.
 2020-05-27 13:56:30 ERROR  - Missing mandatory parameter: password.
 2020-05-27 13:56:30 ERROR  - Missing mandatory parameter: password.
+2020-05-27 18:03:42 INFO   - Create User Api called.
+2020-05-27 18:03:43 INFO   - User Details : com.space.userautomation.model.User@1297ecd1
+2020-05-27 18:03:43 INFO   - Status Code of Keycloak Response : 201
+2020-05-27 18:03:43 INFO   - User created successfully in keycloak with userId : a336c0bb-e99c-4696-850b-fa9b35d7d96f
+2020-05-27 18:03:43 INFO   - Received Request to send mail from the Email Executor.
+2020-05-27 18:03:46 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-27 18:08:08 INFO   - Create User Api called.
+2020-05-27 18:08:08 INFO   - User Details : com.space.userautomation.model.User@2ce480a4
+2020-05-27 18:08:09 INFO   - Status Code of Keycloak Response : 201
+2020-05-27 18:08:09 INFO   - User created successfully in keycloak with userId : 20388512-20c7-4763-96c5-d89b397e19c5
+2020-05-27 18:08:09 INFO   - Received Request to send mail from the Email Executor.
+2020-05-27 18:08:11 INFO   - Successfully sent the mail. Response Code : 202
