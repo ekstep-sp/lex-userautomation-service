@@ -7,6 +7,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
@@ -32,7 +33,11 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 
 @Component
@@ -73,76 +78,97 @@ public class UserService  {
         return responseToken;
 
     }
-    public int createUser(User userDTO) throws IOException{
-   // public JSONObject createUser(User userDTO) throws IOException{
+    public ResponseEntity<JSONObject> createUser(User user) throws IOException{
+   // public JSONObject createUser(User user) throws IOException{
 
-        int statusId = 0;
-
-
-
+        try {
+            validateUserDetails(user);
+        } catch (Exception e) {
+            ProjectLogger.log(e.getMessage(), LoggerEnum.ERROR.name());
+            return getFailedResponse(e.getMessage());
+        }
         try {
             // Define password credential
             CredentialRepresentation passwordCred = new CredentialRepresentation();
             passwordCred.setTemporary(false);
             passwordCred.setType(CredentialRepresentation.PASSWORD);
-            String password = generateRandomPassword(16,22,122);
-            passwordCred.setValue(password);
+//            String password = generateRandomPassword(16,22,122);
+            passwordCred.setValue(user.getPassword());
            // System.out.println("password cred" + passwordCred);
-            ProjectLogger.log ("random generatedPaaword is  :"   +passwordCred.getValue(),LoggerEnum.INFO.name());
+//            ProjectLogger.log ("random generatedPaaword is  :"   +passwordCred.getValue(),LoggerEnum.INFO.name());
 
 
-            UsersResource userRessource = getKeycloakUserResource();
+            UsersResource userResource = getKeycloakUserResource();
 
             // Define user details
-            UserRepresentation user = new UserRepresentation();
-            user.setUsername(userDTO.getUsername());
-            user.setEmail(userDTO.getEmail());
-            user.setFirstName(userDTO.getFirstName());
-            user.setLastName(userDTO.getLastName());
-            user.setEnabled(true);
-            user.setEmailVerified(false);
-            user.setCredentials(Arrays.asList(passwordCred));
-            ProjectLogger.log("password generator" + Arrays.asList(passwordCred),LoggerEnum.INFO.name());
+            UserRepresentation userRep = new UserRepresentation();
+//            userRep.setUsername(user.getUsername());
+            userRep.setEmail(user.getEmail());
+            userRep.setFirstName(user.getFirstName());
+            userRep.setLastName(user.getLastName());
+            userRep.setUsername(user.getEmail());
+            userRep.setEnabled(false);
+            userRep.setEmailVerified(false);
+            userRep.setCredentials(Arrays.asList(passwordCred));
+
+            Map<String, List<String>> attributes = user.getAttributes();
+            if(!attributes.isEmpty() && attributes.size() > 0) {
+                userRep.setAttributes(attributes);
+            }
+
+            ProjectLogger.log("User Details : " + user, LoggerEnum.INFO.name());
+//            ProjectLogger.log("password generator" + Arrays.asList(passwordCred),LoggerEnum.INFO.name());
 
 
             // Create user
-            Response result = userRessource.create(user);
-            ProjectLogger.log("Keycloak create user response code>>>>" + result.getStatus(),LoggerEnum.INFO.name());
+            Response result = userResource.create(userRep);
 
-            statusId = result.getStatus();
+            int statusId = result.getStatus();
+
+            ProjectLogger.log("Status Code of Keycloak Response : " + result.getStatus(),LoggerEnum.INFO.name());
+
 
             if (statusId == 201) {
-
                 String userId = result.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
-                ProjectLogger.log("User created with userId:" + userId, LoggerEnum.INFO.name());
+                ProjectLogger.log("User created successfully in keycloak with userId : " + userId, LoggerEnum.INFO.name());
+                new EmailService().userCreationSuccessMail(user.getEmail(), user.getPassword());
+                return getSuccessResponse(userId);
+//                // set role
+//                RealmResource realmResource = getRealmResource();
+//                RoleRepresentation savedRoleRepresentation = realmResource.roles().get("user").toRepresentation();
+//                realmResource.users().get(userId).roles().realmLevel().add(Arrays.asList(savedRoleRepresentation));
 
-                // set role
-                RealmResource realmResource = getRealmResource();
-                RoleRepresentation savedRoleRepresentation = realmResource.roles().get("user").toRepresentation();
-                realmResource.users().get(userId).roles().realmLevel().add(Arrays.asList(savedRoleRepresentation));
-
-                ProjectLogger.log("Username==" + userDTO.getUsername() + " created in keycloak successfully", LoggerEnum.INFO.name());
-
-                new EmailService().userCreationSuccessMail(user.getUsername(), user.getEmail(), password);
+//                ProjectLogger.log("Username==" + user.getUsername() + " created in keycloak successfully", LoggerEnum.INFO.name());
             }
 
                 else if (statusId == 409) {
-                ProjectLogger.log ("Username==" + userDTO.getUsername() + " already present in keycloak",LoggerEnum.ERROR.name());
-
+                ProjectLogger.log ("Email = " + user.getEmail() + " already present in keycloak",LoggerEnum.ERROR.name());
+                return getFailedResponse("Eamil already present.", 409);
                 } else {
-                ProjectLogger.log("Username==" + userDTO.getUsername() + " could not be created in keycloak",LoggerEnum.ERROR.name());
-
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-
+                ProjectLogger.log("Failed to create user." + result,LoggerEnum.ERROR.name());
+                return getFailedResponse("Unable to create user now. Please check the logs", 500);
             }
 
-            return statusId;
-
+            } catch (Exception e) {
+            ProjectLogger.log(e.getMessage(), LoggerEnum.ERROR.name());
+            return getFailedResponse(e.getMessage());
+            }
         }
 
+    public void validateUserDetails(User user) throws Exception {
+        if(StringUtils.isEmpty(user.getFirstName())) {
+            throw new Exception("Missing mandatory parameter: firstname.");
+        }
+        if(StringUtils.isEmpty(user.getLastName())) {
+            throw new Exception("Missing mandatory parameter: lastName.");
+        }
+        if(StringUtils.isEmpty(user.getEmail())) {
+            throw new Exception("Missing mandatory parameter: email.");
+        }
+        if(StringUtils.isEmpty(user.getPassword())) {
+            throw new Exception("Missing mandatory parameter: password.");
+        }
+    }
 
     private UsersResource getKeycloakUserResource() {
         Keycloak kc = KeycloakBuilder.builder().serverUrl(AUTHURL).realm("master").username("admin").password("admin")
@@ -195,6 +221,40 @@ public class UserService  {
 
         return result.toString();
 
+    }
+
+    public ResponseEntity<JSONObject> getFailedResponse(String message) {
+        ProjectLogger.log(message, LoggerEnum.ERROR.name());
+        JSONObject response = new JSONObject();
+        response.put("status", "failed");
+        response.put("error", message);
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.put("Content-Type", Arrays.asList("application/json; charset=utf-8"));
+        ResponseEntity<JSONObject> failedResponse = new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+
+        return failedResponse;
+    }
+
+    public ResponseEntity<JSONObject> getFailedResponse(String message, int statusCode) {
+        JSONObject response = new JSONObject();
+        response.put("status", "failed");
+        response.put("error", message);
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.put("Content-Type", Arrays.asList("application/json; charset=utf-8"));
+        ResponseEntity<JSONObject> failedResponse = new ResponseEntity<JSONObject>(response, HttpStatus.valueOf(statusCode));
+
+        return failedResponse;
+    }
+
+    public ResponseEntity<JSONObject> getSuccessResponse(String userId) {
+        JSONObject response = new JSONObject();
+        response.put("status", "success");
+        response.put("userId", userId);
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.put("Content-Type", Arrays.asList("application/json; charset=utf-8"));
+        ResponseEntity<JSONObject> successReponse = new ResponseEntity<>(response, HttpStatus.OK);
+
+        return successReponse;
     }
 
 

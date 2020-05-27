@@ -1,9 +1,13 @@
 package com.space.userautomation.model;
 
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -16,7 +20,29 @@ public class User implements Serializable {
 
     private String lastName;
 
-  private String password;
+    private String password;
+
+    private String organisation;
+
+    private String appleId;
+
+    private String[] roles;
+
+    public String[] getRoles() {
+        return roles;
+    }
+
+    public void setRoles(String[] roles) {
+        this.roles = roles;
+    }
+
+    public String getAppleId() {
+        return appleId;
+    }
+
+    public void setAppleId(String appleId) {
+        this.appleId = appleId;
+    }
 
 //    private List<String> credentials;
 //
@@ -27,6 +53,8 @@ public class User implements Serializable {
 //    public void setCredentials(List<String> credentials) {
 //        this.credentials = credentials;
 //    }
+
+
     public List<CredentialRepresentation> credentials;
 
     public List<CredentialRepresentation> getCredentials() {
@@ -36,7 +64,6 @@ public class User implements Serializable {
     public void setCredentials(List<CredentialRepresentation> credentials) {
         this.credentials = credentials;
     }
-
 
 
     public String getUsername() {
@@ -85,5 +112,36 @@ public class User implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getOrganisation() {
+        return organisation;
+    }
+
+    public void setOrganisation(String organisation) {
+        this.organisation = organisation;
+    }
+
+
+    public Map<String, String> toMap() {
+        Map<String, String> userDetails = new HashMap<>();
+        userDetails.put("email", email);
+        userDetails.put("firstName", firstName);
+        userDetails.put("lastName", lastName);
+        userDetails.put("password", password);
+
+        return userDetails;
+    }
+
+    public Map<String, List<String>> getAttributes() {
+        Map<String, List<String>> userMap = new HashMap<>();
+        if(!StringUtils.isEmpty(organisation)) {
+            userMap.put("organisation", Arrays.asList(organisation));
+        }
+        if(!StringUtils.isEmpty(appleId)) {
+            userMap.put("appleID", Arrays.asList(appleId));
+        }
+
+        return userMap;
     }
 }

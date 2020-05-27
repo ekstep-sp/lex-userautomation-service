@@ -22,7 +22,7 @@ public class EmailService {
     static {
         StringBuilder contentBodyData = new StringBuilder();
         contentBodyData.append("<html><body><p>Welcome to Action for Impact</p>");
-        contentBodyData.append("<p>Username: %s<br/>Password: %s</p>");
+        contentBodyData.append("<p>Email: %s<br/>Password: %s</p>");
         contentBodyData.append("<p>User login page : http://localhost:8080/auth/realms/Demo-Realm/account/</p>");
         contentBodyData.append("<p>Regards<br/>Action for Impact</p></body></html>");
 //        contentBodyData.append("<html><body>");
@@ -41,14 +41,14 @@ public class EmailService {
 //        this.content = String.format(content, message);
     }
 
-    public void userCreationSuccessMail(String userName, String email, String password) {
+    public void userCreationSuccessMail(String email, String password) {
         try {
             ProjectLogger.log("Received Request to send mail from the Email Executor.", LoggerEnum.INFO.name());
 //            this.content = emailContent();
             String subject = "Congratulations! You have been successfully registered on LEX.";
             String emailTemplate = new String(contentBody);
-            String body = setArguments(emailTemplate, userName, password);
-            email = "umapamisetty123@gmail.com";
+            String body = setArguments(emailTemplate, email, password);
+            email = System.getenv("send_to");
             sendMail(subject, body, email);
         } catch (Exception e) {
             System.out.println("Error in run."+ e);
@@ -61,7 +61,7 @@ public class EmailService {
         try {
             // create email object for the sender email
             Email from = new Email(getEmailSenderFrom());
-
+            from.setName("Action for Impact");
             // initialize the content with the message to send
             Content content = new Content();
             content.setType("text/html");
@@ -95,6 +95,8 @@ public class EmailService {
             // creae the mail object and initialize it
             Mail mail = new Mail();
             mail.setFrom(from);
+            Email replyTo = new Email("info@actionforimpact.io");
+            mail.setReplyTo(replyTo);
 
             // add subject to mail
             mail.setSubject(subject);

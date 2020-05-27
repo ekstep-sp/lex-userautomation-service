@@ -25,3 +25,507 @@
 2020-05-25 19:32:57 INFO   - Username==santh created in keycloak successfully
 2020-05-25 19:32:57 INFO   - Received Request to send mail from the Email Executor.
 2020-05-25 19:33:00 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-26 20:29:12 INFO   - random generatedPaaword is  :ccOUlwR497MqkI10
+2020-05-26 20:29:13 INFO   - password generator[org.keycloak.representations.idm.CredentialRepresentation@3a3c47c7]
+2020-05-26 20:29:13 INFO   - Keycloak create user response code>>>>201
+2020-05-26 20:29:13 INFO   - User created with userId:c9effa42-78d1-4a11-82da-623bdb6b6417
+2020-05-26 20:29:13 INFO   - Username==aditya2 created in keycloak successfully
+2020-05-26 20:29:13 INFO   - Received Request to send mail from the Email Executor.
+2020-05-26 20:29:13 ERROR  - Failed to send mail. 
+java.lang.NullPointerException
+	at com.space.userautomation.services.EmailService.getEmailSenderFrom(EmailService.java:126)
+	at com.space.userautomation.services.EmailService.sendMail(EmailService.java:63)
+	at com.space.userautomation.services.EmailService.userCreationSuccessMail(EmailService.java:52)
+	at com.space.userautomation.services.UserService.createUser(UserService.java:126)
+	at com.space.userautomation.controller.UserController.createUser(UserController.java:54)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:190)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:138)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:105)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:879)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:793)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1040)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:660)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:741)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:96)
+	at org.keycloak.adapters.tomcat.AbstractAuthenticatedActionsValve.invoke(AbstractAuthenticatedActionsValve.java:67)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:541)
+	at org.keycloak.adapters.tomcat.AbstractKeycloakAuthenticatorValve.invoke(AbstractKeycloakAuthenticatorValve.java:181)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:139)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:373)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1590)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:748)
+2020-05-26 21:27:24 INFO   - random generatedPaaword is  :CwagWiu4YBA4oEg4
+2020-05-26 21:27:25 INFO   - password generator[org.keycloak.representations.idm.CredentialRepresentation@72c91fef]
+2020-05-26 21:27:25 INFO   - Keycloak create user response code>>>>201
+2020-05-26 21:27:25 INFO   - User created with userId:a4a2cb8e-e8ec-4027-8996-34d70654d9ae
+2020-05-26 21:27:25 INFO   - Username==aditya3 created in keycloak successfully
+2020-05-26 21:27:25 INFO   - Received Request to send mail from the Email Executor.
+2020-05-26 21:27:25 ERROR  - Failed to send mail. 
+java.lang.NullPointerException
+	at com.space.userautomation.services.EmailService.getEmailSenderFrom(EmailService.java:126)
+	at com.space.userautomation.services.EmailService.sendMail(EmailService.java:63)
+	at com.space.userautomation.services.EmailService.userCreationSuccessMail(EmailService.java:52)
+	at com.space.userautomation.services.UserService.createUser(UserService.java:127)
+	at com.space.userautomation.controller.UserController.createUser(UserController.java:54)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:190)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:138)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:105)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:879)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:793)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1040)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:660)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:741)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:96)
+	at org.keycloak.adapters.tomcat.AbstractAuthenticatedActionsValve.invoke(AbstractAuthenticatedActionsValve.java:67)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:541)
+	at org.keycloak.adapters.tomcat.AbstractKeycloakAuthenticatorValve.invoke(AbstractKeycloakAuthenticatorValve.java:181)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:139)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:373)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1590)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:748)
+2020-05-26 21:45:27 INFO   - random generatedPaaword is  :CVulzo7y3CRm31CU
+2020-05-26 21:45:27 INFO   - password generator[org.keycloak.representations.idm.CredentialRepresentation@a6e07a7d]
+2020-05-26 21:45:27 INFO   - Keycloak create user response code>>>>201
+2020-05-26 21:45:27 INFO   - User created with userId:d55308ff-0d17-4bf4-a44d-abbc4c810aea
+2020-05-26 21:45:27 INFO   - Username==aditya4 created in keycloak successfully
+2020-05-26 21:45:27 INFO   - Received Request to send mail from the Email Executor.
+2020-05-26 21:45:27 ERROR  - Failed to send mail. 
+java.lang.NullPointerException
+	at com.space.userautomation.services.EmailService.getEmailSenderFrom(EmailService.java:126)
+	at com.space.userautomation.services.EmailService.sendMail(EmailService.java:63)
+	at com.space.userautomation.services.EmailService.userCreationSuccessMail(EmailService.java:52)
+	at com.space.userautomation.services.UserService.createUser(UserService.java:127)
+	at com.space.userautomation.controller.UserController.createUser(UserController.java:54)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:190)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:138)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:105)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:879)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:793)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1040)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:660)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:741)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:96)
+	at org.keycloak.adapters.tomcat.AbstractAuthenticatedActionsValve.invoke(AbstractAuthenticatedActionsValve.java:67)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:541)
+	at org.keycloak.adapters.tomcat.AbstractKeycloakAuthenticatorValve.invoke(AbstractKeycloakAuthenticatorValve.java:181)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:139)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:373)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1590)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:748)
+2020-05-27 11:58:16 INFO   - Create User Api called.
+2020-05-27 12:01:46 INFO   - Create User Api called.
+2020-05-27 12:02:35 INFO   - Create User Api called.
+2020-05-27 12:03:01 INFO   - Create User Api called.
+2020-05-27 12:09:36 INFO   - Create User Api called.
+2020-05-27 12:09:36 ERROR  - Missing mandatory parameter: lastName.
+2020-05-27 12:09:53 INFO   - Create User Api called.
+2020-05-27 12:09:53 ERROR  - Missing mandatory parameter: password.
+2020-05-27 12:09:59 INFO   - Create User Api called.
+2020-05-27 12:09:59 ERROR  - Missing mandatory parameter: email.
+2020-05-27 12:10:05 INFO   - Create User Api called.
+2020-05-27 12:10:27 INFO   - Create User Api called.
+2020-05-27 12:10:45 INFO   - Create User Api called.
+2020-05-27 12:11:01 INFO   - Create User Api called.
+2020-05-27 12:14:30 INFO   - Create User Api called.
+2020-05-27 12:14:30 ERROR  - null
+2020-05-27 12:14:30 ERROR  - null
+2020-05-27 12:15:57 INFO   - Create User Api called.
+2020-05-27 12:15:57 ERROR  - null
+2020-05-27 12:15:57 ERROR  - null
+2020-05-27 12:18:40 INFO   - Create User Api called.
+2020-05-27 12:19:31 ERROR  - null
+2020-05-27 12:19:31 ERROR  - null
+2020-05-27 12:19:56 INFO   - Create User Api called.
+2020-05-27 12:19:59 ERROR  - null
+2020-05-27 12:19:59 ERROR  - null
+2020-05-27 12:20:14 INFO   - Create User Api called.
+2020-05-27 12:20:14 ERROR  - null
+2020-05-27 12:20:14 ERROR  - null
+2020-05-27 12:20:43 INFO   - Create User Api called.
+2020-05-27 12:20:56 ERROR  - null
+2020-05-27 12:20:56 ERROR  - null
+2020-05-27 12:23:26 INFO   - Create User Api called.
+2020-05-27 12:23:26 INFO   - User Details : com.space.userautomation.model.User@147549e9
+2020-05-27 12:23:27 INFO   - Status Code of Keycloak Response : 400
+2020-05-27 12:23:27 ERROR  - Failed to create user.org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine$1@553ec344
+2020-05-27 12:24:32 INFO   - Create User Api called.
+2020-05-27 12:24:39 INFO   - User Details : com.space.userautomation.model.User@75be8e5
+2020-05-27 12:24:43 INFO   - Status Code of Keycloak Response : 400
+2020-05-27 12:26:36 ERROR  - Failed to create user.org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine$1@8317c86
+2020-05-27 12:27:29 INFO   - Create User Api called.
+2020-05-27 12:27:30 INFO   - User Details : com.space.userautomation.model.User@5c4a053c
+2020-05-27 12:27:30 INFO   - Status Code of Keycloak Response : 400
+2020-05-27 12:27:30 ERROR  - Failed to create user.org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine$1@6e68aaa6
+2020-05-27 12:30:44 INFO   - Create User Api called.
+2020-05-27 12:30:44 INFO   - User Details : com.space.userautomation.model.User@42078281
+2020-05-27 12:31:54 INFO   - Status Code of Keycloak Response : 400
+2020-05-27 12:31:54 ERROR  - Failed to create user.org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine$1@7e40588c
+2020-05-27 12:32:30 INFO   - Create User Api called.
+2020-05-27 12:32:30 INFO   - User Details : com.space.userautomation.model.User@5af8566c
+2020-05-27 12:32:30 INFO   - Status Code of Keycloak Response : 400
+2020-05-27 12:32:30 ERROR  - Failed to create user.org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine$1@7445dfb4
+2020-05-27 12:36:10 INFO   - Create User Api called.
+2020-05-27 12:36:10 INFO   - User Details : com.space.userautomation.model.User@a6c69d8
+2020-05-27 12:36:11 INFO   - Status Code of Keycloak Response : 400
+2020-05-27 12:36:11 ERROR  - Failed to create user.org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine$1@4dd941ca
+2020-05-27 12:36:20 INFO   - Create User Api called.
+2020-05-27 12:36:20 INFO   - User Details : com.space.userautomation.model.User@2434e9e3
+2020-05-27 12:36:21 INFO   - Status Code of Keycloak Response : 400
+2020-05-27 12:36:21 ERROR  - Failed to create user.org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine$1@75bb54b
+2020-05-27 12:36:25 INFO   - Create User Api called.
+2020-05-27 12:36:25 INFO   - User Details : com.space.userautomation.model.User@74331bdb
+2020-05-27 12:36:25 INFO   - Status Code of Keycloak Response : 400
+2020-05-27 12:36:25 ERROR  - Failed to create user.org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine$1@3961db6e
+2020-05-27 12:44:01 INFO   - Create User Api called.
+2020-05-27 12:44:01 INFO   - User Details : com.space.userautomation.model.User@2f5d7b5
+2020-05-27 12:44:02 INFO   - Status Code of Keycloak Response : 400
+2020-05-27 12:44:02 ERROR  - Failed to create user.org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine$1@1d804d96
+2020-05-27 12:44:20 INFO   - Create User Api called.
+2020-05-27 12:44:20 INFO   - User Details : com.space.userautomation.model.User@2c71e3d0
+2020-05-27 12:44:21 INFO   - Status Code of Keycloak Response : 400
+2020-05-27 12:44:21 ERROR  - Failed to create user.org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine$1@5b0a0f21
+2020-05-27 12:44:39 INFO   - Create User Api called.
+2020-05-27 12:44:39 INFO   - User Details : com.space.userautomation.model.User@48a3e1f9
+2020-05-27 12:44:40 INFO   - Status Code of Keycloak Response : 400
+2020-05-27 12:44:40 ERROR  - Failed to create user.org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine$1@7edf50ef
+2020-05-27 12:46:04 INFO   - Create User Api called.
+2020-05-27 12:46:04 INFO   - User Details : com.space.userautomation.model.User@cccba2e
+2020-05-27 12:46:07 INFO   - Status Code of Keycloak Response : 400
+2020-05-27 12:46:07 ERROR  - Failed to create user.org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine$1@5726cd76
+2020-05-27 12:47:08 INFO   - Create User Api called.
+2020-05-27 12:47:08 INFO   - User Details : com.space.userautomation.model.User@5bb3da4a
+2020-05-27 12:47:10 INFO   - Status Code of Keycloak Response : 400
+2020-05-27 12:47:10 ERROR  - Failed to create user.org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient4Engine$1@2328b89f
+2020-05-27 12:51:46 INFO   - Create User Api called.
+2020-05-27 12:51:46 INFO   - User Details : com.space.userautomation.model.User@602fa771
+2020-05-27 12:51:47 INFO   - Status Code of Keycloak Response : 201
+2020-05-27 12:51:47 INFO   - User created successfully in keycloak with userId : 48dfa326-8233-4563-89be-82c304ff40bd
+2020-05-27 12:51:47 INFO   - Received Request to send mail from the Email Executor.
+2020-05-27 12:51:47 ERROR  - Failed to send mail. 
+java.lang.NullPointerException
+	at com.space.userautomation.services.EmailService.getEmailSenderFrom(EmailService.java:126)
+	at com.space.userautomation.services.EmailService.sendMail(EmailService.java:63)
+	at com.space.userautomation.services.EmailService.userCreationSuccessMail(EmailService.java:52)
+	at com.space.userautomation.services.UserService.createUser(UserService.java:134)
+	at com.space.userautomation.controller.UserController.createUser(UserController.java:57)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:190)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:138)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:105)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:879)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:793)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1040)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:660)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:741)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:96)
+	at org.keycloak.adapters.tomcat.AbstractAuthenticatedActionsValve.invoke(AbstractAuthenticatedActionsValve.java:67)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:541)
+	at org.keycloak.adapters.tomcat.AbstractKeycloakAuthenticatorValve.invoke(AbstractKeycloakAuthenticatorValve.java:181)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:139)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:373)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1590)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:748)
+2020-05-27 12:53:15 INFO   - Create User Api called.
+2020-05-27 12:53:15 INFO   - User Details : com.space.userautomation.model.User@70c23bb1
+2020-05-27 12:53:16 INFO   - Status Code of Keycloak Response : 201
+2020-05-27 12:53:16 INFO   - User created successfully in keycloak with userId : 34e86695-b9c5-42fa-b1fa-79fa815b0887
+2020-05-27 12:53:16 INFO   - Received Request to send mail from the Email Executor.
+2020-05-27 12:53:16 ERROR  - Failed to send mail. 
+java.lang.NullPointerException
+	at com.space.userautomation.services.EmailService.sendMail(EmailService.java:79)
+	at com.space.userautomation.services.EmailService.userCreationSuccessMail(EmailService.java:52)
+	at com.space.userautomation.services.UserService.createUser(UserService.java:134)
+	at com.space.userautomation.controller.UserController.createUser(UserController.java:57)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:190)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:138)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:105)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:879)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:793)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1040)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:660)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:741)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:96)
+	at org.keycloak.adapters.tomcat.AbstractAuthenticatedActionsValve.invoke(AbstractAuthenticatedActionsValve.java:67)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:541)
+	at org.keycloak.adapters.tomcat.AbstractKeycloakAuthenticatorValve.invoke(AbstractKeycloakAuthenticatorValve.java:181)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:139)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:373)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1590)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:748)
+2020-05-27 12:54:26 INFO   - Create User Api called.
+2020-05-27 12:54:26 INFO   - User Details : com.space.userautomation.model.User@6d63fe7d
+2020-05-27 12:54:27 INFO   - Status Code of Keycloak Response : 409
+2020-05-27 12:54:27 ERROR  - Email = aditya11@gmail.com already present in keycloak
+2020-05-27 12:54:34 INFO   - Create User Api called.
+2020-05-27 12:54:34 INFO   - User Details : com.space.userautomation.model.User@143d0772
+2020-05-27 12:54:35 INFO   - Status Code of Keycloak Response : 201
+2020-05-27 12:54:35 INFO   - User created successfully in keycloak with userId : c04b7ef6-4845-43b2-a17b-a8df60566e17
+2020-05-27 12:54:35 INFO   - Received Request to send mail from the Email Executor.
+2020-05-27 12:54:37 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-27 13:08:07 INFO   - Create User Api called.
+2020-05-27 13:08:07 INFO   - User Details : com.space.userautomation.model.User@43032b51
+2020-05-27 13:08:07 INFO   - Status Code of Keycloak Response : 409
+2020-05-27 13:08:07 ERROR  - Email = aditya12@gmail.com already present in keycloak
+2020-05-27 13:23:06 INFO   - Create User Api called.
+2020-05-27 13:23:07 INFO   - User Details : com.space.userautomation.model.User@3eb74766
+2020-05-27 13:23:07 INFO   - Status Code of Keycloak Response : 201
+2020-05-27 13:23:07 INFO   - User created successfully in keycloak with userId : 890eb652-1315-4cf1-8e5e-73cdd5ca024e
+2020-05-27 13:23:07 INFO   - Received Request to send mail from the Email Executor.
+2020-05-27 13:23:10 ERROR  - Failed to send mail. 
+java.lang.Exception: {"errors":[{"message":"The from address does not match a verified Sender Identity. Mail cannot be sent until this error is resolved. Visit https://sendgrid.com/docs/for-developers/sending-email/sender-identity/ to see the Sender Identity requirements","field":"from","help":null}]}
+	at com.space.userautomation.services.EmailService.sendMail(EmailService.java:115)
+	at com.space.userautomation.services.EmailService.userCreationSuccessMail(EmailService.java:52)
+	at com.space.userautomation.services.UserService.createUser(UserService.java:134)
+	at com.space.userautomation.controller.UserController.createUser(UserController.java:58)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:190)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:138)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:105)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:879)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:793)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1040)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:660)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:741)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:96)
+	at org.keycloak.adapters.tomcat.AbstractAuthenticatedActionsValve.invoke(AbstractAuthenticatedActionsValve.java:67)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:541)
+	at org.keycloak.adapters.tomcat.AbstractKeycloakAuthenticatorValve.invoke(AbstractKeycloakAuthenticatorValve.java:181)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:139)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:373)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1590)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+	at java.lang.Thread.run(Thread.java:748)
+2020-05-27 13:30:57 INFO   - Create User Api called.
+2020-05-27 13:30:58 INFO   - User Details : com.space.userautomation.model.User@70ed3749
+2020-05-27 13:30:58 INFO   - Status Code of Keycloak Response : 201
+2020-05-27 13:30:58 INFO   - User created successfully in keycloak with userId : 952d8e39-a235-4916-966b-4ab7a259560a
+2020-05-27 13:30:58 INFO   - Received Request to send mail from the Email Executor.
+2020-05-27 13:31:00 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-27 13:49:14 INFO   - Create User Api called.
+2020-05-27 13:49:14 INFO   - User Details : com.space.userautomation.model.User@53f56595
+2020-05-27 13:49:15 INFO   - Status Code of Keycloak Response : 201
+2020-05-27 13:49:15 INFO   - User created successfully in keycloak with userId : f945ad49-6b81-44ed-92ce-09c6988e567b
+2020-05-27 13:49:15 INFO   - Received Request to send mail from the Email Executor.
+2020-05-27 13:49:17 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-27 13:49:40 INFO   - Create User Api called.
+2020-05-27 13:49:40 ERROR  - Missing mandatory parameter: firstname.
+2020-05-27 13:49:40 ERROR  - Missing mandatory parameter: firstname.
+2020-05-27 13:56:10 INFO   - Create User Api called.
+2020-05-27 13:56:10 ERROR  - Missing mandatory parameter: firstname.
+2020-05-27 13:56:10 ERROR  - Missing mandatory parameter: firstname.
+2020-05-27 13:56:30 INFO   - Create User Api called.
+2020-05-27 13:56:30 ERROR  - Missing mandatory parameter: password.
+2020-05-27 13:56:30 ERROR  - Missing mandatory parameter: password.
