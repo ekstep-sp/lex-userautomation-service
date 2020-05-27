@@ -2,12 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ec6b6494-7710-46ff-a5b8-455f982621cd" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAutomation/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/UserAutomation/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UserAutomation/logs/data-pipeline.log" beforeDir="false" afterPath="$PROJECT_DIR$/UserAutomation/logs/data-pipeline.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/common/ProjectLogger.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/common/ProjectLogger.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAutomation/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/UserAutomation/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UserAutomation/src/main/resources/logger/log4j.properties" beforeDir="false" afterPath="$PROJECT_DIR$/UserAutomation/src/main/resources/logger/log4j.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/model/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/services/EmailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/services/EmailService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/services/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/services/UserService.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/UserAutomation/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -23,10 +22,19 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/UserAutomation/pom.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="286">
+              <caret line="13" column="31" lean-forward="true" selection-start-line="13" selection-start-column="31" selection-end-line="13" selection-end-column="31" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/services/UserService.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="241">
-              <caret line="80" column="25" selection-start-line="80" selection-start-column="11" selection-end-line="80" selection-end-column="25" />
+            <state relative-caret-position="313">
+              <caret line="100" lean-forward="true" selection-start-line="100" selection-end-line="100" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#9757#9769#0" expanded="true" />
@@ -38,8 +46,30 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/services/EmailService.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="266">
-              <caret line="46" column="27" selection-start-line="46" selection-start-column="27" selection-end-line="46" selection-end-column="27" />
+            <state relative-caret-position="110">
+              <caret line="43" column="39" selection-start-line="43" selection-start-column="16" selection-end-line="43" selection-end-column="39" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/model/User.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="242">
+              <caret line="123" column="22" selection-start-line="123" selection-start-column="22" selection-end-line="123" selection-end-column="22" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#1201#1202#0" expanded="true" />
+                <element signature="e#1228#1229#0" expanded="true" />
+                <element signature="e#1268#1269#0" expanded="true" />
+                <element signature="e#1300#1301#0" expanded="true" />
+                <element signature="e#1456#1457#0" expanded="true" />
+                <element signature="e#1487#1488#0" expanded="true" />
+                <element signature="e#2793#2794#0" expanded="true" />
+                <element signature="e#2881#2882#0" expanded="true" />
+                <element signature="e#2955#2956#0" expanded="true" />
+                <element signature="e#3059#3060#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -54,19 +84,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="jar://$MAVEN_REPOSITORY$/org/keycloak/keycloak-core/9.0.2/keycloak-core-9.0.2.jar!/org/keycloak/representations/adapters/config/AdapterConfig.class">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="134">
-              <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/controller/UserController.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="297">
-              <caret line="63" column="33" lean-forward="true" selection-start-line="63" selection-end-line="64" />
+            <state relative-caret-position="319">
+              <caret line="64" column="33" lean-forward="true" selection-start-line="64" selection-start-column="33" selection-end-line="64" selection-end-column="33" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -101,11 +122,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/UserAutomation/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="374">
-              <caret line="17" column="6" selection-start-line="17" selection-start-column="6" selection-end-line="17" selection-end-column="6" />
+            <state relative-caret-position="330">
+              <caret line="15" column="6" lean-forward="true" selection-start-line="15" selection-start-column="6" selection-end-line="15" selection-end-column="6" />
             </state>
           </provider>
         </entry>
@@ -142,9 +163,11 @@
       <find>keycloak.auth-server-url</find>
       <find>server.port</find>
       <find>application</find>
+      <find>targer</find>
       <find>from</find>
       <find>validateUserDetails</find>
-      <find>targer</find>
+      <find>reply</find>
+      <find>userCreationSuccessMail</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -158,15 +181,15 @@
         <option value="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/common/logger/LoggerEnum.java" />
         <option value="$PROJECT_DIR$/UserAutomation/pom.xml" />
         <option value="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/services/ExcelReader.java" />
-        <option value="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/model/User.java" />
-        <option value="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/services/EmailService.java" />
-        <option value="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/services/UserService.java" />
-        <option value="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/controller/UserController.java" />
         <option value="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/KeycloakConfig.java" />
         <option value="$PROJECT_DIR$/UserAutomation/src/main/resources/application.properties" />
         <option value="$PROJECT_DIR$/UserAutomation/src/main/resources/logger/log4j.properties" />
         <option value="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/common/ProjectLogger.java" />
         <option value="$PROJECT_DIR$/UserAutomation/.gitignore" />
+        <option value="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/controller/UserController.java" />
+        <option value="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/services/EmailService.java" />
+        <option value="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/services/UserService.java" />
+        <option value="$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/model/User.java" />
       </list>
     </option>
   </component>
@@ -202,10 +225,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="67" />
-    <option name="y" value="25" />
-    <option name="width" value="927" />
-    <option name="height" value="1055" />
+    <option name="x" value="85" />
+    <option name="y" value="70" />
+    <option name="width" value="1813" />
+    <option name="height" value="789" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -333,7 +356,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1590583283763" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1590590258191" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../newCaminoProject/sunbird-utils" />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
@@ -387,6 +410,7 @@
                 <entry key="keycloak.ssl-required" value="none" />
                 <entry key="keycloak.use-resource-role-mappings" value="true" />
                 <entry key="logger_path" value="$PROJECT_DIR$/UserAutomation/logs/data-pipeline.log" />
+                <entry key="reply_to" value="info@actionforimpact.io" />
                 <entry key="send_from" value="info@actionforimpact.io" />
                 <entry key="send_to" value="adityagoenka94@gmail.com" />
                 <entry key="sendgrid_activate" value="true" />
@@ -476,12 +500,12 @@
       <window_info anchor="bottom" id="Messages" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32972974" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.53405404" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.53405404" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="7" visible="true" weight="0.40756756" />
+      <window_info anchor="bottom" id="Terminal" order="7" weight="0.40756756" />
       <window_info anchor="bottom" id="Event Log" order="8" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="9" />
       <window_info anchor="bottom" id="Spring" order="10" />
@@ -508,7 +532,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/services/UserService.java</url>
-          <line>125</line>
+          <line>126</line>
           <properties />
           <option name="timeStamp" value="5" />
         </line-breakpoint>
@@ -633,28 +657,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/model/User.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="352">
-          <caret line="130" column="46" lean-forward="true" selection-start-line="130" selection-start-column="46" selection-end-line="130" selection-end-column="46" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#652#653#0" expanded="true" />
-            <element signature="e#680#681#0" expanded="true" />
-            <element signature="e#724#725#0" expanded="true" />
-            <element signature="e#758#759#0" expanded="true" />
-            <element signature="e#545#546#0" expanded="true" />
-            <element signature="e#575#576#0" expanded="true" />
-            <element signature="e#621#622#0" expanded="true" />
-            <element signature="e#659#660#0" expanded="true" />
-            <element signature="e#1838#1839#0" expanded="true" />
-            <element signature="e#1873#1874#0" expanded="true" />
-            <element signature="e#1929#1930#0" expanded="true" />
-            <element signature="e#1977#1978#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/common/logger/ProjectLogger.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="188">
@@ -672,13 +674,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/UserAutomation/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="124">
-          <caret line="178" column="31" lean-forward="true" selection-start-line="178" selection-start-column="31" selection-end-line="178" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/org/keycloak/keycloak-core/9.0.2/keycloak-core-9.0.2.jar!/org/keycloak/representations/adapters/config/AdapterConfig.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="134">
@@ -693,38 +688,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/services/EmailService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="266">
-          <caret line="46" column="27" selection-start-line="46" selection-start-column="27" selection-end-line="46" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/services/UserService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="241">
-          <caret line="80" column="25" selection-start-line="80" selection-start-column="11" selection-end-line="80" selection-end-column="25" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#9757#9769#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/KeycloakConfig.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="267">
           <caret line="24" column="36" selection-start-line="24" selection-start-column="36" selection-end-line="24" selection-end-column="36" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/controller/UserController.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="297">
-          <caret line="63" column="33" lean-forward="true" selection-start-line="63" selection-end-line="64" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -761,8 +728,63 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/UserAutomation/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="17" column="6" selection-start-line="17" selection-start-column="6" selection-end-line="17" selection-end-column="6" />
+        <state relative-caret-position="330">
+          <caret line="15" column="6" lean-forward="true" selection-start-line="15" selection-start-column="6" selection-end-line="15" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/controller/UserController.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="319">
+          <caret line="64" column="33" lean-forward="true" selection-start-line="64" selection-start-column="33" selection-end-line="64" selection-end-column="33" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/UserAutomation/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="286">
+          <caret line="13" column="31" lean-forward="true" selection-start-line="13" selection-start-column="31" selection-end-line="13" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/services/EmailService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="110">
+          <caret line="43" column="39" selection-start-line="43" selection-start-column="16" selection-end-line="43" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/services/UserService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="313">
+          <caret line="100" lean-forward="true" selection-start-line="100" selection-end-line="100" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#9757#9769#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/UserAutomation/src/main/java/com/space/userautomation/model/User.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="242">
+          <caret line="123" column="22" selection-start-line="123" selection-start-column="22" selection-end-line="123" selection-end-column="22" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1201#1202#0" expanded="true" />
+            <element signature="e#1228#1229#0" expanded="true" />
+            <element signature="e#1268#1269#0" expanded="true" />
+            <element signature="e#1300#1301#0" expanded="true" />
+            <element signature="e#1456#1457#0" expanded="true" />
+            <element signature="e#1487#1488#0" expanded="true" />
+            <element signature="e#2793#2794#0" expanded="true" />
+            <element signature="e#2881#2882#0" expanded="true" />
+            <element signature="e#2955#2956#0" expanded="true" />
+            <element signature="e#3059#3060#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

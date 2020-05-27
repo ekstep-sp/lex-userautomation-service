@@ -541,3 +541,51 @@ java.lang.Exception: {"errors":[{"message":"The from address does not match a ve
 2020-05-27 18:08:09 INFO   - User created successfully in keycloak with userId : 20388512-20c7-4763-96c5-d89b397e19c5
 2020-05-27 18:08:09 INFO   - Received Request to send mail from the Email Executor.
 2020-05-27 18:08:11 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-27 19:56:51 INFO   - Create User Api called.
+2020-05-27 19:56:52 INFO   - User Details : com.space.userautomation.model.User@5be7fcc0
+2020-05-27 19:56:52 INFO   - Status Code of Keycloak Response : 201
+2020-05-27 19:56:52 INFO   - User created successfully in keycloak with userId : 8f6bc04b-191e-43da-9017-26539a745b00
+2020-05-27 19:56:52 INFO   - Received Request to send mail from the Email Executor.
+2020-05-27 19:56:54 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-27 19:58:21 INFO   - Create User Api called.
+2020-05-27 19:58:21 INFO   - User Details : com.space.userautomation.model.User@21776743
+2020-05-27 19:58:22 INFO   - Status Code of Keycloak Response : 201
+2020-05-27 19:58:22 INFO   - User created successfully in keycloak with userId : 315c285f-828e-441f-b10f-ac5728435cb4
+2020-05-27 19:58:22 INFO   - Received Request to send mail from the Email Executor.
+2020-05-27 19:58:24 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-27 19:58:37 INFO   - Create User Api called.
+2020-05-27 19:58:38 INFO   - User Details : com.space.userautomation.model.User@1d4eb438
+2020-05-27 19:58:38 INFO   - Status Code of Keycloak Response : 409
+2020-05-27 19:58:38 ERROR  - Email = aditya25@gmail.com already present in keycloak
+2020-05-27 19:58:44 INFO   - Create User Api called.
+2020-05-27 19:58:44 INFO   - User Details : com.space.userautomation.model.User@7bc6c2b4
+2020-05-27 19:58:44 INFO   - Status Code of Keycloak Response : 201
+2020-05-27 19:58:44 INFO   - User created successfully in keycloak with userId : 61ddb65c-f0e4-4298-93b5-461e0f5c0d5a
+2020-05-27 19:58:44 INFO   - Received Request to send mail from the Email Executor.
+2020-05-27 19:58:46 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-27 20:05:53 INFO   - Create User Api called.
+2020-05-27 20:05:53 INFO   - User Details : com.space.userautomation.model.User@6beb3845
+2020-05-27 20:05:54 INFO   - Status Code of Keycloak Response : 409
+2020-05-27 20:05:54 ERROR  - Email = aditya26@gmail.com already present in keycloak
+2020-05-27 20:05:58 INFO   - Create User Api called.
+2020-05-27 20:05:58 INFO   - User Details : com.space.userautomation.model.User@1ad02d7
+2020-05-27 20:05:58 INFO   - Status Code of Keycloak Response : 201
+2020-05-27 20:05:58 INFO   - User created successfully in keycloak with userId : 231eeaa3-6323-45cf-968b-e77fa8df2070
+2020-05-27 20:05:58 INFO   - Received Request to send mail from the Email Executor.
+2020-05-27 20:06:00 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-27 20:06:23 INFO   - Create User Api called.
+2020-05-27 20:06:23 INFO   - User Details : com.space.userautomation.model.User@14cac139
+2020-05-27 20:06:23 INFO   - Status Code of Keycloak Response : 201
+2020-05-27 20:06:23 INFO   - User created successfully in keycloak with userId : 7e398fe9-ccb9-4841-98ee-2cbfd76e145a
+2020-05-27 20:06:23 INFO   - Received Request to send mail from the Email Executor.
+2020-05-27 20:06:25 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-27 20:07:42 INFO   - Create User Api called.
+2020-05-27 20:07:43 INFO   - User Details : com.space.userautomation.model.User@2a70d49b
+2020-05-27 20:07:43 INFO   - Status Code of Keycloak Response : 409
+2020-05-27 20:07:43 ERROR  - Email = aditya28@gmail.com already present in keycloak
+2020-05-27 20:07:48 INFO   - Create User Api called.
+2020-05-27 20:07:48 INFO   - User Details : com.space.userautomation.model.User@10917991
+2020-05-27 20:07:49 INFO   - Status Code of Keycloak Response : 201
+2020-05-27 20:07:49 INFO   - User created successfully in keycloak with userId : 6e2889f0-635e-4f7c-8ca8-22765ce574c5
+2020-05-27 20:07:49 INFO   - Received Request to send mail from the Email Executor.
+2020-05-27 20:07:51 INFO   - Successfully sent the mail. Response Code : 202

@@ -30,10 +30,8 @@ import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
-import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -92,8 +90,9 @@ public class UserService  {
             CredentialRepresentation passwordCred = new CredentialRepresentation();
             passwordCred.setTemporary(false);
             passwordCred.setType(CredentialRepresentation.PASSWORD);
-//            String password = generateRandomPassword(16,22,122);
-            passwordCred.setValue(user.getPassword());
+            String password = generateRandomPassword(16,22,122);
+            passwordCred.setValue(password);
+            user.setPassword(password);
            // System.out.println("password cred" + passwordCred);
 //            ProjectLogger.log ("random generatedPaaword is  :"   +passwordCred.getValue(),LoggerEnum.INFO.name());
 
@@ -105,7 +104,9 @@ public class UserService  {
 //            userRep.setUsername(user.getUsername());
             userRep.setEmail(user.getEmail());
             userRep.setFirstName(user.getFirstName());
-            userRep.setLastName(user.getLastName());
+            if(user.getLastName().length() > 0) {
+                userRep.setLastName(user.getLastName());
+            }
             userRep.setUsername(user.getEmail());
             userRep.setEnabled(false);
             userRep.setEmailVerified(false);
@@ -132,7 +133,7 @@ public class UserService  {
                 String userId = result.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
                 ProjectLogger.log("User created successfully in keycloak with userId : " + userId, LoggerEnum.INFO.name());
                 new EmailService().userCreationSuccessMail(user.getEmail(), user.getPassword());
-                return getSuccessResponse(userId);
+                return getSuccessResponse(userId, password);
 //                // set role
 //                RealmResource realmResource = getRealmResource();
 //                RoleRepresentation savedRoleRepresentation = realmResource.roles().get("user").toRepresentation();
@@ -156,18 +157,15 @@ public class UserService  {
         }
 
     public void validateUserDetails(User user) throws Exception {
-        if(StringUtils.isEmpty(user.getFirstName())) {
-            throw new Exception("Missing mandatory parameter: firstname.");
-        }
-        if(StringUtils.isEmpty(user.getLastName())) {
-            throw new Exception("Missing mandatory parameter: lastName.");
+        if(StringUtils.isEmpty(user.getName())) {
+            throw new Exception("Missing mandatory parameter: name.");
         }
         if(StringUtils.isEmpty(user.getEmail())) {
             throw new Exception("Missing mandatory parameter: email.");
         }
-        if(StringUtils.isEmpty(user.getPassword())) {
-            throw new Exception("Missing mandatory parameter: password.");
-        }
+//        if(StringUtils.isEmpty(user.getPassword())) {
+//            throw new Exception("Missing mandatory parameter: password.");
+//        }
     }
 
     private UsersResource getKeycloakUserResource() {
@@ -226,7 +224,7 @@ public class UserService  {
     public ResponseEntity<JSONObject> getFailedResponse(String message) {
         ProjectLogger.log(message, LoggerEnum.ERROR.name());
         JSONObject response = new JSONObject();
-        response.put("status", "failed");
+        response.put("status", "failure");
         response.put("error", message);
 //        HttpHeaders headers = new HttpHeaders();
 //        headers.put("Content-Type", Arrays.asList("application/json; charset=utf-8"));
@@ -237,7 +235,7 @@ public class UserService  {
 
     public ResponseEntity<JSONObject> getFailedResponse(String message, int statusCode) {
         JSONObject response = new JSONObject();
-        response.put("status", "failed");
+        response.put("status", "failure");
         response.put("error", message);
 //        HttpHeaders headers = new HttpHeaders();
 //        headers.put("Content-Type", Arrays.asList("application/json; charset=utf-8"));
@@ -246,10 +244,11 @@ public class UserService  {
         return failedResponse;
     }
 
-    public ResponseEntity<JSONObject> getSuccessResponse(String userId) {
+    public ResponseEntity<JSONObject> getSuccessResponse(String userId, String password) {
         JSONObject response = new JSONObject();
         response.put("status", "success");
         response.put("userId", userId);
+//        response.put("password", password);
 //        HttpHeaders headers = new HttpHeaders();
 //        headers.put("Content-Type", Arrays.asList("application/json; charset=utf-8"));
         ResponseEntity<JSONObject> successReponse = new ResponseEntity<>(response, HttpStatus.OK);

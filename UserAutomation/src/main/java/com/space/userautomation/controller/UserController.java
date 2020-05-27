@@ -55,6 +55,7 @@ public class UserController {
     public ResponseEntity<?> createUser(@RequestBody User userDTO) {
         ProjectLogger.log("Create User Api called.", LoggerEnum.INFO.name());
         try {
+
             return userService.createUser(userDTO);
            // JSONObject response = userService.createUser(userDTO);
           //  return new ResponseEntity<JSONObject>(response,HttpStatus.OK);

@@ -53,7 +53,6 @@ public class EmailService {
         } catch (Exception e) {
             System.out.println("Error in run."+ e);
         }
-
     }
 
     public void sendMail(String subject, String body, String emailTo) {
@@ -95,7 +94,7 @@ public class EmailService {
             // creae the mail object and initialize it
             Mail mail = new Mail();
             mail.setFrom(from);
-            Email replyTo = new Email("info@actionforimpact.io");
+            Email replyTo = new Email(System.getenv("reply_to"));
             mail.setReplyTo(replyTo);
 
             // add subject to mail

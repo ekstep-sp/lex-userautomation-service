@@ -16,6 +16,8 @@ public class User implements Serializable {
 
     private String email;
 
+    private String name;
+
     private String firstName;
 
     private String lastName;
@@ -55,6 +57,14 @@ public class User implements Serializable {
 //    }
 
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public List<CredentialRepresentation> credentials;
 
     public List<CredentialRepresentation> getCredentials() {
@@ -83,7 +93,6 @@ public class User implements Serializable {
     }
 
     public User()
-
     {
 
     }
@@ -91,20 +100,36 @@ public class User implements Serializable {
 
 
     public String getFirstName() {
+
+        String firstName = name.split(" ")[0];
+        this.firstName = firstName;
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+//    public void setFirstName(String firstName) {
+//        this.firstName = firstName;
+//    }
 
     public String getLastName() {
-        return lastName;
+        try {
+            if(name.indexOf(" ") > 0) {
+                String lastName = name.substring(name.indexOf(" ") + 1);
+                if (lastName.length() > 0) {
+                    this.lastName = lastName;
+                } else {
+                    this.lastName = "";
+                }
+                return this.lastName;
+            }
+            return "";
+        } catch (Exception e) {
+            return "";
+        }
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+//    public void setLastName(String lastName) {
+//        this.lastName = lastName;
+//    }
 
     public String getPassword() {
         return password;
@@ -126,8 +151,9 @@ public class User implements Serializable {
     public Map<String, String> toMap() {
         Map<String, String> userDetails = new HashMap<>();
         userDetails.put("email", email);
-        userDetails.put("firstName", firstName);
-        userDetails.put("lastName", lastName);
+        userDetails.put("name", name);
+        userDetails.put("firstName", this.getFirstName());
+        userDetails.put("lastName", this.getLastName());
         userDetails.put("password", password);
 
         return userDetails;
