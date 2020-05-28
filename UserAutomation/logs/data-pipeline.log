@@ -589,3 +589,39 @@ java.lang.Exception: {"errors":[{"message":"The from address does not match a ve
 2020-05-27 20:07:49 INFO   - User created successfully in keycloak with userId : 6e2889f0-635e-4f7c-8ca8-22765ce574c5
 2020-05-27 20:07:49 INFO   - Received Request to send mail from the Email Executor.
 2020-05-27 20:07:51 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-28 09:46:01 INFO   - Create User Api called.
+2020-05-28 09:46:02 INFO   - User Details : com.space.userautomation.model.User@245e6521
+2020-05-28 09:46:05 INFO   - Status Code of Keycloak Response : 201
+2020-05-28 09:46:05 INFO   - User created successfully in keycloak with userId : 5023108a-ac4c-4cd1-b436-4c151c3ad971
+2020-05-28 09:46:05 INFO   - Received Request to send mail from the Email Executor.
+2020-05-28 09:46:07 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-28 09:47:18 INFO   - Create User Api called.
+2020-05-28 09:47:18 INFO   - User Details : com.space.userautomation.model.User@4afaa49c
+2020-05-28 09:47:19 INFO   - Status Code of Keycloak Response : 201
+2020-05-28 09:47:19 INFO   - User created successfully in keycloak with userId : 095c90d2-ee1f-4c71-974c-b12191be318e
+2020-05-28 09:47:19 INFO   - Received Request to send mail from the Email Executor.
+2020-05-28 09:47:20 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-28 09:50:48 INFO   - Create User Api called.
+2020-05-28 09:50:48 INFO   - User Details : com.space.userautomation.model.User@77d5b66b
+2020-05-28 09:50:49 INFO   - Status Code of Keycloak Response : 201
+2020-05-28 09:50:49 INFO   - User created successfully in keycloak with userId : 8713f4dd-2c92-48f8-93d1-5f4426a09c58
+2020-05-28 09:50:49 INFO   - Received Request to send mail from the Email Executor.
+2020-05-28 09:50:51 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-28 09:56:58 INFO   - Create User Api called.
+2020-05-28 09:56:59 INFO   - User Details : com.space.userautomation.model.User@218aeb88
+2020-05-28 09:56:59 INFO   - Status Code of Keycloak Response : 201
+2020-05-28 09:56:59 INFO   - User created successfully in keycloak with userId : ee86d836-fac7-49db-a662-02619ca8e3e6
+2020-05-28 09:56:59 INFO   - Received Request to send mail from the Email Executor.
+2020-05-28 09:57:04 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-28 10:03:37 INFO   - Create User Api called.
+2020-05-28 10:03:37 INFO   - User Details : com.space.userautomation.model.User@7e421d8c
+2020-05-28 10:03:38 INFO   - Status Code of Keycloak Response : 201
+2020-05-28 10:03:38 INFO   - User created successfully in keycloak with userId : a4cef591-b09e-4134-8afe-a6cdaf5c3133
+2020-05-28 10:03:38 INFO   - Received Request to send mail from the Email Executor.
+2020-05-28 10:03:40 INFO   - Successfully sent the mail. Response Code : 202
+2020-05-28 10:04:46 INFO   - Create User Api called.
+2020-05-28 10:04:47 INFO   - User Details : com.space.userautomation.model.User@27d592ed
+2020-05-28 10:04:48 INFO   - Status Code of Keycloak Response : 201
+2020-05-28 10:04:48 INFO   - User created successfully in keycloak with userId : e1f08d00-cb50-4bf9-b9cd-dd0cbb5ea067
+2020-05-28 10:04:48 INFO   - Received Request to send mail from the Email Executor.
+2020-05-28 10:04:49 INFO   - Successfully sent the mail. Response Code : 202

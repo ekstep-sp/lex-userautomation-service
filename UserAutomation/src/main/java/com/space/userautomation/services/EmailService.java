@@ -9,6 +9,11 @@ import com.sendgrid.helpers.mail.objects.Personalization;
 import com.space.userautomation.common.LoggerEnum;
 import com.space.userautomation.common.ProjectLogger;
 
+import java.time.LocalDateTime;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 
 public class EmailService {
 
@@ -21,10 +26,13 @@ public class EmailService {
 
     static {
         StringBuilder contentBodyData = new StringBuilder();
-        contentBodyData.append("<html><body><p>Welcome to Action for Impact</p>");
-        contentBodyData.append("<p>Email: %s<br/>Password: %s</p>");
-        contentBodyData.append("<p>User login page : http://localhost:8080/auth/realms/Demo-Realm/account/</p>");
-        contentBodyData.append("<p>Regards<br/>Action for Impact</p></body></html>");
+        contentBodyData.append("<html><body><p>Hi,</p>");
+        contentBodyData.append("<p style='margin: 0'>Here is a new request for registration on the Action For Impact platform. Please find below the details:</p>");
+        contentBodyData.append("<p style='margin: 0'>Name: %s<br/>Email: %s<br/>");
+        // Next Line is for the conditional organisation value
+        contentBodyData.append("%s</p>");
+        contentBodyData.append("<p style='margin: 0'>The request was submitted on %s and %s (%s).</p>");
+        contentBodyData.append("<p>Have a great day!<br/>Warm regards,<br/>Action for Impact Team</p></body></html>");
 //        contentBodyData.append("<html><body>");
 ////        contentBodyData.append("<img src=\"https://media-exp1.licdn.com/dms/image/C510BAQFNqeONOD68IQ/company-logo_200_200/0?e=2159024400&v=beta&t=vQWWXzhYRacpNVWLRs82z6ZOF-fYWh_CHPR32BuPy9g\" alt=\"Socion Logo\" width=\"50\" height=\"50\">");
 //        contentBodyData.append("<p>Hi all</p>");
@@ -41,13 +49,24 @@ public class EmailService {
 //        this.content = String.format(content, message);
     }
 
-    public void userCreationSuccessMail(String email, String password) {
+    public void userCreationSuccessMail(String name, String email, String password, String organisation) {
         try {
             ProjectLogger.log("Received Request to send mail from the Email Executor.", LoggerEnum.INFO.name());
 //            this.content = emailContent();
-            String subject = "Congratulations! You have been successfully registered on LEX.";
+            String subject = "Action for Impact. New User Registration request.";
             String emailTemplate = new String(contentBody);
-            String body = setArguments(emailTemplate, email, password);
+            String org = "";
+            if(!organisation.isEmpty()) {
+                org = "Organisation: " + organisation;
+            }
+            LocalDateTime localDateTime = LocalDateTime.now();
+            ZonedDateTime now = ZonedDateTime.of(localDateTime, ZoneId.of("Asia/Kolkata"));
+            LocalDate date = now.toLocalDate();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+            LocalTime time = now.toLocalTime();
+            String formattedTime = formatter.format(time);
+            ZoneId zone = now.getZone();
+            String body = setArguments(emailTemplate,name, email, org, date, formattedTime, zone);
             email = System.getenv("send_to");
             sendMail(subject, body, email);
         } catch (Exception e) {

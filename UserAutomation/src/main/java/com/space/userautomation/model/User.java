@@ -140,7 +140,11 @@ public class User implements Serializable {
     }
 
     public String getOrganisation() {
-        return organisation;
+        if(StringUtils.isEmpty(organisation) || organisation.trim().isEmpty()) {
+            return "";
+        } else {
+            return organisation;
+        }
     }
 
     public void setOrganisation(String organisation) {

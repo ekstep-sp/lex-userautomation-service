@@ -132,7 +132,7 @@ public class UserService  {
             if (statusId == 201) {
                 String userId = result.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
                 ProjectLogger.log("User created successfully in keycloak with userId : " + userId, LoggerEnum.INFO.name());
-                new EmailService().userCreationSuccessMail(user.getEmail(), user.getPassword());
+                new EmailService().userCreationSuccessMail(user.getName(), user.getEmail(), user.getPassword(), user.getOrganisation());
                 return getSuccessResponse(userId, password);
 //                // set role
 //                RealmResource realmResource = getRealmResource();
