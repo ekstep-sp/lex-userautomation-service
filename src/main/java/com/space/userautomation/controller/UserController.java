@@ -7,7 +7,6 @@ import com.space.userautomation.model.User;
 import com.space.userautomation.model.UserCredentials;
 import com.space.userautomation.services.ExcelReader;
 import com.space.userautomation.services.UserService;
-import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
-import java.security.Principal;
 import java.util.*;
 
 @RestController

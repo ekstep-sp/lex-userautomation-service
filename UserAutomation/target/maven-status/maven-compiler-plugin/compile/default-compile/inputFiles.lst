@@ -1,9 +1,0 @@
-/home/aditya/project/UserAutomation/UserAutomation/src/main/java/com/space/userautomation/model/User.java
-/home/aditya/project/UserAutomation/UserAutomation/src/main/java/com/space/userautomation/UserAutomationApplication.java
-/home/aditya/project/UserAutomation/UserAutomation/src/main/java/com/space/userautomation/controller/UserController.java
-/home/aditya/project/UserAutomation/UserAutomation/src/main/java/com/space/userautomation/services/UserService.java
-/home/aditya/project/UserAutomation/UserAutomation/src/main/java/com/space/userautomation/services/EmailService.java
-/home/aditya/project/UserAutomation/UserAutomation/src/main/java/com/space/userautomation/common/LoggerEnum.java
-/home/aditya/project/UserAutomation/UserAutomation/src/main/java/com/space/userautomation/model/UserCredentials.java
-/home/aditya/project/UserAutomation/UserAutomation/src/main/java/com/space/userautomation/services/ExcelReader.java
-/home/aditya/project/UserAutomation/UserAutomation/src/main/java/com/space/userautomation/common/ProjectLogger.java
