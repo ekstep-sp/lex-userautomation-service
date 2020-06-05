@@ -27,16 +27,47 @@ public class User implements Serializable {
     private String organisation;
 
     private String appleId;
+    
+    private String root_org;
+    
+    private String user_id;
 
-    private String[] roles;
+    public String getApiId() {
+        return apiId;
+    }
 
-    public String[] getRoles() {
+    public void setApiId(String apiId) {
+        this.apiId = apiId;
+    }
+
+    private String apiId;
+    public String getRoot_org() {
+        return root_org;
+    }
+
+    public List<String> getRoles() {
         return roles;
     }
 
-    public void setRoles(String[] roles) {
+    public void setRoles(List<String> roles) {
         this.roles = roles;
     }
+
+    public void setRoot_org(String root_org) {
+        this.root_org = root_org;
+    }
+
+    public String getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
+    }
+
+    private List<String> roles;
+
+
 
     public String getAppleId() {
         return appleId;
@@ -76,6 +107,7 @@ public class User implements Serializable {
     }
 
 
+    
     public String getUsername() {
         return username;
     }
@@ -96,7 +128,10 @@ public class User implements Serializable {
     {
 
     }
-
+public User(List<String> roles)
+{
+    this.roles = roles;
+}
 
 
     public String getFirstName() {
@@ -105,6 +140,7 @@ public class User implements Serializable {
         this.firstName = firstName;
         return firstName;
     }
+    
 
 //    public void setFirstName(String firstName) {
 //        this.firstName = firstName;
@@ -161,6 +197,14 @@ public class User implements Serializable {
         userDetails.put("password", password);
 
         return userDetails;
+    }
+    
+    public Map<String,Object> toMapUserRole(){
+        Map<String,Object> userData = new HashMap<String, Object>();
+        userData.put("root_org",this.getRoot_org());
+        userData.put("user_id", this.getUser_id());
+        userData.put("roles", this.getRoles());
+        return userData;
     }
 
     public Map<String, List<String>> getAttributes() {

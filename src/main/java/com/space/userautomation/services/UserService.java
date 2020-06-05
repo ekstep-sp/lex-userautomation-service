@@ -4,15 +4,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
 
 import com.space.userautomation.common.LoggerEnum;
+import com.space.userautomation.database.cassandra.Cassandra;
 import com.space.userautomation.model.User;
 import com.space.userautomation.model.UserCredentials;
 import org.apache.http.HttpResponse;
@@ -20,11 +18,15 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.json.simple.JSONObject;
 import com.space.userautomation.common.ProjectLogger;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -53,7 +55,6 @@ public class UserService  {
     @Value("${keycloak.realm}")
     private String REALM;
 
-
     public String getToken(UserCredentials userCredentials) {
 
         String responseToken = null;
@@ -77,7 +78,7 @@ public class UserService  {
 
     }
     public ResponseEntity<JSONObject> createUser(User user) throws IOException{
-   // public JSONObject createUser(User user) throws IOException{
+        // public JSONObject createUser(User user) throws IOException{
 
         try {
             validateUserDetails(user);
@@ -86,6 +87,7 @@ public class UserService  {
             return getFailedResponse(e.getMessage());
         }
         try {
+//            String userPassword = user.getPassword();
             // Define password credential
             CredentialRepresentation passwordCred = new CredentialRepresentation();
             passwordCred.setTemporary(false);
@@ -93,7 +95,7 @@ public class UserService  {
             String password = generateRandomPassword(16,22,122);
             passwordCred.setValue(password);
             user.setPassword(password);
-           // System.out.println("password cred" + passwordCred);
+            // System.out.println("password cred" + passwordCred);
 //            ProjectLogger.log ("random generatedPaaword is  :"   +passwordCred.getValue(),LoggerEnum.INFO.name());
 
 
@@ -130,6 +132,8 @@ public class UserService  {
 
 
             if (statusId == 201) {
+//                user.setPassword(userPassword);
+//                createUserRole(user);
                 String userId = result.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
                 ProjectLogger.log("User created successfully in keycloak with userId : " + userId, LoggerEnum.INFO.name());
                 new EmailService().userCreationSuccessMail(user.getName(), user.getEmail(), user.getPassword(), user.getOrganisation());
@@ -142,19 +146,19 @@ public class UserService  {
 //                ProjectLogger.log("Username==" + user.getUsername() + " created in keycloak successfully", LoggerEnum.INFO.name());
             }
 
-                else if (statusId == 409) {
+            else if (statusId == 409) {
                 ProjectLogger.log ("Email = " + user.getEmail() + " already present in keycloak",LoggerEnum.ERROR.name());
                 return getFailedResponse("Eamil already present.", 409);
-                } else {
+            } else {
                 ProjectLogger.log("Failed to create user." + result,LoggerEnum.ERROR.name());
                 return getFailedResponse("Unable to create user now. Please check the logs", 500);
             }
 
-            } catch (Exception e) {
+        } catch (Exception e) {
             ProjectLogger.log(e.getMessage(), LoggerEnum.ERROR.name());
             return getFailedResponse(e.getMessage());
-            }
         }
+    }
 
     public void validateUserDetails(User user) throws Exception {
         if(StringUtils.isEmpty(user.getName())) {
@@ -255,6 +259,4 @@ public class UserService  {
 
         return successReponse;
     }
-
-
 }
