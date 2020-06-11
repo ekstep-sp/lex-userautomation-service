@@ -49,21 +49,21 @@ public class UserController {
 
     }
 
-    @RequestMapping(value = "/v1/create", method = RequestMethod.POST)
-    public ResponseEntity<?> createUser(@RequestBody User userDTO) {
-        ProjectLogger.log("Create User Api called.", LoggerEnum.INFO.name());
-        try {
-
-            return userService.createUser(userDTO);
-           // JSONObject response = userService.createUser(userDTO);
-          //  return new ResponseEntity<JSONObject>(response,HttpStatus.OK);
-//            return new ResponseEntity<>(HttpStatus.CREATED);
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
+//    @RequestMapping(value = "/v1/create", method = RequestMethod.POST)
+//    public ResponseEntity<?> createUser(@RequestBody User userDTO) {
+//        ProjectLogger.log("Create User Api called.", LoggerEnum.INFO.name());
+//        try {
+//
+//            return userService.createUser(userDTO);
+//           // JSONObject response = userService.createUser(userDTO);
+//          //  return new ResponseEntity<JSONObject>(response,HttpStatus.OK);
+////            return new ResponseEntity<>(HttpStatus.CREATED);
+//        }
+//        catch (Exception ex) {
+//            ex.printStackTrace();
+//            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+//        }
+//    }
 
     @RequestMapping(value = "/uploadexcelfile", method = RequestMethod.POST, consumes = {"multipart/form-data"})
     public ResponseEntity<?> uploadExcelfile(@RequestBody File input) {
@@ -83,7 +83,7 @@ public class UserController {
             }
 
             for(User user: userList) {
-                userService.createUser(user);
+                userService.createNewUser(user);
             }
 
             return new ResponseEntity<>(HttpStatus.OK);

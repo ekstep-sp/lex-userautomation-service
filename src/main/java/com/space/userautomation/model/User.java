@@ -30,7 +30,19 @@ public class User implements Serializable {
     
     private String root_org;
     
+    
     private String user_id;
+    
+    private String wid_OrgAdmin;
+
+
+    public String getWid_OrgAdmin() {
+        return wid_OrgAdmin;
+    }
+
+    public void setWid_OrgAdmin(String wid_OrgAdmin) {
+        this.wid_OrgAdmin = wid_OrgAdmin;
+    }
 
     public String getApiId() {
         return apiId;

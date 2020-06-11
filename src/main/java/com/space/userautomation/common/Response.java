@@ -3,6 +3,8 @@ package com.space.userautomation.common;
 import org.json.simple.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -93,4 +95,9 @@ public class Response {
         ResponseEntity<JSONObject> responseData = new ResponseEntity<JSONObject>(response, status);
         return responseData;
     }
+    
+     public String getApiId(){
+         UriComponentsBuilder builder = ServletUriComponentsBuilder.fromCurrentRequest();
+         return (builder.buildAndExpand().getPath());
+     }
 }
