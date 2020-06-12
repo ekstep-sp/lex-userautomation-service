@@ -1,7 +1,10 @@
 package com.space.userautomation.services;
 
+import com.space.userautomation.common.LoggerEnum;
+import com.space.userautomation.common.ProjectLogger;
 
 public class TemplateParser {
+    
     private String content;
     
     public TemplateParser(EmailTemplate template) {
@@ -13,9 +16,8 @@ public class TemplateParser {
     }
     
     public void setArguments(Object... args) {
-        System.out.println("template.getContent() : " + content);
+        ProjectLogger.log("Template content from setArguments" + content, LoggerEnum.INFO.name());
         String newContent = String.format(content, args);
         this.content = newContent;
     }
-    
 }

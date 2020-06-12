@@ -1,6 +1,5 @@
 package com.space.userautomation.controller;
 
-
 import com.space.userautomation.common.LoggerEnum;
 import com.space.userautomation.common.ProjectLogger;
 import com.space.userautomation.common.Response;
@@ -11,7 +10,6 @@ import org.json.simple.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
 
 @RestController
@@ -19,23 +17,19 @@ import java.util.ArrayList;
 public class UserMailController {
     
     EmailService emailService = new EmailService();
-    UserService userService = new UserService();
     Response responses = new Response();
 
     @RequestMapping(value = "/v1/decline", method = RequestMethod.POST)
     public ResponseEntity<?> sendDeclineMailToUsers(@RequestBody JSONObject jsonObject) {
         ProjectLogger.log("User registration Decline Api Hit.", LoggerEnum.INFO.name());
-
         Object emails = jsonObject.get("email");
         if(emails!=null && emails instanceof String) {
             String email = (String) emails;
             if(email.isEmpty()) {
                 ProjectLogger.log("Bad Request Error.", LoggerEnum.ERROR.name());
-               // return getResponse("Missing request param 'email'.", HttpStatus.BAD_REQUEST);
                 return responses.getResponse("Missing request param email",HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE,"","");
             } else {
                 String emailArr[] = {email};
-//                userService.deleteUser();
                 emailService.userRegistrationDeclineMail(emailArr);
                 return responses.getResponse("Success", HttpStatus.OK,UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE,"",emailArr);
             }

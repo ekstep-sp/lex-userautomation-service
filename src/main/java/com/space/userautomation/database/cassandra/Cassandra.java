@@ -12,7 +12,6 @@ import com.space.userautomation.model.User;
 import org.json.simple.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,9 +83,6 @@ public class Cassandra {
             ProjectLogger.log("Exception occured while inserting to cassandra", writeTimeOutException, LoggerEnum.ERROR.name());
             return response.getResponse("User Role created", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR,"",userData);
         }
-//        catch(QueryValidationException queryValidationException){
-//            ProjectLogger.log("Exception occured while inserting to cassandra", queryValidationException, LoggerEnum.ERROR.name());
-//        }
         catch(InvalidQueryException invalidQueryException){
             ProjectLogger.log("Exception occured while inserting to cassandra", invalidQueryException, LoggerEnum.ERROR.name());
             return response.getResponse("User Role created", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR,"",userData);

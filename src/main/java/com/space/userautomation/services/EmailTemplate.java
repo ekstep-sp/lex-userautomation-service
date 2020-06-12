@@ -9,12 +9,12 @@ public enum EmailTemplate {
             "<p>Warm regards,<br/>%s Team</p>"),
     
     
-    acceptContentTemplate("<p>Congratulations,</p>" +
-                                  "<p>Admin has been approved the request successfully.</p>" +
-                                  "<p>Plz login to this account,</p>" +
-                                  "<p>Name: %s<br/>Password: %s<br/></p>" +
-                                  "<p>Platform link : %s</p>" +
-                                  "<p>Have a great day!<br/>Warm regards,<br/>%s Team</p>"), 
+    acceptContentTemplate("<p>Hi,</p>" +
+            "<p>Please find below your credentials for the <a href = %s >%s Platform</a>.</p>" +
+            "<p>Username: %s<br/>Password: %s</p>" +
+            "<p>Please login to the platform here and feel free to change the password using the 'Forgot Password' option. Please note that these are your personal credentials and should not be shared with anyone else.</p>"+
+                                  "<p>Have a great day !<br/>Warm regards,<br/>%s Team</p>"),
+    
     
     contentTemplate("Hi,<br/> <p>We have received a new request for registration on the %s  platform<br/></p>" +
                             "<p>The details submitted with the request are as below:<br/></p>" +

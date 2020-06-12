@@ -2,7 +2,6 @@ package com.space.userautomation.model;
 
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.springframework.util.StringUtils;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,7 +28,6 @@ public class User implements Serializable {
     private String appleId;
     
     private String root_org;
-    
     
     private String user_id;
     
@@ -89,17 +87,6 @@ public class User implements Serializable {
         this.appleId = appleId;
     }
 
-//    private List<String> credentials;
-//
-//    public List<String> getCredentials() {
-//        return credentials;
-//    }
-//
-//    public void setCredentials(List<String> credentials) {
-//        this.credentials = credentials;
-//    }
-
-
     public String getName() {
         return name;
     }
@@ -117,8 +104,6 @@ public class User implements Serializable {
     public void setCredentials(List<CredentialRepresentation> credentials) {
         this.credentials = credentials;
     }
-
-
     
     public String getUsername() {
         return username;
@@ -140,7 +125,7 @@ public class User implements Serializable {
     {
 
     }
-public User(List<String> roles)
+     public User(List<String> roles)
 {
     this.roles = roles;
 }
@@ -152,11 +137,6 @@ public User(List<String> roles)
         this.firstName = firstName;
         return firstName;
     }
-    
-
-//    public void setFirstName(String firstName) {
-//        this.firstName = firstName;
-//    }
 
     public String getLastName() {
         try {
@@ -174,11 +154,7 @@ public User(List<String> roles)
             return "";
         }
     }
-
-//    public void setLastName(String lastName) {
-//        this.lastName = lastName;
-//    }
-
+    
     public String getPassword() {
         return password;
     }
@@ -207,7 +183,6 @@ public User(List<String> roles)
         userDetails.put("firstName", this.getFirstName());
         userDetails.put("lastName", this.getLastName());
         userDetails.put("password", password);
-
         return userDetails;
     }
     
@@ -227,7 +202,6 @@ public User(List<String> roles)
         if(!StringUtils.isEmpty(appleId)) {
             userMap.put("appleID", Arrays.asList(appleId));
         }
-
         return userMap;
     }
 }

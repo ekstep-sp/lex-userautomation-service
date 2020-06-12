@@ -2,6 +2,7 @@ package com.space.userautomation.services;
 
 import com.space.userautomation.common.ProjectLogger;
 import com.space.userautomation.common.Response;
+import com.space.userautomation.common.UserAutomationEnum;
 import com.space.userautomation.model.User;
 import com.space.userautomation.model.UserCredentials;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -14,7 +15,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
-
 import java.io.IOException;
 
 public class UpdateUserInformation {
@@ -23,27 +23,29 @@ public class UpdateUserInformation {
     CloseableHttpClient httpClient = HttpClientBuilder.create().build();
     private String adminName = System.getenv("adminName");
     private String adminPassword = System.getenv("adminPassword");
+    private String content_type = System.getenv("content-type");
     
     public ResponseEntity<JSONObject> intializationRequest(User userData) {
         try{
+            ProjectLogger.log("IntializationRequest method is called" , LoggerEnum.INFO.name());
             JSONObject jobj = new JSONObject();
-            JSONObject jsonObject = new JSONObject(enableUserWithPassword(userData));
+            JSONObject jsonObject = new JSONObject(enableUser(userData));
             jobj.put("enableDetails",jsonObject);
             String token = (String) jsonObject.get("token");
-            
             JSONObject setPassword = new JSONObject(updatePassword(userData,token));
             jobj.put("passwordDetails",setPassword);
-            
-            return response.getResponse("",HttpStatus.OK,200,userData.getApiId(),jobj);    
+            return response.getResponse("",HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE,userData.getApiId(),jobj);
         }
         catch(Exception e){
-            return response.getResponse("",HttpStatus.BAD_REQUEST,500,userData.getApiId(),"");
+            ProjectLogger.log("Exception occured in intializationRequest method" , LoggerEnum.ERROR.name());
+            return response.getResponse("",HttpStatus.BAD_REQUEST,UserAutomationEnum.BAD_REQUEST_STATUS_CODE,userData.getApiId(),"");
         }
     }
     
-    public JSONObject enableUserWithPassword(User user){
+    public JSONObject enableUser(User user){
         JSONObject jobj = new JSONObject();
         try {
+            ProjectLogger.log("EnableUser method is called" , LoggerEnum.INFO.name());
             UserCredentials userCredentials = new UserCredentials();
             userCredentials.setUsername(adminName);
             userCredentials.setPassword(adminPassword);
@@ -54,40 +56,38 @@ public class UpdateUserInformation {
             JSONObject jsonData = new JSONObject();
             jsonData.put("enabled", true);
             StringEntity params = new StringEntity(jsonData.toString());
+            String generatePassword = new UserService().generateRandomPassword(16, 22, 122);
             HttpPut request = new HttpPut(System.getenv("productionUrl")+"auth/admin/realms/"+System.getenv("keycloak.realm")+"/users/"+user.getUser_id());
-            request.setHeader("content-type", "application/json");
+            request.setHeader("content-type", content_type);
             request.setHeader("Authorization" ,"bearer "+accessToken);
             request.setEntity(params);
             HttpResponse responses = httpClient.execute(request);
             int statusId = responses.getStatusLine().getStatusCode();
-            if(statusId == 204){
+            if(statusId == UserAutomationEnum.NO_CONTENT){
                 jobj.put("Enabled", true);
                 jobj.put("token", accessToken);
-//                jobj.put("Password", generatePassword);
-//                jobj.put("IsPasswordSet", true);
+                jobj.put("Password", generatePassword);
+                jobj.put("IsPasswordSet", true);
                 return jobj;
-//                return response.getResponse("user account enabled", HttpStatus.OK, 200, "", responseDataMap);
             }
             else{
                 jobj.put("Enabled", false);
-//                jobj.put("Password","");
-//                jobj.put("IsPasswordSet", false);
-                return jobj;
-//                return response.getResponse("user could not be enabled ", HttpStatus.BAD_REQUEST, 404, "",responseDataMap);
+                jobj.put("Password","");
+                jobj.put("IsPasswordSet", false);
+                return jobj; 
             }
         } catch (Exception ex) {
-            ProjectLogger.log(ex.getMessage(), LoggerEnum.ERROR.name());
-//            return response.getResponse("user account diabled", HttpStatus.BAD_REQUEST, 400, "", "");
+            ProjectLogger.log("Exception occured in enableUser method ", LoggerEnum.ERROR.name());
         }
         return jobj;
     }
     
-    
     public JSONObject updatePassword(User userData, String accessToken) throws IOException {
+        ProjectLogger.log("updatePassword method called", LoggerEnum.INFO.name());
         JSONObject jobj = new JSONObject();
         String generatePassword = new UserService().generateRandomPassword(16, 22, 122);
         HttpPut request = new HttpPut(System.getenv("productionUrl")+"auth/admin/realms/"+System.getenv("keycloak.realm")+"/users/"+userData.getUser_id()+"/reset-password");
-        request.setHeader("content-type", "application/json");
+        request.setHeader("content-type", content_type);
         request.setHeader("Authorization" ,"bearer "+accessToken);
         JSONObject jParams = new JSONObject();
         jParams.put("type","password");
@@ -97,12 +97,14 @@ public class UpdateUserInformation {
         request.setEntity(params);
         HttpResponse responses = httpClient.execute(request);
         int statusId = responses.getStatusLine().getStatusCode();
-        if(statusId == 204){
+        if(statusId == UserAutomationEnum.NO_CONTENT){
+            ProjectLogger.log("Password generated successfully", LoggerEnum.ERROR.name());
             jobj.put("password",generatePassword);
             jobj.put("updatedPassword",true);
             return jobj;
         }
         else{
+            ProjectLogger.log("Password could not be generated", LoggerEnum.ERROR.name());
             jobj.put("password","");
             jobj.put("updatedPassword",false);
             return jobj;
