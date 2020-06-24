@@ -140,9 +140,9 @@ public class UserRoleService {
     }
 
     public boolean getSpecificRole(List<String> userRoles){
-        List<String> roleToBeSearched  = new ArrayList<>();
-        roleToBeSearched.add("ORG_ADMIN");
-        if(userRoles.equals(roleToBeSearched)){
+//        List<String> roleToBeSearched  = new ArrayList<>();
+//        roleToBeSearched.add("ORG_ADMIN");
+        if(userRoles.contains("ORG_ADMIN")){
             return true;
         }
         else{

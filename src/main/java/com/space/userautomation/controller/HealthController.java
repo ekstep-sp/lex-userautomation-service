@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/usersubmission")
 public class HealthController {
 
-    @Autowired
-    UserService userService;
     Cassandra cassandra = new Cassandra();
 
 //    private final String url = "jdbc:postgresql://localhost:5432/keycloak";
@@ -38,7 +36,7 @@ public class HealthController {
         UserCredentials userCredentials = new UserCredentials();
         userCredentials.setUsername(adminName);
         userCredentials.setPassword(adminPassword);
-        String token = userService.getToken(userCredentials);
+        String token = new UserService().getToken(userCredentials);
         ProjectLogger.log("Token : " + token, LoggerEnum.INFO.name());
         if (token.indexOf("error") > 0) {
             ProjectLogger.log("Keycloak is DOWN", LoggerEnum.WARN.name());
