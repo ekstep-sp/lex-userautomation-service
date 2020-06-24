@@ -10,6 +10,7 @@ public enum UserAutomationEnum {
     public static int INTERNAL_SERVER_ERROR = 403;
     public static int NO_CONTENT = 204;
     public static int CREATED = 201;
+    public static int NOT_IMPLEMENTED = 409;
     
     
     private  Object value;

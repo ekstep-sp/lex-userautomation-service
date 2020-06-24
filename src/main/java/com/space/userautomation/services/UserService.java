@@ -14,6 +14,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -36,7 +37,7 @@ public class UserService {
 
 //    @Value("${keycloak.credentials.secret}")
 //    private String SECRETKEY;
-   
+
 //    @Value("${keycloak.resource}")
 //   private String CLIENTID;
 
@@ -45,17 +46,16 @@ public class UserService {
 //
 //    @Value("${keycloak.realm}")
 //    private String REALM;
-    
+
     Response responses = new Response();
 
-    String SECRETKEY = System.getenv("keycloak.credentials.secret");
-    String CLIENTID = System.getenv("keycloak.resource");
-    private String AUTHURL = System.getenv("keycloak.auth-server-url");
-    private String REALM = System.getenv("keycloak.realm");
+    String CLIENTID = System.getenv("keycloak_resource");
+    private String AUTHURL = System.getenv("keycloak_auth_server_url");
+    private String REALM = System.getenv("keycloak_realm");
 
     private String adminName = System.getenv("adminName");
     private String adminPassword = System.getenv("adminPassword");
-    private String content_type = System.getenv("content-type");
+    private String content_type = System.getenv("content_type");
 
 
     public String getToken(UserCredentials userCredentials) {
@@ -68,7 +68,6 @@ public class UserService {
             urlParameters.add(new BasicNameValuePair("client_id", CLIENTID));
             urlParameters.add(new BasicNameValuePair("username", username));
             urlParameters.add(new BasicNameValuePair("password", userCredentials.getPassword()));
-//            urlParameters.add(new BasicNameValuePair("client_secret", SECRETKEY));
             responseToken = sendPost(urlParameters);
         } catch (Exception e) {
             ProjectLogger.log("Exception occured in getToken method"+e.getMessage(), LoggerEnum.ERROR.name());
@@ -78,11 +77,12 @@ public class UserService {
 
     public ResponseEntity<JSONObject> createNewUser(User user) throws IOException {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        Map<String, Object> responseData = new HashMap<>();
         try {
             validateUserDetails(user);
         } catch (Exception e) {
             ProjectLogger.log(e.getMessage(), LoggerEnum.ERROR.name());
-            return responses.getResponse("",HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE,"","");
+            return responses.getResponse("",HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE,user.getApiId(),"");
         }
         try {
             UserCredentials userCredentials = new UserCredentials();
@@ -138,13 +138,15 @@ public class UserService {
                 ProjectLogger.log("User created successfully in keycloak with userId : " + userId, LoggerEnum.INFO.name());
                 TemplateParser parserEmailTemplate = new TemplateParser(EmailTemplate.contentTemplate);
                 new EmailService(parserEmailTemplate.getContent()).userCreationSuccessMail(user.getName(), user.getEmail(), user.getPassword(), user.getOrganisation());
-                return responses.getResponse("user created successfully in keycloak with userId",HttpStatus.CREATED,201,"", userId);
+                responseData.put("User_id", userId);
+                return responses.getResponse("user created successfully in keycloak with userId",HttpStatus.CREATED,UserAutomationEnum.CREATED,user.getApiId(), responseData);
             } else if (statusId == 409) {
+                responseData.put("Email", user.getEmail());
                 ProjectLogger.log("Email = " + user.getEmail() + " already present in keycloak", LoggerEnum.ERROR.name());
-                return responses.getResponse("This Email is already registered",HttpStatus.NOT_IMPLEMENTED,409,"",user.getEmail());
+                return responses.getResponse("This Email is already registered",HttpStatus.NOT_IMPLEMENTED,UserAutomationEnum.NOT_IMPLEMENTED,user.getApiId(), responseData);
             } else {
                 ProjectLogger.log("Failed to create user." + response, LoggerEnum.ERROR.name());
-                return responses.getResponse("unable to create user now.Please check the logs",HttpStatus.INTERNAL_SERVER_ERROR,500,"","");
+                return responses.getResponse("unable to create user now.Please check the logs",HttpStatus.INTERNAL_SERVER_ERROR,UserAutomationEnum.INTERNAL_SERVER_ERROR,user.getApiId(),"");
             }
         } catch (Exception ex) {
             ProjectLogger.log(ex.getMessage(), LoggerEnum.ERROR.name());
@@ -153,7 +155,7 @@ public class UserService {
             httpClient.close();
         }
     }
-    
+
     public void validateUserDetails(User user) throws Exception {
         if (StringUtils.isEmpty(user.getName())) {
             throw new Exception("Missing mandatory parameter: name.");
@@ -180,8 +182,7 @@ public class UserService {
     private String sendPost(List<NameValuePair> urlParameters) throws Exception {
 
         HttpClient client = HttpClientBuilder.create().build();
-        HttpPost post = new HttpPost(AUTHURL + "/realms/" + REALM + "/protocol/openid-connect/token");
-
+        HttpPost post = new HttpPost(System.getenv("productionUrl") + "auth/realms/" + REALM + "/protocol/openid-connect/token");
         post.setEntity(new UrlEncodedFormEntity(urlParameters));
 
         HttpResponse response = client.execute(post);
@@ -241,9 +242,79 @@ public class UserService {
                 : resultString;
     }
 
-    // getting the userlist
-    public ResponseEntity<JSONObject> userList() {
+    public ResponseEntity<JSONObject> userList(String filter, User userData) {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        try {
+            JSONObject jObj = new JSONObject((Map) new UserRoleService().getRoleForAdmin(userData).getBody().get("DATA"));
+            Boolean isORG_ADMIN = (Boolean) jObj.get("ORG_ADMIN");
+            if (isORG_ADMIN) {
+                UserCredentials userCredentials = new UserCredentials();
+                userCredentials.setUsername(adminName);
+                userCredentials.setPassword(adminPassword);
+                String token = getToken(userCredentials);
+                ProjectLogger.log("Token generated : " + token, LoggerEnum.INFO.name());
+                JSONParser parser = new JSONParser();
+                JSONObject tokenJson = (JSONObject) parser.parse(token);
+                String accessToken = tokenJson.get("access_token").toString();
+                HttpGet request = new HttpGet(System.getenv("productionUrl") + "auth/admin/realms/" + REALM + "/users");
+                request.addHeader("content-type", "application/json");
+                request.addHeader("Authorization", "Bearer " + accessToken);
+                HttpResponse response = httpClient.execute(request);
+                int statusId = response.getStatusLine().getStatusCode();
+                ProjectLogger.log("Status Id : " + statusId, LoggerEnum.INFO.name());
+                String message = EntityUtils.toString(response.getEntity());
+                JSONArray userList = (JSONArray) parser.parse(message);
+                List user = new ArrayList();
+                Boolean isEnabled;
+                if(filter == null) {
+                    return responses.getResponse("userList", HttpStatus.OK, 200, "", userList);
+                }
+                if (filter.equals("enabled")) {
+                    isEnabled = true;
+                    for (int i = 0; i < userList.size(); i++) {
+                        JSONObject obj = (JSONObject) userList.get(i);
+                        if (obj.get("enabled") == isEnabled) {
+                            user.add(obj);
+                        }
+                    }
+                    ProjectLogger.log("List of users are enabled : " + user, LoggerEnum.INFO.name());
+                    return responses.getResponse("userList of enabled users", HttpStatus.OK, 200, "", user);
+                } else if (filter.equals("disabled")) {
+                    isEnabled = false;
+                    for (int i = 0; i < userList.size(); i++) {
+                        JSONObject obj = (JSONObject) userList.get(i);
+                        if (obj.get("enabled") == isEnabled) {
+                            System.out.println("disabled");
+                            user.add(obj);
+                        }
+                    }
+                    ProjectLogger.log("List of users are disabled : " + user, LoggerEnum.INFO.name());
+                    return responses.getResponse("userList of disabled users", HttpStatus.OK, 200, "", user);
+                } else if (filter.equals("all")) {
+                    for (int i = 0; i < userList.size(); i++) {
+                        JSONObject obj = (JSONObject) userList.get(i);
+                        user.add(obj);
+                    }
+                    ProjectLogger.log("List of users  : " + user, LoggerEnum.INFO.name());
+                    return responses.getResponse("userList of all users", HttpStatus.OK, 200, "", user);
+                }
+               else if (filter == null) {
+                    return responses.getResponse("userList", HttpStatus.OK, 200, "", userList);
+                }
+                else {
+                 return responses.getResponse("userList", HttpStatus.OK, 200, "", userList);
+                }
+            } else {
+                return responses.getResponse("Permission denied,user role can be retireved by admin only", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, "", "");
+            }
+        } catch (Exception ex) {
+            ProjectLogger.log(ex.getMessage(), LoggerEnum.ERROR.name());
+            return responses.getResponse(" ", HttpStatus.BAD_REQUEST, 400, "", "");
+        }
+    }
+    public JSONObject deleteUser(String user_id) {
+        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        JSONObject jsonobject = new JSONObject();
         try {
             UserCredentials userCredentials = new UserCredentials();
             userCredentials.setUsername(adminName);
@@ -253,19 +324,23 @@ public class UserService {
             JSONParser parser = new JSONParser();
             JSONObject tokenJson = (JSONObject) parser.parse(token);
             String accessToken = tokenJson.get("access_token").toString();
-            HttpGet request = new HttpGet(System.getenv("productionUrl")+"auth/admin/realms/"+REALM+"/users");
-            request.addHeader("content-type", content_type);
+            HttpDelete request = new HttpDelete(System.getenv("productionUrl")+"auth/admin/realms/"+REALM+"/users/"+user_id);
+            request.addHeader("content-type", "application/json");
             request.addHeader("Authorization", "Bearer " + accessToken);
             HttpResponse response = httpClient.execute(request);
             int statusId = response.getStatusLine().getStatusCode();
-            ProjectLogger.log("Status Id : " + statusId, LoggerEnum.INFO.name());
-            String message = EntityUtils.toString(response.getEntity());
-            JSONArray userList = (JSONArray) parser.parse(message);
-            ProjectLogger.log("List of users : " + userList, LoggerEnum.INFO.name());
-            return responses.getResponse("userlist", HttpStatus.OK, 200, "", userList);
+            ProjectLogger.log("Status id data : " + statusId, LoggerEnum.INFO.name());
+            if(statusId == 204){
+                ProjectLogger.log("user id is deleted succesfully." , LoggerEnum.INFO.name());
+                return jsonobject;
+            }
+            else if(statusId == 404){
+                ProjectLogger.log("user id is not existed" , LoggerEnum.ERROR.name());
+                return jsonobject;
+            }
         } catch (Exception ex) {
             ProjectLogger.log(ex.getMessage(), LoggerEnum.ERROR.name());
-            return responses.getResponse("Users list is empty", HttpStatus.BAD_REQUEST, 400, "", "");
         }
+        return jsonobject;
     }
 }

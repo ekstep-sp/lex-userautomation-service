@@ -23,8 +23,8 @@ public class UpdateUserInformation {
     CloseableHttpClient httpClient = HttpClientBuilder.create().build();
     private String adminName = System.getenv("adminName");
     private String adminPassword = System.getenv("adminPassword");
-    private String content_type = System.getenv("content-type");
-    
+    private String content_type = System.getenv("content_type");
+
     public ResponseEntity<JSONObject> intializationRequest(User userData) {
         try{
             ProjectLogger.log("IntializationRequest method is called" , LoggerEnum.INFO.name());
@@ -41,7 +41,7 @@ public class UpdateUserInformation {
             return response.getResponse("",HttpStatus.BAD_REQUEST,UserAutomationEnum.BAD_REQUEST_STATUS_CODE,userData.getApiId(),"");
         }
     }
-    
+
     public JSONObject enableUser(User user){
         JSONObject jobj = new JSONObject();
         try {
@@ -56,37 +56,49 @@ public class UpdateUserInformation {
             JSONObject jsonData = new JSONObject();
             jsonData.put("enabled", true);
             StringEntity params = new StringEntity(jsonData.toString());
-            String generatePassword = new UserService().generateRandomPassword(16, 22, 122);
-            HttpPut request = new HttpPut(System.getenv("productionUrl")+"auth/admin/realms/"+System.getenv("keycloak.realm")+"/users/"+user.getUser_id());
+            ProjectLogger.log("EnableUser method is called2" , LoggerEnum.INFO.name());
+
+//            String generatePassword = new UserService().generateRandomPassword(16, 22, 122);
+            HttpPut request = new HttpPut(System.getenv("productionUrl")+"auth/admin/realms/"+System.getenv("keycloak_realm")+"/users/"+user.getUser_id());
+            ProjectLogger.log("EnableUser method is called31" , LoggerEnum.INFO.name());
+
             request.setHeader("content-type", content_type);
+            ProjectLogger.log("EnableUser method is called32" , LoggerEnum.INFO.name());
+
             request.setHeader("Authorization" ,"bearer "+accessToken);
             request.setEntity(params);
             HttpResponse responses = httpClient.execute(request);
+            ProjectLogger.log("EnableUser method is called33" , LoggerEnum.INFO.name());
+
             int statusId = responses.getStatusLine().getStatusCode();
+            ProjectLogger.log("EnableUser method is called3" , LoggerEnum.INFO.name());
+
             if(statusId == UserAutomationEnum.NO_CONTENT){
+                ProjectLogger.log("EnableUser method is called4" , LoggerEnum.INFO.name());
+
                 jobj.put("Enabled", true);
                 jobj.put("token", accessToken);
-                jobj.put("Password", generatePassword);
-                jobj.put("IsPasswordSet", true);
+//                jobj.put("Password", generatePassword);
+//                jobj.put("IsPasswordSet", true);
                 return jobj;
             }
             else{
                 jobj.put("Enabled", false);
-                jobj.put("Password","");
-                jobj.put("IsPasswordSet", false);
-                return jobj; 
+//                jobj.put("Password","");
+//                jobj.put("IsPasswordSet", false);
+                return jobj;
             }
         } catch (Exception ex) {
             ProjectLogger.log("Exception occured in enableUser method ", LoggerEnum.ERROR.name());
         }
         return jobj;
     }
-    
+
     public JSONObject updatePassword(User userData, String accessToken) throws IOException {
         ProjectLogger.log("updatePassword method called", LoggerEnum.INFO.name());
         JSONObject jobj = new JSONObject();
         String generatePassword = new UserService().generateRandomPassword(16, 22, 122);
-        HttpPut request = new HttpPut(System.getenv("productionUrl")+"auth/admin/realms/"+System.getenv("keycloak.realm")+"/users/"+userData.getUser_id()+"/reset-password");
+        HttpPut request = new HttpPut(System.getenv("productionUrl")+"auth/admin/realms/"+System.getenv("keycloak_realm")+"/users/"+userData.getUser_id()+"/reset-password");
         request.setHeader("content-type", content_type);
         request.setHeader("Authorization" ,"bearer "+accessToken);
         JSONObject jParams = new JSONObject();

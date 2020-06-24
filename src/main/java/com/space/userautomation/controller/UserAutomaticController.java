@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.space.userautomation.common.LoggerEnum;
 import com.space.userautomation.common.ProjectLogger;
 import com.space.userautomation.common.Response;
+import com.space.userautomation.common.UserAutomationEnum;
 import com.space.userautomation.model.User;
 import com.space.userautomation.services.ExcelReader;
 import com.space.userautomation.services.UserService;
@@ -32,6 +33,7 @@ public class UserAutomaticController {
     public ResponseEntity<?> createUser(@RequestBody User userDTO) {
         ProjectLogger.log("UserAutomation Create User Api called.", LoggerEnum.INFO.name());
         try {
+            userDTO.setApiId(response.getApiId());
             return userService.createNewUser(userDTO);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -40,12 +42,28 @@ public class UserAutomaticController {
     }
 
     //Retrieve All Users
-    @RequestMapping(value = "/v1/users", method = RequestMethod.GET)
-    public ResponseEntity<?> listAllUsers() {
+    @RequestMapping(value = "/v1/users",headers={"rootOrg","org","wid_OrgAdmin"}, method = RequestMethod.GET)
+    public ResponseEntity<JSONObject> listAllUsers(@RequestParam(required = false) String filter, User userData, @RequestHeader Map<Object, Object> header) {
         ProjectLogger.log("UserAutomation getUsers Api called.", LoggerEnum.INFO.name());
-            return userService.userList();
+        try
+        {
+            userData.setApiId(response.getApiId());
+            userData.setRoot_org((String) header.get("rootorg"));
+            userData.setOrganisation((String) header.get("org"));
+            userData.setWid_OrgAdmin((String) header.get("wid_orgadmin"));
+            if(userData.getRoot_org().equals(System.getenv("rootOrg")) && (!userData.getOrganisation().isEmpty()) && (!userData.getWid_OrgAdmin().isEmpty())){
+                return userService.userList(filter,userData);
+            }
+            else{
+                ProjectLogger.log("Inapproriate headers in request.", LoggerEnum.ERROR.name());
+                return response.getResponse("Please verify the headers before processing the request",HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE,userData.getApiId(),"");
+            }
+        }
+        catch(Exception ex){
+            ProjectLogger.log("Exception occured in acceptUser method", LoggerEnum.ERROR.name());
+            return response.getResponse("Please verify the headers before processing the request",HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE,userData.getApiId(),"");
+        }
     }
-    
     @RequestMapping(value = "/v1/uploadFile", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<JSONObject> uploadFile(@RequestParam("DataSheet") MultipartFile file) {

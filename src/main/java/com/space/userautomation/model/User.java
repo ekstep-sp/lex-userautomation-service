@@ -1,6 +1,5 @@
 package com.space.userautomation.model;
 
-import org.keycloak.representations.idm.CredentialRepresentation;
 import org.springframework.util.StringUtils;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -94,16 +93,7 @@ public class User implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
-
-    public List<CredentialRepresentation> credentials;
-
-    public List<CredentialRepresentation> getCredentials() {
-        return credentials;
-    }
-
-    public void setCredentials(List<CredentialRepresentation> credentials) {
-        this.credentials = credentials;
-    }
+    
     
     public String getUsername() {
         return username;
@@ -137,6 +127,24 @@ public class User implements Serializable {
         this.firstName = firstName;
         return firstName;
     }
+    
+    public String wid;
+
+    public String getWid() {
+        return wid;
+    }
+
+    public void setWid(String wid) {
+        this.wid = wid;
+    }
+
+    public String getWid_user() {
+        return wid_user;
+    }
+    public void setWid_user(String wid_user) {
+        this.wid_user = wid_user;
+    }
+    private String wid_user;
 
     public String getLastName() {
         try {

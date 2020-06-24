@@ -15,7 +15,7 @@ public class EmailService {
 
     private static String email_from;
     private String platformLink = System.getenv("platformLink");
-    
+
     private String domain = System.getenv("domain");
 
     public EmailService() {
@@ -49,6 +49,7 @@ public class EmailService {
 
     public void userRegistrationDeclineMail(String emails[]) {
         try {
+
             ProjectLogger.log("Received Request to send mail for declining Registration.", LoggerEnum.INFO.name());
             String subject = domain+" Registration request declined.";
             TemplateParser parser = new TemplateParser(EmailTemplate.declineContentTemplate);
@@ -58,7 +59,6 @@ public class EmailService {
             ProjectLogger.log("Failed to send mail in userRegistrationDeclineMail " + e, LoggerEnum.ERROR.name());
         }
     }
-
     public void acceptmail(String name, String password, String organisation) {
         try {
             ProjectLogger.log("Received request to send mail for accepting registration.", LoggerEnum.INFO.name());
@@ -76,7 +76,6 @@ public class EmailService {
             ProjectLogger.log("Failed to send mail in acceptmail " + e, LoggerEnum.ERROR.name());
         }
     }
-    
     public void sendMail(String subject, String body, String emailTo[], boolean replyToCheck) {
 
         try {
@@ -139,4 +138,3 @@ public class EmailService {
         return newContent;
     }
 }
-

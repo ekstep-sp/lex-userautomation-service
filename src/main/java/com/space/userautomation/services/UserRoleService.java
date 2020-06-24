@@ -14,7 +14,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -32,7 +31,7 @@ public class UserRoleService {
     EmailService emailService = new EmailService();
     UpdateUserInformation userInformation = new UpdateUserInformation();
 
-    
+
     private String root_org = System.getenv("rootOrg");
     private String org = System.getenv("org");
     private String locale = System.getenv("locale");
@@ -188,7 +187,7 @@ public class UserRoleService {
 
                     //retrieve wid of the new  user from token genserated.
                     Map<String,Object> responseFromWtoken = getWidIdFromWToken(accessToken);
-                    
+
                     String widForNewUser = responseFromWtoken.get("wid").toString();
                     Integer responseStatusCode = (Integer) responseFromWtoken.get("status_code");
                     if(!widForNewUser.isEmpty() && (responseStatusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE)) {
@@ -199,7 +198,7 @@ public class UserRoleService {
                         if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
                             //send email to new user with user credentials of user and platform link.
                             emailService.acceptmail(userName, updatedPassword, userDetails.getOrganisation());
-                            
+
                             //return the response for the user role assigned.
                             userResponse.put("WID", widForNewUser);
                             userResponse.put("Root_Org", userDetails.getRoot_org());
@@ -222,6 +221,73 @@ public class UserRoleService {
         catch(Exception ex){
             ProjectLogger.log("Internal Server Exception for accepting user roles "+ ex , LoggerEnum.ERROR.name());
             return response.getResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, apiId,"");
+        }
+    }
+    public ResponseEntity<JSONObject> getAllRoles(User userData) {
+        try {
+            JSONObject jObj = new JSONObject((Map) getRoleForAdmin(userData).getBody().get("DATA"));
+            Boolean isORG_ADMIN = (Boolean) jObj.get("ORG_ADMIN");
+            if (isORG_ADMIN) {
+                userData.setUser_id("external_user_roles");
+                List<String> userRoles = new ArrayList<>();
+                List<User> userList = cassandra.getUserRoles(userData.toMapUserRole());
+                for (User user : userList) {
+                    userRoles = user.getRoles();
+                }
+                return response.getResponse("roles of users", HttpStatus.OK, 200, "", userRoles);
+            } else {
+                return response.getResponse("Permission denied,user role can be retireved by admin only", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, "", "");
+            }
+        } catch (Exception ex) {
+            ProjectLogger.log("Exception occured " + ex, LoggerEnum.ERROR.name());
+            return response.getResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, 500, userData.getApiId(), "");
+        }
+    }
+
+    public ResponseEntity<JSONObject> changeRole(User userData) {
+        Map<String, Object> userResponse = new HashMap<>();
+        try {
+            JSONObject jObj = new JSONObject((Map) getRoleForAdmin(userData).getBody().get("DATA"));
+            Boolean isORG_ADMIN = (Boolean) jObj.get("ORG_ADMIN");
+            if (isORG_ADMIN) {
+                userData.setUser_id(userData.getWid());
+                userData.setRoles(userData.getRoles());
+                ResponseEntity<JSONObject> responseData = cassandra.insertUser(userData.toMapUserRole());
+                Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
+                if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
+                    userResponse.put("User_Roles", userData.getRoles());
+                    return response.getResponse("User Role updated successfully", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, "", userResponse);
+                }else {
+                    return response.getResponse("User Role could not be updated", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, "", userResponse);
+                }
+            } else {
+                return response.getResponse("Permission denied,user role can be retrieved by admin only", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, "", "");
+            }
+        } catch (Exception ex) {
+            ProjectLogger.log("Exception occured " + ex, LoggerEnum.ERROR.name());
+            return response.getResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, 500, userData.getApiId(), "");
+        }
+    }
+
+    public ResponseEntity<JSONObject> getRoles(String user_id,User userDetailsForRoles) {
+        try {
+            JSONObject jObj = new JSONObject((Map) getRoleForAdmin(userDetailsForRoles).getBody().get("DATA"));
+            Boolean isORG_ADMIN = (Boolean) jObj.get("ORG_ADMIN");
+            if (isORG_ADMIN) {
+                List<String> userRoles = new ArrayList<>();
+                Map<String, Boolean> roles = new HashMap<String, Boolean>();
+                userDetailsForRoles.setUser_id(user_id);
+                List<User> userList = cassandra.getUserRoles(userDetailsForRoles.toMapUserRole());
+                for (User user : userList) {
+                    userRoles = user.getRoles();
+                }
+                return response.getResponse("roles of users", HttpStatus.OK, 200, "", userRoles);
+            }else {
+                return response.getResponse("Permission denied,user role can be retireved by admin only", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, "", "");
+            }
+        } catch (Exception ex) {
+            ProjectLogger.log("Exception occured " + ex, LoggerEnum.ERROR.name());
+            return response.getResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, 500, userDetailsForRoles.getApiId(), "");
         }
     }
 }
