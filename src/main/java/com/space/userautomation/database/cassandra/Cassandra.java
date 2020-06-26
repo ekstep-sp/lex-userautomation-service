@@ -29,12 +29,12 @@ public class Cassandra {
 
     static {
         try {
-            cluster = Cluster.builder().addContactPoint("127.0.0.1").withPort(9042).withoutJMXReporting().build();
-//            cluster = Cluster.builder()
-//                    .addContactPointsWithPorts(Arrays.asList(
-//                            new InetSocketAddress(System.getenv("cassandra_host"), Integer.parseInt(System.getenv("cassandra_port")))))
-//                    .withoutJMXReporting()
-//                    .build();
+//            cluster = Cluster.builder().addContactPoint("127.0.0.1").withPort(9042).withoutJMXReporting().build();
+            cluster = Cluster.builder()
+                    .addContactPointsWithPorts(Arrays.asList(
+                            new InetSocketAddress(System.getenv("cassandra_host"), Integer.parseInt(System.getenv("cassandra_port")))))
+                    .withoutJMXReporting()
+                    .build();
             ProjectLogger.log("Connecting to cassandra db", LoggerEnum.INFO.name());
             shutDownHook();
         } catch (NoHostAvailableException noHostAvailableException) {
@@ -108,7 +108,7 @@ public class Cassandra {
             ResultSet resultSet = session.execute(bound);
             if (!resultSet.isExhausted()) {
                 Row row = resultSet.one();
-                userDetails.add(new User(row.getList("roles", String.class)));
+//                userDetails.add(new User(row.getList("roles", String.class)));
                 return userDetails;
             }
         } catch (Exception ex) {

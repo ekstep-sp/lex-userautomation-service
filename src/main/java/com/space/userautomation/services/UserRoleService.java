@@ -5,6 +5,7 @@ import com.space.userautomation.common.ProjectLogger;
 import com.space.userautomation.common.Response;
 import com.space.userautomation.common.UserAutomationEnum;
 import com.space.userautomation.database.cassandra.Cassandra;
+import com.space.userautomation.database.postgresql.Postgresql;
 import com.space.userautomation.model.User;
 import com.space.userautomation.model.UserCredentials;
 import org.apache.http.HttpResponse;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,7 +59,7 @@ public class UserRoleService {
                 cassandra.insertUser(userData.toMapUserRole());
                 userDetails.put("WID" ,userData.getUser_id() );
                 userDetails.put("Root_Org",userData.getRoot_org());
-                userDetails.put("User_Roles" , userData.getRoles());
+                userDetails.put("User_Roles" , userData.getRole());
                 return response.getResponse("User Role assigned successfully", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), userDetails);
             }
             else{
@@ -116,14 +118,14 @@ public class UserRoleService {
 
     public ResponseEntity<JSONObject> getRoleForAdmin(User userDetailsForRoles){
         try {
-            List<String> userRoles = new ArrayList<>();
             Map<String,Boolean> roles = new HashMap<String, Boolean>();
             ProjectLogger.log("wid for admin role" + userDetailsForRoles.getWid_OrgAdmin(), LoggerEnum.INFO.name());
             userDetailsForRoles.setUser_id(userDetailsForRoles.getWid_OrgAdmin());
-            List<User> userList = cassandra.getUserRoles(userDetailsForRoles.toMapUserRole());
-            for(User user: userList){
-                userRoles = user.getRoles();
-            }
+            List<String> userRoles =  new Postgresql().getUserRoles(userDetailsForRoles.toMapUserRole());
+//            List<User> userList = cassandra.getUserRoles(userDetailsForRoles.toMapUserRole());
+//            for(User user: userList){
+//                userRoles = user.getRoles();
+//            }
             if(getSpecificRole(userRoles)){
                 roles.put("ORG_ADMIN",true);
                 return response.getResponse("org admin role", HttpStatus.FOUND, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userDetailsForRoles.getApiId(),roles);
@@ -140,8 +142,6 @@ public class UserRoleService {
     }
 
     public boolean getSpecificRole(List<String> userRoles){
-//        List<String> roleToBeSearched  = new ArrayList<>();
-//        roleToBeSearched.add("ORG_ADMIN");
         if(userRoles.contains("ORG_ADMIN")){
             return true;
         }
@@ -202,7 +202,7 @@ public class UserRoleService {
                             //return the response for the user role assigned.
                             userResponse.put("WID", widForNewUser);
                             userResponse.put("Root_Org", userDetails.getRoot_org());
-                            userResponse.put("User_Roles", userDetails.getRoles());
+                            userResponse.put("User_Roles", userDetails.getRole());
                             return response.getResponse("User Role assigned successfully", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, apiId, userResponse);
                         } else {
                             return response.getResponse("User could not be accepted", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, apiId, userResponse);
@@ -229,11 +229,7 @@ public class UserRoleService {
             Boolean isORG_ADMIN = (Boolean) jObj.get("ORG_ADMIN");
             if (isORG_ADMIN) {
                 userData.setUser_id("external_user_roles");
-                List<String> userRoles = new ArrayList<>();
-                List<User> userList = cassandra.getUserRoles(userData.toMapUserRole());
-                for (User user : userList) {
-                    userRoles = user.getRoles();
-                }
+               List<String> userRoles =  new Postgresql().getUserRoles(userData.toMapUserRole());
                 return response.getResponse("roles of users", HttpStatus.OK, 200, "", userRoles);
             } else {
                 return response.getResponse("Permission denied,user role can be retireved by admin only", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, "", "");
@@ -245,22 +241,31 @@ public class UserRoleService {
     }
 
     public ResponseEntity<JSONObject> changeRole(User userData) {
+        System.out.println("userdatya"+userData.getWid()+ userData.getRoles());
         Map<String, Object> userResponse = new HashMap<>();
         try {
             JSONObject jObj = new JSONObject((Map) getRoleForAdmin(userData).getBody().get("DATA"));
             Boolean isORG_ADMIN = (Boolean) jObj.get("ORG_ADMIN");
             if (isORG_ADMIN) {
                 userData.setUser_id(userData.getWid());
-                userData.setRoles(userData.getRoles());
-                ResponseEntity<JSONObject> responseData = cassandra.insertUser(userData.toMapUserRole());
-                Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
-                if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
-                    userResponse.put("User_Roles", userData.getRoles());
-                    return response.getResponse("User Role updated successfully", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, "", userResponse);
-                }else {
-                    return response.getResponse("User Role could not be updated", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, "", userResponse);
+                Timestamp timestamp = new Postgresql().getTimestampValue();
+                userData.setUpdated_on(timestamp);
+                userData.setUpdated_by("");
+                if (validateUserFromMasterRoles(userData)) {
+                    userData.setUser_id(userData.getWid());
+                    Map<String, Object> statusCodeList = updateRoles(userData);
+                    Boolean isAllInserted = isAllInserted(statusCodeList);
+                    if (isAllInserted) {
+                        userResponse.put("User_Roles", userData.getRoles());
+                        return response.getResponse("User Role updated successfully", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, "", userResponse);
+                    } else {
+                        ProjectLogger.log("User Role already exists ", LoggerEnum.ERROR.name());
+                        return response.getResponse("User Role already exists", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, "", userResponse);
+                    }
+                } else {
+                    return response.getResponse("Roles can be assigned from master roles only,Please verify the roles before inserting", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, "", "");
                 }
-            } else {
+            }else {
                 return response.getResponse("Permission denied,user role can be retrieved by admin only", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, "", "");
             }
         } catch (Exception ex) {
@@ -268,26 +273,81 @@ public class UserRoleService {
             return response.getResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, 500, userData.getApiId(), "");
         }
     }
-
-    public ResponseEntity<JSONObject> getRoles(String user_id,User userDetailsForRoles) {
-        try {
-            JSONObject jObj = new JSONObject((Map) getRoleForAdmin(userDetailsForRoles).getBody().get("DATA"));
-            Boolean isORG_ADMIN = (Boolean) jObj.get("ORG_ADMIN");
-            if (isORG_ADMIN) {
-                List<String> userRoles = new ArrayList<>();
-                Map<String, Boolean> roles = new HashMap<String, Boolean>();
-                userDetailsForRoles.setUser_id(user_id);
-                List<User> userList = cassandra.getUserRoles(userDetailsForRoles.toMapUserRole());
-                for (User user : userList) {
-                    userRoles = user.getRoles();
-                }
-                return response.getResponse("roles of users", HttpStatus.OK, 200, "", userRoles);
-            }else {
-                return response.getResponse("Permission denied,user role can be retireved by admin only", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, "", "");
-            }
-        } catch (Exception ex) {
-            ProjectLogger.log("Exception occured " + ex, LoggerEnum.ERROR.name());
-            return response.getResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, 500, userDetailsForRoles.getApiId(), "");
+    
+    
+    public Map<String, Object> updateRoles(User userData){
+        Map<String, Object> allstatusCode = new HashMap<String,Object>();
+         List<String> newRoles = validateUserRole(userData);
+         if(!newRoles.isEmpty()){
+         for (String role : newRoles) {
+             userData.setRole(role);
+             ResponseEntity<JSONObject> responseData = new Postgresql().insertUserRoles(userData.toMapUserRole());
+             Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
+             if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
+                 allstatusCode.put("success", UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE);
+                 continue;
+             } else if (statusCode == UserAutomationEnum.INTERNAL_SERVER_ERROR) {
+                 allstatusCode.put("failure", UserAutomationEnum.INTERNAL_SERVER_ERROR);
+                 ProjectLogger.log("user role already exists from the requested roles for user " + userData.getWid(), LoggerEnum.ERROR.name());
+                 continue;
+             }
+         }
+         }
+         else{
+             allstatusCode.put("success", UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE);
+             return allstatusCode;
+         }
+        return allstatusCode;
+     }
+   
+    public boolean isAllInserted(Map<String, Object> statusCodeList){
+        if(statusCodeList.get("success") == null){
+            return false;
+        }
+        else {
+            return true;
         }
     }
+    public List<String> validateUserRole(User userData) {
+        List<String> newRoles = new ArrayList<>();
+        List<String> existingRoles = new Postgresql().getUserRoles(userData.toMapUserRole());
+        for (String role : userData.getRoles()) {
+            if (!existingRoles.contains(role)) {
+                newRoles.add(role);
+            }
+        }
+        return newRoles;
+    }
+    public boolean validateUserFromMasterRoles(User userData){
+        userData.setUser_id("external_user_roles");
+        List<String> userRoles =  new Postgresql().getUserRoles(userData.toMapUserRole());
+        System.out.println("roles"+ userRoles);
+        for(String role: userData.getRoles()){
+            if(!userRoles.contains(role)){
+                return  false;
+            }
+        }
+        return true;
+    }
+//    public ResponseEntity<JSONObject> getRoles(String user_id,User userDetailsForRoles) {
+//        try {
+//            JSONObject jObj = new JSONObject((Map) getRoleForAdmin(userDetailsForRoles).getBody().get("DATA"));
+//            Boolean isORG_ADMIN = (Boolean) jObj.get("ORG_ADMIN");
+//            if (isORG_ADMIN) {
+//                List<String> userRoles = new ArrayList<>();
+//                Map<String, Boolean> roles = new HashMap<String, Boolean>();
+//                userDetailsForRoles.setUser_id(user_id);
+//                List<User> userList = cassandra.getUserRoles(userDetailsForRoles.toMapUserRole());
+////                for (User user : userList) {
+////                    userRoles = user.getRoles();
+////                }
+//                return response.getResponse("roles of users", HttpStatus.OK, 200, "", userRoles);
+//            }else {
+//                return response.getResponse("Permission denied,user role can be retireved by admin only", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, "", "");
+//            }
+//        } catch (Exception ex) {
+//            ProjectLogger.log("Exception occured " + ex, LoggerEnum.ERROR.name());
+//            return response.getResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, 500, userDetailsForRoles.getApiId(), "");
+//        }
+//    }
 }

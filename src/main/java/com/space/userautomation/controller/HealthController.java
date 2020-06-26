@@ -4,6 +4,7 @@ import com.space.userautomation.common.LoggerEnum;
 import com.space.userautomation.common.ProjectLogger;
 //import com.space.userautomation.database.cassandra.Cassandra;
 import com.space.userautomation.database.cassandra.Cassandra;
+import com.space.userautomation.database.postgresql.Postgresql;
 import com.space.userautomation.model.UserCredentials;
 import com.space.userautomation.services.UserService;
 import org.json.simple.JSONObject;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class HealthController {
 
     Cassandra cassandra = new Cassandra();
+    Postgresql postgresql = new Postgresql();
 
 //    private final String url = "jdbc:postgresql://localhost:5432/keycloak";
 //    private final String user = "root";
@@ -46,6 +48,7 @@ public class HealthController {
             response.put("keycloak_services", "UP");
         }
         response.put("cassandra", cassandra.healthCheck());
+        response.put("postgresql",postgresql.healthCheck());
 //        response.put("postgresql", checkPostgresqlConnection());
         ResponseEntity<JSONObject> successReponse = new ResponseEntity<>(response, HttpStatus.OK);
         return successReponse;

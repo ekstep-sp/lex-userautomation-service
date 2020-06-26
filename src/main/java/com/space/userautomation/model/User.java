@@ -1,7 +1,9 @@
 package com.space.userautomation.model;
 
 import org.springframework.util.StringUtils;
+
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -29,9 +31,44 @@ public class User implements Serializable {
     private String root_org;
     
     private String user_id;
-    
+    private String updated_by;
+    private Timestamp updated_on;
     private String wid_OrgAdmin;
+    private String role;
 
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
+    }
+
+    private List<String> roles;
+
+    public String getUpdated_by() {
+        return updated_by;
+    }
+
+    public void setUpdated_by(String updated_by) {
+        this.updated_by = updated_by;
+    }
+
+    public Timestamp getUpdated_on() {
+        return updated_on;
+    }
+
+    public void setUpdated_on(Timestamp updated_on) {
+        this.updated_on = updated_on;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 
     public String getWid_OrgAdmin() {
         return wid_OrgAdmin;
@@ -54,13 +91,13 @@ public class User implements Serializable {
         return root_org;
     }
 
-    public List<String> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
-    }
+//    public List<String> getRoles() {
+//        return roles;
+//    }
+//
+//    public void setRoles(List<String> roles) {
+//        this.roles = roles;
+//    }
 
     public void setRoot_org(String root_org) {
         this.root_org = root_org;
@@ -74,7 +111,7 @@ public class User implements Serializable {
         this.user_id = user_id;
     }
 
-    private List<String> roles;
+//    private List<String> roles;
 
 
 
@@ -115,9 +152,9 @@ public class User implements Serializable {
     {
 
     }
-     public User(List<String> roles)
+     public User(String role)
 {
-    this.roles = roles;
+    this.role = role;
 }
 
 
@@ -198,7 +235,19 @@ public class User implements Serializable {
         Map<String,Object> userData = new HashMap<String, Object>();
         userData.put("root_org",this.getRoot_org());
         userData.put("user_id", this.getUser_id());
+        userData.put("role", this.getRole());
+        userData.put("updated_on", this.getUpdated_on());
+        userData.put("updated_by", this.getUpdated_by());
+        return userData;
+    }
+    public Map<String,Object> toMapUserRolePostgresql(){
+        Map<String,Object> userData = new HashMap<String, Object>();
+        userData.put("root_org",this.getRoot_org());
+        userData.put("user_id", this.getUser_id());
         userData.put("roles", this.getRoles());
+        userData.put("role",this.getRole());
+        userData.put("updated_on", this.getUpdated_on());
+        userData.put("updated_by", this.getUpdated_by());
         return userData;
     }
 
