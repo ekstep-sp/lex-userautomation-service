@@ -67,22 +67,20 @@ public class Postgresql {
         StringBuilder query = new StringBuilder();
         query.append("INSERT INTO ");
         query.append(schemaName_postgresql + "." + tableName_postgresql + "(");
-/*        for (Map.Entry<String, Object> entry : userData.entrySet()) {
-            query.append(entry.getKey() + ",");
-        }*/
-        query.deleteCharAt(query.length() - 1);
+        query.append("root_org, user_id, role, updated_on, updated_by");
         query.append(")" + "VALUES" + "(");
         for (Map.Entry<String, Object> entry : userData.entrySet()) {
             query.append("?" + ",");
         }
         query.deleteCharAt(query.length() - 1);
         query.append(");");
+  
         try  {
             PreparedStatement pst = con.prepareStatement(String.valueOf(query));
-            pst.setString(3, userData.get("root_org").toString());
-            pst.setString(4,userData.get("user_id").toString());
-            pst.setString(2, userData.get("role").toString());
-            pst.setTimestamp(1, (Timestamp) userData.get("updated_on"));
+            pst.setString(1, userData.get("root_org").toString());
+            pst.setString(2,userData.get("user_id").toString());
+            pst.setString(3, userData.get("role").toString());
+            pst.setTimestamp(4, (Timestamp) userData.get("updated_on"));
             pst.setString(5,userData.get("updated_by").toString());
             pst.executeUpdate();
             return response.getResponse("User Role created successfully", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, "", userData);
@@ -98,6 +96,33 @@ public class Postgresql {
 
     }
 
+    public ResponseEntity<JSONObject> deleteUserRole(Map<String, Object> userData){
+        ProjectLogger.log("Request recieved for deleting user role with user id "+ userData.get("user_id"), LoggerEnum.INFO.name());
+        StringBuilder query = new StringBuilder();
+        query.append("DELETE FROM ");
+        query.append(schemaName_postgresql + "." + tableName_postgresql );
+        query.append(" WHERE user_id = '");
+        query.append(userData.get("user_id"));
+        query.append("' AND");
+        query.append(" role = '");
+        query.append(userData.get("role"));
+        query.append("';");
+        try  {
+            PreparedStatement pst = con.prepareStatement(String.valueOf(query));
+            pst.executeUpdate();
+            return response.getResponse("User Role deleted successfully", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, "", userData);
+        }
+        catch (PSQLException ex){
+            ProjectLogger.log("PSQL exception while deleting user"+ ex, LoggerEnum.ERROR.name());
+            return response.getResponse("PSQL exception ", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", userData);
+        }
+        catch (Exception ex) {
+            ProjectLogger.log("Exception occured while deleting the data in postgresql", ex, LoggerEnum.ERROR.name());
+            return response.getResponse("User Role cannot be deleted", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", userData);
+        }
+    }
+    
+    
     public List<String> getUserRoles(Map<String, Object> userData) {
         List<String> role = new ArrayList<>();
         StringBuilder query = new StringBuilder();

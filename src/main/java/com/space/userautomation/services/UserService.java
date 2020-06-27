@@ -57,7 +57,7 @@ public class UserService {
     private String adminPassword = System.getenv("adminPassword");
     private String content_type = System.getenv("content_type");
 
-
+    String roleForAdminUser = "org_admin";
     public String getToken(UserCredentials userCredentials) {
 
         String responseToken = "";
@@ -246,7 +246,7 @@ public class UserService {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         try {
             JSONObject jObj = new JSONObject((Map) new UserRoleService().getRoleForAdmin(userData).getBody().get("DATA"));
-            Boolean isORG_ADMIN = (Boolean) jObj.get("ORG_ADMIN");
+            Boolean isORG_ADMIN = (Boolean) jObj.get(roleForAdminUser);
             if (isORG_ADMIN) {
                 UserCredentials userCredentials = new UserCredentials();
                 userCredentials.setUsername(adminName);
