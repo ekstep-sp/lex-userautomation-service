@@ -10,9 +10,9 @@
 	</parent>
 	<groupId>com.space.userautomation</groupId>
 	<artifactId>UserAutomation</artifactId>
-	<version>0.0.3-SNAPSHOT</version>
+	<version>0.0.4-SNAPSHOT</version>
 	<name>UserAutomation</name>
-	<description>Demo project for Spring Boot</description>
+	<description>User Automation Project</description>
 
 	<properties>
 		<java.version>1.8</java.version>

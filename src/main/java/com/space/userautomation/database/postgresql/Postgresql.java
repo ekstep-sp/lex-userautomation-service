@@ -106,6 +106,8 @@ public class Postgresql {
         query.append("' AND");
         query.append(" role = '");
         query.append(userData.get("role"));
+        query.append("' AND root_org = '");
+        query.append(userData.get("root_org"));
         query.append("';");
         try  {
             PreparedStatement pst = con.prepareStatement(String.valueOf(query));

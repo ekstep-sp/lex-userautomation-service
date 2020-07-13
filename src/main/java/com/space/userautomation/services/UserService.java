@@ -57,7 +57,7 @@ public class UserService {
     private String adminPassword = System.getenv("adminPassword");
     private String content_type = System.getenv("content_type");
 
-    String roleForAdminUser = "org_admin";
+    String roleForAdminUser = "org-admin";
     public String getToken(UserCredentials userCredentials) {
 
         String responseToken = "";
@@ -243,6 +243,8 @@ public class UserService {
     }
 
     public ResponseEntity<JSONObject> userList(String filter, User userData) {
+       Map<String , Object> hideUsers = new HashMap<>();
+        hideUsers.put("username1","spaceadmin");
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         try {
             JSONObject jObj = new JSONObject((Map) new UserRoleService().getRoleForAdmin(userData).getBody().get("DATA"));
@@ -267,49 +269,60 @@ public class UserService {
                 List user = new ArrayList();
                 Boolean isEnabled;
                 if(filter == null) {
-                    return responses.getResponse("userList", HttpStatus.OK, 200, "", userList);
+                    for (int i = 0; i < userList.size(); i++) {
+                        JSONObject obj = (JSONObject) userList.get(i);
+                        if(!obj.get("username").equals(hideUsers.get("username1"))){
+                            user.add(obj);
+                        }
+                    }
+                    return responses.getResponse("userList", HttpStatus.OK, 200, userData.getApiId(), user);
                 }
                 if (filter.equals("enabled")) {
                     isEnabled = true;
                     for (int i = 0; i < userList.size(); i++) {
                         JSONObject obj = (JSONObject) userList.get(i);
                         if (obj.get("enabled") == isEnabled) {
-                            user.add(obj);
+                            if(!obj.get("username").equals(hideUsers.get("username1"))){
+                                user.add(obj);
+                            }
                         }
                     }
                     ProjectLogger.log("List of users are enabled : " + user, LoggerEnum.INFO.name());
-                    return responses.getResponse("userList of enabled users", HttpStatus.OK, 200, "", user);
+                    return responses.getResponse("userList of enabled users", HttpStatus.OK, 200, userData.getApiId(), user);
                 } else if (filter.equals("disabled")) {
                     isEnabled = false;
                     for (int i = 0; i < userList.size(); i++) {
                         JSONObject obj = (JSONObject) userList.get(i);
                         if (obj.get("enabled") == isEnabled) {
-                            System.out.println("disabled");
-                            user.add(obj);
+                            if(!obj.get("username").equals(hideUsers.get("username1"))){
+                                user.add(obj);
+                            }
                         }
                     }
                     ProjectLogger.log("List of users are disabled : " + user, LoggerEnum.INFO.name());
-                    return responses.getResponse("userList of disabled users", HttpStatus.OK, 200, "", user);
+                    return responses.getResponse("userList of disabled users", HttpStatus.OK, 200, userData.getApiId(), user);
                 } else if (filter.equals("all")) {
                     for (int i = 0; i < userList.size(); i++) {
                         JSONObject obj = (JSONObject) userList.get(i);
-                        user.add(obj);
+                        if(!obj.get("username").equals(hideUsers.get("username1"))){
+                            user.add(obj);
+                        }
                     }
                     ProjectLogger.log("List of users  : " + user, LoggerEnum.INFO.name());
-                    return responses.getResponse("userList of all users", HttpStatus.OK, 200, "", user);
+                    return responses.getResponse("userList of all users", HttpStatus.OK, 200, userData.getApiId(), user);
                 }
                else if (filter == null) {
-                    return responses.getResponse("userList", HttpStatus.OK, 200, "", userList);
+                    return responses.getResponse("userList", HttpStatus.OK, 200, userData.getApiId(), userList);
                 }
                 else {
-                 return responses.getResponse("userList", HttpStatus.OK, 200, "", userList);
+                 return responses.getResponse("userList", HttpStatus.OK, 200, userData.getApiId(), userList);
                 }
             } else {
-                return responses.getResponse("Permission denied,user role can be retireved by admin only", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, "", "");
+                return responses.getResponse("Permission denied,user list can be retireved by admin only", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, userData.getApiId(), "");
             }
         } catch (Exception ex) {
             ProjectLogger.log(ex.getMessage(), LoggerEnum.ERROR.name());
-            return responses.getResponse(" ", HttpStatus.BAD_REQUEST, 400, "", "");
+            return responses.getResponse(" ", HttpStatus.BAD_REQUEST, 400, userData.getApiId(), "");
         }
     }
     public JSONObject deleteUser(String user_id) {
@@ -332,10 +345,12 @@ public class UserService {
             ProjectLogger.log("Status id data : " + statusId, LoggerEnum.INFO.name());
             if(statusId == 204){
                 ProjectLogger.log("user id is deleted succesfully." , LoggerEnum.INFO.name());
+                jsonobject.put("statusCode",statusId);
                 return jsonobject;
             }
             else if(statusId == 404){
                 ProjectLogger.log("user id is not existed" , LoggerEnum.ERROR.name());
+                jsonobject.put("statusCode",statusId);
                 return jsonobject;
             }
         } catch (Exception ex) {

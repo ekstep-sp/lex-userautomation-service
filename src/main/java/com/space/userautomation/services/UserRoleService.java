@@ -36,11 +36,13 @@ public class UserRoleService {
     private String root_org = System.getenv("rootOrg");
     private String org = System.getenv("org");
     private String locale = System.getenv("locale");
-    String roleForAdminUser = "org_admin";
+    String roleForAdminUser = "org-admin";
     public Map<Object, Object>  requiredRoles = new HashMap<Object, Object>();
+    List<String> existingRoles = new ArrayList<>();
     static final String  alreadyPresent = "A";
     static final String notPresent = "N";
     static final String create = "C";
+    static final String fixedRole= "F"; 
     Map<Object, Object> allstatusCode = new HashMap<Object,Object>();
     
     public ResponseEntity<JSONObject> createUserRole(User userData) throws IOException {
@@ -159,7 +161,7 @@ public class UserRoleService {
         try{
             Map<String, Object> userResponse = new HashMap<>();
             ResponseEntity<JSONObject> responseEntity = userInformation.intializationRequest(userDetails);
-            ProjectLogger.log("Data from getAcceptedUser user from  intializationRequest method"+ responseEntity , LoggerEnum.ERROR.name());
+            ProjectLogger.log("Data from getAcceptedUser user from  intialization Request method"+ responseEntity , LoggerEnum.ERROR.name());
             JSONObject jsonData = new JSONObject((Map) responseEntity.getBody().get("DATA"));
             JSONObject enabeldetails = (JSONObject) jsonData.get("enableDetails");
             Boolean isEnable = (Boolean) enabeldetails.get("Enabled");
@@ -243,36 +245,45 @@ public class UserRoleService {
     public ResponseEntity<JSONObject> changeRole(User userData) {
         Map<String, Object> userResponse = new HashMap<>();
         try {
-            //validate for the admin user role
-            JSONObject jObj = new JSONObject((Map) getRoleForAdmin(userData).getBody().get("DATA"));
-            Boolean isORG_ADMIN = (Boolean) jObj.get(roleForAdminUser);
-            if (isORG_ADMIN) {
-                userData.setUser_id(userData.getWid());
-                Timestamp timestamp = new Postgresql().getTimestampValue();
-                userData.setUpdated_on(timestamp);
-                userData.setUpdated_by(userData.getWid_OrgAdmin());
-                
-                //validate if the roles provided is existing in master roles
-                if (validateUserFromMasterRoles(userData)) {
+            if((!userData.getWid().isEmpty() && userData.getWid() != null) &&(!userData.getRoles().isEmpty()) && (!userData.getName().isEmpty() && userData.getName() != null) &&(!userData.getEmail().isEmpty() && userData.getEmail() != null)) {
+                //validate for the admin user role
+                JSONObject jObj = new JSONObject((Map) getRoleForAdmin(userData).getBody().get("DATA"));
+                Boolean isORG_ADMIN = (Boolean) jObj.get(roleForAdminUser);
+                if (isORG_ADMIN) {
                     userData.setUser_id(userData.getWid());
-                    //update the roles for the user
-                    Map<String, Object> responseMap = validateAndUpdateRoles(userData);
-                   Integer statusCodeList = (Integer) responseMap.get("statuscode") ;   
-                    if (statusCodeList == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
-                        userResponse.put("User_Roles",responseMap.get("data"));
-                        return response.getResponse("User Role updated successfully", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, "", userResponse);
+                    Timestamp timestamp = new Postgresql().getTimestampValue();
+                    userData.setUpdated_on(timestamp);
+                    userData.setUpdated_by(userData.getWid_OrgAdmin());
+
+                    //validate if the roles provided is existing in master roles    
+                    if (validateUserFromMasterRoles(userData)) {
+                        userData.setUser_id(userData.getWid());
+                        //update the roles for the user
+                        Map<String, Object> responseMap = validateAndUpdateRoles(userData);
+                        Integer statusCodeList = (Integer) responseMap.get("statusCode");
+                        userResponse.put("email",userData.getEmail());
+                        userResponse.put("wid",userData.getWid());
+                        if (statusCodeList == 200) {
+                            emailService.changeRole(userData.getName(), userData.getEmail(), (List<String>)responseMap.get("data"), existingRoles);
+                            userResponse.put("User_Roles", responseMap.get("data"));
+                          
+                            return response.getResponse("User Role updated successfully", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), userResponse);
+                        } else {
+                            userResponse.put("User_Roles", "");
+                            ProjectLogger.log("Role could not be updated to the requested user, verify whether all roles insertion and deletion is success.", LoggerEnum.ERROR.name());
+                            return response.getResponse("Role could not be updated,please try again.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), userResponse);
+                        }
                     } else {
-                        ProjectLogger.log("Role could not be updated to the requested user, verify whether all roles insertion and deletion is success.", LoggerEnum.ERROR.name());
-                        return response.getResponse("Role could not be updated,Please try again.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, "", userResponse);
+                        return response.getResponse("Roles can be assigned from master roles only,please verify the roles before inserting", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), "");
                     }
                 } else {
-                    return response.getResponse("Roles can be assigned from master roles only,Please verify the roles before inserting", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, "", "");
+                    return response.getResponse("Permission denied,user role can be changed by admin user only", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), "");
                 }
-            }else {
-                return response.getResponse("Permission denied,user role can be retrieved by admin only", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, "", "");
+            }else{
+                 return response.getResponse("User role could not be updated,please provide appropriate params", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), "");
             }
         } catch (Exception ex) {
-            ProjectLogger.log("Exception occured " + ex, LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured while changing role " + ex, LoggerEnum.ERROR.name());
             return response.getResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, 500, userData.getApiId(), "");
         }
     }
@@ -286,12 +297,12 @@ public class UserRoleService {
         List<String> responseData = updateRoles(flaggedRoles, userData);
         if((allstatusCode.get("InsertionFailure") == (Integer) UserAutomationEnum.INTERNAL_SERVER_ERROR) || (allstatusCode.get("DeletionFailure") == (Integer) UserAutomationEnum.INTERNAL_SERVER_ERROR)){
             statusCode = UserAutomationEnum.INTERNAL_SERVER_ERROR;
-            response.put("statuscode",statusCode );
+            response.put("statusCode",statusCode );
             response.put("data",responseData);
         }
         else{
             statusCode = UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE;
-             response.put("statuscode",statusCode );  
+             response.put("statusCode",statusCode );  
              response.put("data", responseData);
         }
         return response;
@@ -309,10 +320,14 @@ public class UserRoleService {
     // Validate already existing roles with the currently requested role
     public Map<Object,Object> validateUserRole(User userData) {
         List<String> newRoles = new ArrayList<>();
-        List<String> existingRoles = new Postgresql().getUserRoles(userData.toMapUserRole());
+         existingRoles = new Postgresql().getUserRoles(userData.toMapUserRole());
         //assign the role to hashmap as already created
-        for(String role: existingRoles){
-            requiredRoles.put(role,alreadyPresent);
+        for(String role: existingRoles) {
+            if (role.equals(roleForAdminUser)) {
+                requiredRoles.put(role, fixedRole);
+            } else {
+                requiredRoles.put(role, alreadyPresent);
+            }
         }
         for (String role : userData.getRoles()) {
             if (!existingRoles.contains(role)) {
@@ -322,8 +337,12 @@ public class UserRoleService {
         }
         for (String role : existingRoles) {
             if (!userData.getRoles().contains(role)) {
-                requiredRoles.put(role, notPresent);
+                if (role.equals(roleForAdminUser)) {
+                    requiredRoles.put(role, fixedRole);
+                } else {
+                    requiredRoles.put(role, notPresent);
 //                newRoles.add(role);
+                }
             }
         }
         return requiredRoles;
@@ -350,11 +369,14 @@ public class UserRoleService {
             }
             if(entry.getValue() == notPresent){
                 userData.setRole(entry.getKey().toString());
+//                if(entry.getKey() != roleForAdminUser){
+//                    
+//                }
                 ResponseEntity<JSONObject> responseData = new Postgresql().deleteUserRole(userData.toMapUserRole());
                 Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
                 if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
                     allstatusCode.put("DeletionSuccess", UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE);
-                    ProjectLogger.log("User deleted  successfully" + userData.getWid(), LoggerEnum.ERROR.name());
+                    ProjectLogger.log("User role deleted  successfully" + userData.getWid(), LoggerEnum.ERROR.name());
                     continue;
                 } else {
                     allstatusCode.put("DeletionFailure", UserAutomationEnum.INTERNAL_SERVER_ERROR);
@@ -362,7 +384,7 @@ public class UserRoleService {
                     continue;
                 }
             }
-            if(entry.getValue() == alreadyPresent){
+            if(entry.getValue() == alreadyPresent || entry.getValue() == fixedRole){
 //                userData.setRole(entry.getKey().toString());
                 userRoles.add(entry.getKey().toString());
                 allstatusCode.put("AllSuccess", UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE);

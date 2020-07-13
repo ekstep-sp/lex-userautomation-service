@@ -10,6 +10,8 @@ import com.space.userautomation.common.ProjectLogger;
 import java.time.LocalDateTime;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class EmailService {
 
@@ -17,6 +19,7 @@ public class EmailService {
     private String platformLink = System.getenv("platformLink");
 
     private String domain = System.getenv("domain");
+    private String domainForSPace = System.getenv("domainSPace");
 
     public EmailService() {
     }
@@ -51,9 +54,9 @@ public class EmailService {
         try {
 
             ProjectLogger.log("Received Request to send mail for declining Registration.", LoggerEnum.INFO.name());
-            String subject = domain+" Registration request declined.";
+            String subject = domain+" registration request declined.";
             TemplateParser parser = new TemplateParser(EmailTemplate.declineContentTemplate);
-            String body = setArguments(parser.getContent(),domain ,domain);
+            String body = setArguments(parser.getContent(),domain ,domainForSPace);
             sendMail(subject, body, emails, false);
         } catch (Exception e) {
             ProjectLogger.log("Failed to send mail in userRegistrationDeclineMail " + e, LoggerEnum.ERROR.name());
@@ -75,6 +78,40 @@ public class EmailService {
         } catch (Exception e) {
             ProjectLogger.log("Failed to send mail in acceptmail " + e, LoggerEnum.ERROR.name());
         }
+    }
+    
+    public void changeRole(String name,String emailId,List<String> roles, List<String> existingRoles) {
+        try {
+            ProjectLogger.log("Received request to send mail for sending roles.", LoggerEnum.INFO.name());
+            String subject = domainForSPace + " Platform - Role Change ";
+            TemplateParser parser1 = new TemplateParser(EmailTemplate.changeRoleTemplate1);
+            TemplateParser parser2 = new TemplateParser(EmailTemplate.changeRoleTemplate2);
+            TemplateParser parser3 = new TemplateParser(EmailTemplate.changeRoleTemplate3);
+            String body1 = setArguments(parser1.getContent(),name);
+            String previousRole =  returnRoleAsString(existingRoles);
+            String body2 = setArguments(parser2.getContent());
+            String newRoles =  returnRoleAsString(roles);
+            String body3= setArguments(parser3.getContent() , domainForSPace);
+            String body = body1 + previousRole + body2 + newRoles + body3;;
+            String email = emailId;
+            String emailTo[] = {email};
+            sendMail(subject, body, emailTo, true);
+        } catch (Exception e) {
+            ProjectLogger.log("Failed to send mail to user for roles updated " + e, LoggerEnum.ERROR.name());
+        }
+    }
+    public String returnRoleAsString(List<String> roles){
+        String roleForEachUser = " ";
+       for(int i = 0 ; i < roles.size(); i++){
+          int  index = i+1;
+           roleForEachUser =  roleForEachUser + "Role " + index + ": ";
+           roleForEachUser = roleForEachUser + roles.get(i) + " ";
+           TemplateParser parser = new TemplateParser(EmailTemplate.templateSpace);
+           String body = setArguments(parser.getContent());
+           roleForEachUser = roleForEachUser + body;
+           index = index+1;
+       }
+        return roleForEachUser;
     }
     public void sendMail(String subject, String body, String emailTo[], boolean replyToCheck) {
 

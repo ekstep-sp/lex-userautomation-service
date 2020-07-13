@@ -82,7 +82,7 @@ public class UserRoleController {
             userData.setRoot_org((String) header.get("rootorg"));
             userData.setOrganisation((String) header.get("org"));
             userData.setWid_OrgAdmin((String) header.get("wid_orgadmin"));
-            if(userData.getRoot_org().equals(System.getenv("rootOrg")) && (!userData.getOrganisation().isEmpty()) && (!userData.getWid_OrgAdmin().isEmpty())){
+            if((userData.getRoot_org().equals(System.getenv("rootOrg")) && (!userData.getRoot_org().isEmpty())) && ( userData.getOrganisation().equals(System.getenv("org")) && (!userData.getOrganisation().isEmpty())) && (!userData.getWid_OrgAdmin().isEmpty())){
                 return userRoleService.getAllRoles(userData);
             }
             else{
@@ -97,7 +97,7 @@ public class UserRoleController {
     }
     @RequestMapping(value = "/v1/changerole", headers={"rootOrg","org","wid_OrgAdmin"}, method = RequestMethod.PUT)
     public ResponseEntity<?> changeRole(@RequestBody User userData, @RequestHeader Map<Object, Object> header){
-        ProjectLogger.log("change the role", LoggerEnum.INFO.name());
+        ProjectLogger.log(" Request recieved for change role api", LoggerEnum.INFO.name());
         try
         {
             User user = new User();
@@ -105,7 +105,9 @@ public class UserRoleController {
             userData.setRoot_org((String) header.get("rootorg"));
             userData.setOrganisation((String) header.get("org"));
             userData.setWid_OrgAdmin((String) header.get("wid_orgadmin"));
-            if(userData.getRoot_org().equals(System.getenv("rootOrg")) && (!userData.getOrganisation().isEmpty()) && (!userData.getWid_OrgAdmin().isEmpty())){
+            userData.setEmail(userData.getEmail());
+            userData.setName(userData.getName());
+            if((userData.getRoot_org().equals(System.getenv("rootOrg")) && (!userData.getRoot_org().isEmpty())) && ( userData.getOrganisation().equals(System.getenv("org")) && (!userData.getOrganisation().isEmpty())) && (!userData.getWid_OrgAdmin().isEmpty())){
                 return userRoleService.changeRole(userData);
             }
             else{
