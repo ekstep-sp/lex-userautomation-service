@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.space.userautomation</groupId>
 	<artifactId>UserAutomation</artifactId>
-	<version>0.0.4-SNAPSHOT</version>
+	<version>0.0.5-SNAPSHOT</version>
 	<name>UserAutomation</name>
 	<description>User Automation Project</description>
 
@@ -74,6 +74,19 @@
 			<version>1.2.17</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.auth0</groupId>
+			<artifactId>java-jwt</artifactId>
+			<version>3.10.3</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt</artifactId>
+			<version>0.9.1</version>
+		</dependency>
+		
 		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>

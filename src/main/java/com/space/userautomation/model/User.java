@@ -85,8 +85,18 @@ public class User implements Serializable {
     public void setApiId(String apiId) {
         this.apiId = apiId;
     }
+    public String tokenForUserDetails;
 
     private String apiId;
+
+    public String getTokenForUserDetails() {
+        return tokenForUserDetails;
+    }
+
+    public void setTokenForUserDetails(String tokenForUserDetails) {
+        this.tokenForUserDetails = tokenForUserDetails;
+    }
+
     public String getRoot_org() {
         return root_org;
     }

@@ -2,13 +2,21 @@ package com.space.userautomation.services;
 
 import java.io.*;
 import java.net.URLEncoder;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
+
 import com.space.userautomation.common.LoggerEnum;
 import com.space.userautomation.common.Response;
 import com.space.userautomation.common.UserAutomationEnum;
+import com.space.userautomation.database.postgresql.Postgresql;
 import com.space.userautomation.model.User;
 import com.space.userautomation.model.UserCredentials;
+import io.jsonwebtoken.*;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -56,7 +64,11 @@ public class UserService {
     private String adminName = System.getenv("adminName");
     private String adminPassword = System.getenv("adminPassword");
     private String content_type = System.getenv("content_type");
-
+    
+    
+    private String publicKey = System.getenv("public_key");
+    
+    Postgresql postgresql = new Postgresql();
     String roleForAdminUser = "org-admin";
     public String getToken(UserCredentials userCredentials) {
 
@@ -358,4 +370,76 @@ public class UserService {
         }
         return jsonobject;
     }
+    
+    public ResponseEntity<JSONObject> userDetails(User userData) {
+       try {
+           String newToken = getModifiedToken(userData.getTokenForUserDetails());
+           Map<String, Object> user = new HashMap<>();
+           Claims claimData =  getDataFromToken(newToken);
+           String organisation = (String) claimData.get("organisation");
+           String emailFromToken = (String) claimData.get("email");
+           if(validateWidWithToken(userData , emailFromToken)) {
+               if (!organisation.isEmpty() && (organisation != null)) {
+                   userData.setOrganisation(organisation);
+//     DecodedJWT jwt = JWT.decode(userData.getTokenForUserDetails());
+//     String org = jwt.getClaim("organisation").asString();
+                   int successCountForUpdate = postgresql.updateUserDetails(userData);
+                   user.put("wid", userData.getWid_user());
+                   if (successCountForUpdate > 0) {
+                       ProjectLogger.log("Successfully updated the user data." , LoggerEnum.ERROR.name());
+                       return responses.getResponse("Successfully updated the user data.", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
+                   } else {
+                       ProjectLogger.log("Failed to update the user data." , LoggerEnum.ERROR.name());
+                       return responses.getResponse("Failed to update the user data.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), user);
+                   }
+               } else {
+                   ProjectLogger.log("No organisation data was found" , LoggerEnum.ERROR.name());
+                   return responses.getResponse("No organisation data was found.", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
+               }
+           }
+           else{
+               ProjectLogger.log("Mismatched wid and token, please verify and try again." , LoggerEnum.ERROR.name());
+               return responses.getResponse("Mismatched wid and token, please verify and try again.", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
+           }
+       }
+       catch(ExpiredJwtException expiredJwtException){
+           ProjectLogger.log("Jwt token expired.Please try again" + expiredJwtException , LoggerEnum.INFO.name());
+           return responses.getResponse("JWT token expired, Please try again", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, userData.getApiId(), "");
+       }
+      catch(Exception ex){
+          ProjectLogger.log("Exception occured in userDetails method. "+ ex , LoggerEnum.INFO.name());
+          return responses.getResponse("Something went wrong !!!.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(),"");
+      }
+    }
+    
+    public String getModifiedToken(String oldtoken){
+        Boolean containsBearer = oldtoken.startsWith("bearer");
+        if(containsBearer){ 
+            String newToken = oldtoken.replace("bearer", "");
+            return newToken;
+        }
+        else{
+            return oldtoken;
+        }
+    }
+    
+    public Claims getDataFromToken(String token) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(Base64.getDecoder().decode(publicKey));
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        RSAPublicKey pubKey = (RSAPublicKey) keyFactory.generatePublic(keySpecX509);
+        Jws<Claims> claims = Jwts.parser().setSigningKey(pubKey).parseClaimsJws(token);
+//        String organisation = (String) claims.getBody().get("organisation"); 
+        Claims getBody = claims.getBody();
+        return getBody;
+    }
+    
+    public Boolean validateWidWithToken(User user, String emailFromToken){
+        String emailResponse = (String) postgresql.getUserDetails(user,"email");
+        if(emailFromToken.equals(emailResponse)){
+            return true;
+        }
+        return false;
+    }
+    
+    
 }

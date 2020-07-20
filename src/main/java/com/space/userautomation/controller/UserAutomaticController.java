@@ -60,7 +60,7 @@ public class UserAutomaticController {
             }
         }
         catch(Exception ex){
-            ProjectLogger.log("Exception occured in acceptUser method", LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured in listAllUsers method", LoggerEnum.ERROR.name());
             return response.getResponse("Please verify the headers before processing the request",HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE,userData.getApiId(),"");
         }
     }
@@ -95,6 +95,26 @@ public class UserAutomaticController {
         catch (Exception ex) {
             ProjectLogger.log("Exception occured in uploadFile method", LoggerEnum.INFO.name());
             return response.getResponse("Users could not be uploaded", HttpStatus.BAD_REQUEST, 400, "", "");
+        }
+    }
+    @RequestMapping(value = "/v2/userdetails", headers={"authorization"},  method = RequestMethod.PATCH)
+    public ResponseEntity<JSONObject> userDetails(@RequestParam(required = true) String wid,  User userData, @RequestHeader Map<Object, Object> header){
+        ProjectLogger.log("User Details api is called.", LoggerEnum.INFO.name());
+        try {
+            userData.setApiId(response.getApiId());
+            userData.setTokenForUserDetails((String) header.get("authorization"));
+            userData.setWid_user(wid);
+            if((!userData.getTokenForUserDetails().isEmpty()) && (!userData.getWid_user().isEmpty())){
+                return userService.userDetails(userData);
+            }
+            else{
+                ProjectLogger.log("Inapproriate headers in request.", LoggerEnum.ERROR.name());
+                return response.getResponse("Please verify the headers before processing the request",HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE,userData.getApiId(),"");
+            }
+        }
+        catch(Exception ex){
+            ProjectLogger.log("Exception occured in userDetails", LoggerEnum.ERROR.name());
+            return response.getResponse("User details cannot be updated ",HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE,userData.getApiId(),"");
         }
     }
 }

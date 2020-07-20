@@ -46,4 +46,5 @@ public class UserController {
         headers.put("Content-Type", Arrays.asList("application/json; charset=utf-8"));
         return new ResponseEntity<>(responseToken, headers, HttpStatus.OK);
     }
+    
 }

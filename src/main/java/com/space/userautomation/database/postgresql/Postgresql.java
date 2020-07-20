@@ -27,6 +27,7 @@ public class Postgresql {
     private static String url = System.getenv("postgresql_url") ;
     private static String user = System.getenv("postgresql_name") ;
     private static String password = System.getenv("postgresql_password") ;
+    private static String tableName_user = System.getenv("tableName_user");
     Response response = new Response();
 
     static{
@@ -124,6 +125,55 @@ public class Postgresql {
         }
     }
     
+    //get email details of user for user details api.
+    public Object  getUserDetails(User userData, String dataToBeRetrieved){
+        Object responseData = new Object();
+        ProjectLogger.log("Request recieved to get user details from table user.", LoggerEnum.ERROR.name());
+
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT " );
+        query.append(dataToBeRetrieved + " FROM ");
+        query.append( tableName_user );
+        query.append(" WHERE " + " wid = '" + userData.getWid_user() + "'");
+        query.append(";");
+        try{
+            PreparedStatement pst = con.prepareStatement(String.valueOf(query));
+            ResultSet resultSet =  pst.executeQuery();
+            while (resultSet.next()) {
+              responseData = resultSet.getString(dataToBeRetrieved);
+            }
+
+        } catch (SQLException e) {
+            ProjectLogger.log("SQL Exception occured while updating organisation for user" + e, LoggerEnum.ERROR.name());
+        }
+        catch(Exception ex) {
+            ProjectLogger.log("Exception occured while updating organisation for user"+ ex, LoggerEnum.ERROR.name());
+        }
+        return responseData;
+    }
+    
+    //update department_name for user table
+    public int  updateUserDetails(User userData){
+        ProjectLogger.log("Request recieved to update the user organisation details.", LoggerEnum.ERROR.name());
+        int successcount = -1;
+        StringBuilder query = new StringBuilder();
+        query.append("UPDATE " );
+        query.append( tableName_user );
+        query.append(" SET " + " department_name = '" + userData.getOrganisation() + "'");
+        query.append(" WHERE " + " wid = '" + userData.getWid_user() + "'");
+        query.append(";");
+        try{
+            PreparedStatement pst = con.prepareStatement(String.valueOf(query));
+           successcount = pst.executeUpdate();
+            return successcount;
+        } catch (SQLException e) {
+            ProjectLogger.log("SQL Exception occured while updating organisation for user" + e, LoggerEnum.ERROR.name());
+        }
+        catch(Exception ex) {
+            ProjectLogger.log("Exception occured while updating organisation for user" + ex, LoggerEnum.ERROR.name());
+        }
+        return successcount;
+    }
     
     public List<String> getUserRoles(Map<String, Object> userData) {
         List<String> role = new ArrayList<>();
