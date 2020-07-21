@@ -10,6 +10,8 @@ import com.space.userautomation.common.ProjectLogger;
 import java.time.LocalDateTime;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -20,6 +22,8 @@ public class EmailService {
 
     private String domain = System.getenv("domain");
     private String domainForSPace = System.getenv("domainSPace");
+    private String roleNameToBeReplaced = "default";
+    private String roleNameForReplacement = "privileged";
 
     public EmailService() {
     }
@@ -83,6 +87,8 @@ public class EmailService {
     public void changeRole(String name,String emailId,List<String> roles, List<String> existingRoles) {
         try {
             ProjectLogger.log("Received request to send mail for sending roles.", LoggerEnum.INFO.name());
+            replaceRoleName(roles);
+            replaceRoleName(existingRoles);
             String subject = domainForSPace + " Platform - Role Change ";
             TemplateParser parser1 = new TemplateParser(EmailTemplate.changeRoleTemplate1);
             TemplateParser parser2 = new TemplateParser(EmailTemplate.changeRoleTemplate2);
@@ -112,6 +118,9 @@ public class EmailService {
            index = index+1;
        }
         return roleForEachUser;
+    }
+    public void replaceRoleName(List<String> roles){
+        Collections.replaceAll(roles, roleNameForReplacement, roleNameToBeReplaced);
     }
     public void sendMail(String subject, String body, String emailTo[], boolean replyToCheck) {
 
