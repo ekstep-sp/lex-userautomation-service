@@ -87,6 +87,15 @@ public class EmailService {
     public void changeRole(String name,String emailId,List<String> roles, List<String> existingRoles) {
         try {
             ProjectLogger.log("Received request to send mail for sending roles.", LoggerEnum.INFO.name());
+            if(existingRoles == null || existingRoles.size() == 0)
+            {
+                existingRoles.add("default");
+            }
+//            for(String role: existingRoles) {
+//                if (role == null || role == ""|| role.isEmpty()) {
+//                    existingRoles.add("default");
+//                }
+//            }
             replaceRoleName(roles);
             replaceRoleName(existingRoles);
             String subject = domainForSPace + " Platform - Role Change ";
@@ -98,7 +107,7 @@ public class EmailService {
             String body2 = setArguments(parser2.getContent());
             String newRoles =  returnRoleAsString(roles);
             String body3= setArguments(parser3.getContent() , domainForSPace);
-            String body = body1 + previousRole + body2 + newRoles + body3;;
+            String body = body1 + previousRole + body2 + newRoles + body3;
             String email = emailId;
             String emailTo[] = {email};
             sendMail(subject, body, emailTo, true);

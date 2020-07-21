@@ -30,8 +30,9 @@ public class UserRoleService {
     Cassandra cassandra = new Cassandra();
     Response response = new Response();
     EmailService emailService = new EmailService();
+    Postgresql postgresql = new Postgresql();
     UpdateUserInformation userInformation = new UpdateUserInformation();
-
+    
 
     private String root_org = System.getenv("rootOrg");
     private String org = System.getenv("org");
@@ -44,7 +45,6 @@ public class UserRoleService {
     static final String create = "C";
     static final String fixedRole= "F"; 
     Map<Object, Object> allstatusCode = new HashMap<Object,Object>();
-    
     public ResponseEntity<JSONObject> createUserRole(User userData) throws IOException {
         String userId = userData.getUser_id();
         try {
@@ -320,7 +320,7 @@ public class UserRoleService {
     // Validate already existing roles with the currently requested role
     public Map<Object,Object> validateUserRole(User userData) {
         List<String> newRoles = new ArrayList<>();
-         existingRoles = new Postgresql().getUserRoles(userData.toMapUserRole());
+         existingRoles = postgresql.getUserRoles(userData.toMapUserRole());
         //assign the role to hashmap as already created
         for(String role: existingRoles) {
             if (role.equals(roleForAdminUser)) {
