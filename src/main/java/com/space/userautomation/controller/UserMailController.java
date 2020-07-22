@@ -57,6 +57,7 @@ public class UserMailController {
                             Integer statusCode = (Integer) job.get("statusCode");
                             if (statusCode == 204) {
 //                                userService.deleteUser(user_id.toString());
+                                userService.deleteUserFromUserAutomation(emails.toString(), user_id.toString());
                                 if (allowSendMail.equals("true")) {
                                     emailService.userRegistrationDeclineMail(emailArr);
                                 }
@@ -71,11 +72,18 @@ public class UserMailController {
                         ProjectLogger.log("Emails : " + emails, LoggerEnum.INFO.name());
                         ArrayList<String> emailList = (ArrayList<String>) emails;
                         String[] emailsToSend = emailList.toArray(new String[emailList.size()]);
-                        userService.deleteUser(user_id.toString());
+                        JSONObject job = new JSONObject(userService.deleteUser(user_id.toString()));
+                        Integer statusCode = (Integer) job.get("statusCode");
+                        if (statusCode == 204) {
+                        userService.deleteUserFromUserAutomation(emails.toString(), user_id.toString());
                         if (allowSendMail.equals("true")) {
                             emailService.userRegistrationDeclineMail(emailsToSend);
                         }
                         return responses.getResponse("Success", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), emailsToSend);
+                        } else {
+                            ProjectLogger.log("Failed to delete user.", LoggerEnum.ERROR.name());
+                            return responses.getResponse("User could not be deleted.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, "", "");
+                        }
                     } else {
                         ProjectLogger.log("User cannot be deleted, please provide appropriate params.", LoggerEnum.ERROR.name());
                         return responses.getResponse("User cannot be deleted, please provide appropriate params", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), "");

@@ -64,12 +64,13 @@ public class UserService {
     private String adminName = System.getenv("adminName");
     private String adminPassword = System.getenv("adminPassword");
     private String content_type = System.getenv("content_type");
-    
-    
+
+
     private String publicKey = System.getenv("public_key");
-    
+
     Postgresql postgresql = new Postgresql();
     String roleForAdminUser = "org-admin";
+
     public String getToken(UserCredentials userCredentials) {
 
         String responseToken = "";
@@ -82,7 +83,7 @@ public class UserService {
             urlParameters.add(new BasicNameValuePair("password", userCredentials.getPassword()));
             responseToken = sendPost(urlParameters);
         } catch (Exception e) {
-            ProjectLogger.log("Exception occured in getToken method"+e.getMessage(), LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured in getToken method" + e.getMessage(), LoggerEnum.ERROR.name());
         }
         return responseToken;
     }
@@ -94,7 +95,7 @@ public class UserService {
             validateUserDetails(user);
         } catch (Exception e) {
             ProjectLogger.log(e.getMessage(), LoggerEnum.ERROR.name());
-            return responses.getResponse("",HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE,user.getApiId(),"");
+            return responses.getResponse("", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, user.getApiId(), "");
         }
         try {
             UserCredentials userCredentials = new UserCredentials();
@@ -125,7 +126,7 @@ public class UserService {
                 attr.put(key, value);
             }
             json.put("attributes", attr);
-            HttpPost request = new HttpPost(System.getenv("productionUrl")+"auth/admin/realms/"+REALM+"/users");
+            HttpPost request = new HttpPost(System.getenv("productionUrl") + "auth/admin/realms/" + REALM + "/users");
             StringEntity params = new StringEntity(json.toString());
             ProjectLogger.log("User Create Request Body : " + json.toString(), LoggerEnum.INFO.name());
             request.addHeader("content-type", content_type);
@@ -151,14 +152,14 @@ public class UserService {
                 TemplateParser parserEmailTemplate = new TemplateParser(EmailTemplate.contentTemplate);
                 new EmailService(parserEmailTemplate.getContent()).userCreationSuccessMail(user.getName(), user.getEmail(), user.getPassword(), user.getOrganisation());
                 responseData.put("User_id", userId);
-                return responses.getResponse("user created successfully in keycloak with userId",HttpStatus.CREATED,UserAutomationEnum.CREATED,user.getApiId(), responseData);
+                return responses.getResponse("user created successfully in keycloak with userId", HttpStatus.CREATED, UserAutomationEnum.CREATED, user.getApiId(), responseData);
             } else if (statusId == 409) {
                 responseData.put("Email", user.getEmail());
                 ProjectLogger.log("Email = " + user.getEmail() + " already present in keycloak", LoggerEnum.ERROR.name());
-                return responses.getResponse("This Email is already registered",HttpStatus.NOT_IMPLEMENTED,UserAutomationEnum.NOT_IMPLEMENTED,user.getApiId(), responseData);
+                return responses.getResponse("This Email is already registered", HttpStatus.NOT_IMPLEMENTED, UserAutomationEnum.NOT_IMPLEMENTED, user.getApiId(), responseData);
             } else {
                 ProjectLogger.log("Failed to create user." + response, LoggerEnum.ERROR.name());
-                return responses.getResponse("unable to create user now.Please check the logs",HttpStatus.INTERNAL_SERVER_ERROR,UserAutomationEnum.INTERNAL_SERVER_ERROR,user.getApiId(),"");
+                return responses.getResponse("unable to create user now.Please check the logs", HttpStatus.INTERNAL_SERVER_ERROR, UserAutomationEnum.INTERNAL_SERVER_ERROR, user.getApiId(), "");
             }
         } catch (Exception ex) {
             ProjectLogger.log(ex.getMessage(), LoggerEnum.ERROR.name());
@@ -181,7 +182,7 @@ public class UserService {
     }
 
     // Function to generate random alpha-numeric password of specific length
-    public  String generateRandomPassword(int len, int randNumOrigin, int randNumBound) {
+    public String generateRandomPassword(int len, int randNumOrigin, int randNumBound) {
         SecureRandom random = new SecureRandom();
         return random.ints(randNumOrigin, randNumBound + 1)
                 .filter(i -> Character.isAlphabetic(i) || Character.isDigit(i))
@@ -255,8 +256,8 @@ public class UserService {
     }
 
     public ResponseEntity<JSONObject> userList(String filter, User userData) {
-       Map<String , Object> hideUsers = new HashMap<>();
-        hideUsers.put("username1","spaceadmin");
+        Map<String, Object> hideUsers = new HashMap<>();
+        hideUsers.put("username1", "spaceadmin");
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         try {
             JSONObject jObj = new JSONObject((Map) new UserRoleService().getRoleForAdmin(userData).getBody().get("DATA"));
@@ -280,10 +281,10 @@ public class UserService {
                 JSONArray userList = (JSONArray) parser.parse(message);
                 List user = new ArrayList();
                 Boolean isEnabled;
-                if(filter == null) {
+                if (filter == null) {
                     for (int i = 0; i < userList.size(); i++) {
                         JSONObject obj = (JSONObject) userList.get(i);
-                        if(!obj.get("username").equals(hideUsers.get("username1"))){
+                        if (!obj.get("username").equals(hideUsers.get("username1"))) {
                             user.add(obj);
                         }
                     }
@@ -294,7 +295,7 @@ public class UserService {
                     for (int i = 0; i < userList.size(); i++) {
                         JSONObject obj = (JSONObject) userList.get(i);
                         if (obj.get("enabled") == isEnabled) {
-                            if(!obj.get("username").equals(hideUsers.get("username1"))){
+                            if (!obj.get("username").equals(hideUsers.get("username1"))) {
                                 user.add(obj);
                             }
                         }
@@ -306,7 +307,7 @@ public class UserService {
                     for (int i = 0; i < userList.size(); i++) {
                         JSONObject obj = (JSONObject) userList.get(i);
                         if (obj.get("enabled") == isEnabled) {
-                            if(!obj.get("username").equals(hideUsers.get("username1"))){
+                            if (!obj.get("username").equals(hideUsers.get("username1"))) {
                                 user.add(obj);
                             }
                         }
@@ -316,18 +317,16 @@ public class UserService {
                 } else if (filter.equals("all")) {
                     for (int i = 0; i < userList.size(); i++) {
                         JSONObject obj = (JSONObject) userList.get(i);
-                        if(!obj.get("username").equals(hideUsers.get("username1"))){
+                        if (!obj.get("username").equals(hideUsers.get("username1"))) {
                             user.add(obj);
                         }
                     }
                     ProjectLogger.log("List of users  : " + user, LoggerEnum.INFO.name());
                     return responses.getResponse("userList of all users", HttpStatus.OK, 200, userData.getApiId(), user);
-                }
-               else if (filter == null) {
+                } else if (filter == null) {
                     return responses.getResponse("userList", HttpStatus.OK, 200, userData.getApiId(), userList);
-                }
-                else {
-                 return responses.getResponse("userList", HttpStatus.OK, 200, userData.getApiId(), userList);
+                } else {
+                    return responses.getResponse("userList", HttpStatus.OK, 200, userData.getApiId(), userList);
                 }
             } else {
                 return responses.getResponse("Permission denied,user list can be retireved by admin only", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, userData.getApiId(), "");
@@ -337,6 +336,7 @@ public class UserService {
             return responses.getResponse(" ", HttpStatus.BAD_REQUEST, 400, userData.getApiId(), "");
         }
     }
+
     public JSONObject deleteUser(String user_id) {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         JSONObject jsonobject = new JSONObject();
@@ -349,20 +349,19 @@ public class UserService {
             JSONParser parser = new JSONParser();
             JSONObject tokenJson = (JSONObject) parser.parse(token);
             String accessToken = tokenJson.get("access_token").toString();
-            HttpDelete request = new HttpDelete(System.getenv("productionUrl")+"auth/admin/realms/"+REALM+"/users/"+user_id);
+            HttpDelete request = new HttpDelete(System.getenv("productionUrl") + "auth/admin/realms/" + REALM + "/users/" + user_id);
             request.addHeader("content-type", "application/json");
             request.addHeader("Authorization", "Bearer " + accessToken);
             HttpResponse response = httpClient.execute(request);
             int statusId = response.getStatusLine().getStatusCode();
             ProjectLogger.log("Status id data : " + statusId, LoggerEnum.INFO.name());
-            if(statusId == 204){
-                ProjectLogger.log("user id is deleted succesfully." , LoggerEnum.INFO.name());
-                jsonobject.put("statusCode",statusId);
+            if (statusId == 204) {
+                ProjectLogger.log("user id is deleted succesfully.", LoggerEnum.INFO.name());
+                jsonobject.put("statusCode", statusId);
                 return jsonobject;
-            }
-            else if(statusId == 404){
-                ProjectLogger.log("user id is not existed" , LoggerEnum.ERROR.name());
-                jsonobject.put("statusCode",statusId);
+            } else if (statusId == 404) {
+                ProjectLogger.log("user id is not existed", LoggerEnum.ERROR.name());
+                jsonobject.put("statusCode", statusId);
                 return jsonobject;
             }
         } catch (Exception ex) {
@@ -370,59 +369,55 @@ public class UserService {
         }
         return jsonobject;
     }
-    
+
     public ResponseEntity<JSONObject> userDetails(User userData) {
-       try {
-           String newToken = getModifiedToken(userData.getTokenForUserDetails());
-           Map<String, Object> user = new HashMap<>();
-           Claims claimData =  getDataFromToken(newToken);
-           String organisation = (String) claimData.get("organisation");
-           String emailFromToken = (String) claimData.get("email");
-           if(validateWidWithToken(userData , emailFromToken)) {
-               if (!organisation.isEmpty() && (organisation != null)) {
-                   userData.setOrganisation(organisation);
+        try {
+            String newToken = getModifiedToken(userData.getTokenForUserDetails());
+            Map<String, Object> user = new HashMap<>();
+            Claims claimData = getDataFromToken(newToken);
+            String organisation = (String) claimData.get("organisation");
+            String emailFromToken = (String) claimData.get("email");
+            if (validateWidWithToken(userData, emailFromToken)) {
+                if (!organisation.isEmpty() && (organisation != null)) {
+                    userData.setOrganisation(organisation);
 //     DecodedJWT jwt = JWT.decode(userData.getTokenForUserDetails());
 //     String org = jwt.getClaim("organisation").asString();
-                   int successCountForUpdate = postgresql.updateUserDetails(userData);
-                   user.put("wid", userData.getWid_user());
-                   if (successCountForUpdate > 0) {
-                       ProjectLogger.log("Successfully updated the user data." , LoggerEnum.ERROR.name());
-                       return responses.getResponse("Successfully updated the user data.", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
-                   } else {
-                       ProjectLogger.log("Failed to update the user data." , LoggerEnum.ERROR.name());
-                       return responses.getResponse("Failed to update the user data.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), user);
-                   }
-               } else {
-                   ProjectLogger.log("No organisation data was found" , LoggerEnum.ERROR.name());
-                   return responses.getResponse("No organisation data was found.", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
-               }
-           }
-           else{
-               ProjectLogger.log("Mismatched wid and token, please verify and try again." , LoggerEnum.ERROR.name());
-               return responses.getResponse("Mismatched wid and token, please verify and try again.", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
-           }
-       }
-       catch(ExpiredJwtException expiredJwtException){
-           ProjectLogger.log("Jwt token expired.Please try again" + expiredJwtException , LoggerEnum.INFO.name());
-           return responses.getResponse("JWT token expired, Please try again", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, userData.getApiId(), "");
-       }
-      catch(Exception ex){
-          ProjectLogger.log("Exception occured in userDetails method. "+ ex , LoggerEnum.INFO.name());
-          return responses.getResponse("Something went wrong !!!.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(),"");
-      }
+                    int successCountForUpdate = postgresql.updateUserDetails(userData);
+                    user.put("wid", userData.getWid_user());
+                    if (successCountForUpdate > 0) {
+                        ProjectLogger.log("Successfully updated the user data.", LoggerEnum.ERROR.name());
+                        return responses.getResponse("Successfully updated the user data.", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
+                    } else {
+                        ProjectLogger.log("Failed to update the user data.", LoggerEnum.ERROR.name());
+                        return responses.getResponse("Failed to update the user data.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), user);
+                    }
+                } else {
+                    ProjectLogger.log("No organisation data was found", LoggerEnum.ERROR.name());
+                    return responses.getResponse("No organisation data was found.", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
+                }
+            } else {
+                ProjectLogger.log("Mismatched wid and token, please verify and try again.", LoggerEnum.ERROR.name());
+                return responses.getResponse("Mismatched wid and token, please verify and try again.", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
+            }
+        } catch (ExpiredJwtException expiredJwtException) {
+            ProjectLogger.log("Jwt token expired.Please try again" + expiredJwtException, LoggerEnum.INFO.name());
+            return responses.getResponse("JWT token expired, Please try again", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, userData.getApiId(), "");
+        } catch (Exception ex) {
+            ProjectLogger.log("Exception occured in userDetails method. " + ex, LoggerEnum.INFO.name());
+            return responses.getResponse("Something went wrong !!!.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), "");
+        }
     }
-    
-    public String getModifiedToken(String oldtoken){
+
+    public String getModifiedToken(String oldtoken) {
         Boolean containsBearer = oldtoken.startsWith("bearer");
-        if(containsBearer){ 
+        if (containsBearer) {
             String newToken = oldtoken.replace("bearer", "");
             return newToken;
-        }
-        else{
+        } else {
             return oldtoken;
         }
     }
-    
+
     public Claims getDataFromToken(String token) throws NoSuchAlgorithmException, InvalidKeySpecException {
         X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(Base64.getDecoder().decode(publicKey));
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
@@ -432,14 +427,39 @@ public class UserService {
         Claims getBody = claims.getBody();
         return getBody;
     }
-    
-    public Boolean validateWidWithToken(User user, String emailFromToken){
-        String emailResponse = (String) postgresql.getUserDetails(user,"email");
-        if(emailFromToken.equals(emailResponse)){
+
+    public Boolean validateWidWithToken(User user, String emailFromToken) {
+        String emailResponse = (String) postgresql.getUserDetails(user, "email");
+        if (emailFromToken.equals(emailResponse)) {
             return true;
         }
         return false;
     }
-    
-    
+
+
+    public JSONObject deleteUserFromUserAutomation(String email, String userId) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            User userData = new User();
+            userData.setEmail(email);
+            userData.setUser_id(userId);
+            ResponseEntity<JSONObject> responseData = postgresql.deleteUserDataFromUserAutomation(userData.toMapUserDataForUserAutomation());
+            Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
+            if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
+                jsonObject.put("email",userData.getEmail());
+                jsonObject.put("success","true");
+                ProjectLogger.log("User data deleted  successfully from user automation with email: " + userData.getEmail(), LoggerEnum.INFO.name());
+                return jsonObject;
+            } else {
+                jsonObject.put("email",userData.getEmail());
+                jsonObject.put("success","false");
+                ProjectLogger.log("Failed to delete user data from user automation with email: " + userData.getEmail(), LoggerEnum.ERROR.name());
+                return jsonObject;
+            }
+        } catch (Exception ex) {
+            ProjectLogger.log("Exception occured in deleteUserFromUserAutomation,  " + ex.getMessage(), LoggerEnum.ERROR.name());
+        }
+        return jsonObject;
+    }
 }
+    

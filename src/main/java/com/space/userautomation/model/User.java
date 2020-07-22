@@ -250,7 +250,12 @@ public class User implements Serializable {
         userData.put("updated_by", this.getUpdated_by());
         return userData;
     }
-    
+    public Map<String,Object> toMapUserDataForUserAutomation(){
+        Map<String,Object> userData = new HashMap<String, Object>();
+        userData.put("user_id", this.getUser_id());
+        userData.put("email", this.getEmail());
+        return userData;
+    }
     public Map<String,Object> toMapUserRolePostgresql(){
         Map<String,Object> userData = new HashMap<String, Object>();
         userData.put("root_org",this.getRoot_org());
