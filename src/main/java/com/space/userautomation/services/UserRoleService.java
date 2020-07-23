@@ -319,6 +319,8 @@ public class UserRoleService {
     
     // Validate already existing roles with the currently requested role
     public Map<Object,Object> validateUserRole(User userData) {
+        requiredRoles.clear();
+        existingRoles.clear();
         List<String> newRoles = new ArrayList<>();
          existingRoles = postgresql.getUserRoles(userData.toMapUserRole());
         //assign the role to hashmap as already created
@@ -349,7 +351,8 @@ public class UserRoleService {
     }
     
     public List<String> updateRoles(Map<Object,Object> flaggedRoles, User userData) {
-          List<String> userRoles = new ArrayList<>();
+          List<String> userRoles = new ArrayList<>(); 
+          allstatusCode.clear();
       
         for (Map.Entry<Object, Object> entry : flaggedRoles.entrySet()) {
             if (entry.getValue() == create) {
