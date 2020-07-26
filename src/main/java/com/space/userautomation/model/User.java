@@ -35,7 +35,7 @@ public class User implements Serializable {
     private Timestamp updated_on;
     private String wid_OrgAdmin;
     private String role;
-
+    
     public List<String> getRoles() {
         return roles;
     }
@@ -163,9 +163,9 @@ public class User implements Serializable {
 
     }
      public User(String role)
-{
+    {
     this.role = role;
-}
+    }
 
 
     public String getFirstName() {
@@ -230,7 +230,7 @@ public class User implements Serializable {
         this.organisation = organisation;
     }
 
-
+  
     public Map<String, String> toMap() {
         Map<String, String> userDetails = new HashMap<>();
         userDetails.put("email", email);
@@ -250,7 +250,7 @@ public class User implements Serializable {
         userData.put("updated_by", this.getUpdated_by());
         return userData;
     }
-    public Map<String,Object> toMapUserDataForUserAutomation(){
+    public Map<String,Object> toMapUserDataForUserAutoComplete(){
         Map<String,Object> userData = new HashMap<String, Object>();
         userData.put("user_id", this.getUser_id());
         userData.put("email", this.getEmail());

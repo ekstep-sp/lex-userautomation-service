@@ -57,7 +57,7 @@ public class UserMailController {
                             Integer statusCode = (Integer) job.get("statusCode");
                             if (statusCode == 204) {
 //                                userService.deleteUser(user_id.toString());
-                                userService.deleteUserFromUserAutomation(emails.toString(), user_id.toString());
+                                userService.deleteUserFromUserAutoComplete(emails.toString(), user_id.toString());
                                 if (allowSendMail.equals("true")) {
                                     emailService.userRegistrationDeclineMail(emailArr);
                                 }
@@ -75,7 +75,7 @@ public class UserMailController {
                         JSONObject job = new JSONObject(userService.deleteUser(user_id.toString()));
                         Integer statusCode = (Integer) job.get("statusCode");
                         if (statusCode == 204) {
-                        userService.deleteUserFromUserAutomation(emails.toString(), user_id.toString());
+                        userService.deleteUserFromUserAutoComplete(emails.toString(), user_id.toString());
                         if (allowSendMail.equals("true")) {
                             emailService.userRegistrationDeclineMail(emailsToSend);
                         }

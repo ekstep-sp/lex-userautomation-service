@@ -117,4 +117,27 @@ public class UserAutomaticController {
             return response.getResponse("User details cannot be updated ",HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE,userData.getApiId(),"");
         }
     }
+
+    @RequestMapping(value = "/v2/users",headers={"rootOrg","org","wid_OrgAdmin"}, method = RequestMethod.GET)
+    public ResponseEntity<JSONObject> listAllUsersFromUserTable(@RequestParam(required = false) String filter, User userData, @RequestHeader Map<Object, Object> header) {
+        ProjectLogger.log("UserAutomation getUsers Api called.", LoggerEnum.INFO.name());
+        try
+        {
+            userData.setApiId(response.getApiId());
+            userData.setRoot_org((String) header.get("rootorg"));
+            userData.setOrganisation((String) header.get("org"));
+            userData.setWid_OrgAdmin((String) header.get("wid_orgadmin"));
+            if(userData.getRoot_org().equals(System.getenv("rootOrg")) && (!userData.getOrganisation().isEmpty()) && (!userData.getWid_OrgAdmin().isEmpty())){
+                return userService.userListFromUserTable(filter,userData);
+            }
+            else{
+                ProjectLogger.log("Inapproriate headers in request.", LoggerEnum.ERROR.name());
+                return response.getResponse("Please verify the headers before processing the request",HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE,userData.getApiId(),"");
+            }
+        }
+        catch(Exception ex){
+            ProjectLogger.log("Exception occured in listAllUsers method", LoggerEnum.ERROR.name());
+            return response.getResponse("Please verify the headers before processing the request",HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE,userData.getApiId(),"");
+        }
+    }
 }

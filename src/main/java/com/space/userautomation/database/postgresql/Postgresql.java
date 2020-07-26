@@ -8,6 +8,7 @@ import com.space.userautomation.common.ProjectLogger;
 import com.space.userautomation.common.Response;
 import com.space.userautomation.common.UserAutomationEnum;
 import com.space.userautomation.model.User;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.postgresql.util.PSQLException;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +29,7 @@ public class Postgresql {
     private static String url = System.getenv("postgresql_url") ;
     private static String user = System.getenv("postgresql_name") ;
     private static String password = System.getenv("postgresql_password") ;
-    private static String tableName_userAutomation = System.getenv("tableName_userAutomation");
+    private static String tableName_userComplete = System.getenv("tableName_userComplete");
     private static String tableName_user = System.getenv("tableName_user");
     Response response = new Response();
 
@@ -63,7 +65,7 @@ public class Postgresql {
             }
         }
     }
-
+    
     public ResponseEntity<JSONObject> insertUserRoles(Map<String, Object> userData){
         ProjectLogger.log("Request recieved for insert user role with user id "+ userData.get("user_id"), LoggerEnum.INFO.name());
         StringBuilder query = new StringBuilder();
@@ -130,7 +132,7 @@ public class Postgresql {
         ProjectLogger.log("Request recieved for deleting user data from user automation table "+ userData.get("user_id"), LoggerEnum.INFO.name());
         StringBuilder query = new StringBuilder();
         query.append("DELETE FROM ");
-        query.append( tableName_userAutomation );
+        query.append( tableName_userComplete );
         query.append(" WHERE email = '");
         query.append(userData.get("email"));
         query.append("';");
@@ -173,6 +175,40 @@ public class Postgresql {
             ProjectLogger.log("Exception occured while updating organisation for user"+ ex, LoggerEnum.ERROR.name());
         }
         return responseData;
+    }
+//getting all users from userTable
+    public Object  getAllUserList(User userData){
+        JSONArray json = new JSONArray();
+        ProjectLogger.log("Request recieved to get all user list  from table user.", LoggerEnum.ERROR.name());
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT " );
+        query.append( "*" + " FROM ");
+        query.append( tableName_user );
+        query.append(" WHERE " + " root_org = '" + userData.getRoot_org() + "'");
+        query.append(" AND " + "org = '" + userData.getOrganisation() + "'");
+        query.append(";");
+        try{
+            PreparedStatement pst = con.prepareStatement(String.valueOf(query));
+            ResultSet resultSet =  pst.executeQuery();
+    
+            ResultSetMetaData rsmd = resultSet.getMetaData();
+            while(resultSet.next()) {
+                int numColumns = rsmd.getColumnCount();
+                JSONObject obj = new JSONObject();
+                for (int i=1; i<=numColumns; i++) {
+                    String column_name = rsmd.getColumnName(i);
+                    obj.put(column_name, resultSet.getObject(column_name));
+                }
+                json.add(obj);
+            }
+            return json;
+        } catch (SQLException e) {
+            ProjectLogger.log("SQL Exception occured while retieving list of users from user table" + e, LoggerEnum.ERROR.name());
+        }
+        catch(Exception ex) {
+            ProjectLogger.log("Exception occured while retieving list of users from user table"+ ex, LoggerEnum.ERROR.name());
+        }
+        return json;
     }
     
     //update department_name for user table

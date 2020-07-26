@@ -337,6 +337,25 @@ public class UserService {
         }
     }
 
+    
+    
+    public ResponseEntity<JSONObject> userListFromUserTable(String filter, User userData){
+        try{
+            JSONArray userList = (JSONArray) postgresql.getAllUserList(userData);
+            List filteredUserList = new ArrayList();
+                for (int i = 0; i < userList.size(); i++) {
+                    JSONObject obj = (JSONObject) userList.get(i);
+                    filteredUserList.add(obj); 
+                }
+            return responses.getResponse("userList of all users", HttpStatus.OK, 200, userData.getApiId(), filteredUserList);
+        }
+        catch(Exception ex){
+            ProjectLogger.log("Exception occured in retrieving user list from user table " + ex.getMessage(), LoggerEnum.ERROR.name());
+            return responses.getResponse(" ", HttpStatus.BAD_REQUEST, 400, userData.getApiId(), "");
+        }
+    }
+    
+    
     public JSONObject deleteUser(String user_id) {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         JSONObject jsonobject = new JSONObject();
@@ -437,27 +456,27 @@ public class UserService {
     }
 
 
-    public JSONObject deleteUserFromUserAutomation(String email, String userId) {
+    public JSONObject deleteUserFromUserAutoComplete(String email, String userId) {
         JSONObject jsonObject = new JSONObject();
         try {
             User userData = new User();
             userData.setEmail(email);
             userData.setUser_id(userId);
-            ResponseEntity<JSONObject> responseData = postgresql.deleteUserDataFromUserAutomation(userData.toMapUserDataForUserAutomation());
+            ResponseEntity<JSONObject> responseData = postgresql.deleteUserDataFromUserAutomation(userData.toMapUserDataForUserAutoComplete());
             Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
             if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
                 jsonObject.put("email",userData.getEmail());
                 jsonObject.put("success","true");
-                ProjectLogger.log("User data deleted  successfully from user automation with email: " + userData.getEmail(), LoggerEnum.INFO.name());
+                ProjectLogger.log("User data deleted  successfully from user autocomplete table with email: " + userData.getEmail(), LoggerEnum.INFO.name());
                 return jsonObject;
             } else {
                 jsonObject.put("email",userData.getEmail());
                 jsonObject.put("success","false");
-                ProjectLogger.log("Failed to delete user data from user automation with email: " + userData.getEmail(), LoggerEnum.ERROR.name());
+                ProjectLogger.log("Failed to delete user data from user autocomplete table with email: " + userData.getEmail(), LoggerEnum.ERROR.name());
                 return jsonObject;
             }
         } catch (Exception ex) {
-            ProjectLogger.log("Exception occured in deleteUserFromUserAutomation,  " + ex.getMessage(), LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured in deleteUserFromUserAutoComplete,  " + ex.getMessage(), LoggerEnum.ERROR.name());
         }
         return jsonObject;
     }
