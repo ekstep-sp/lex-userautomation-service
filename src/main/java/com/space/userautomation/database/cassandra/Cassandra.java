@@ -23,6 +23,7 @@ public class Cassandra {
     static Cluster cluster;
 
     private static String tableName = System.getenv("tableName");
+    private static String tableName_userTnc = System.getenv("tableName_userTnc");
     private static String keyspaceName = System.getenv("keyspaceName");
     Response response = new Response();
 
@@ -117,6 +118,41 @@ public class Cassandra {
         return userDetails;
     }
 
+    public ResponseEntity<JSONObject> deleteUserDataFromUserTncTable(Map<String, Object> userData) {
+        System.out.println("userID" + userData.get("user_id"));
+        StringBuilder query = new StringBuilder();
+        query.append("DELETE FROM ");
+        query.append(keyspaceName + "." + tableName_userTnc + " ");
+        query.append("WHERE user_id = '");
+        query.append(userData.get("user_id"));
+        query.append("' AND root_org = '");
+        query.append(userData.get("root_org"));
+        query.append("';");
+//        query.append("' ALLOW FILTERING;");
+        try {
+            Session session = cluster.connect();
+            PreparedStatement prepared = session.prepare(String.valueOf(query));
+            BoundStatement bound = prepared.bind();
+            ResultSet resultSet = session.execute(bound);
+            if(!resultSet.isExhausted()){
+                List<Row> row = (List<Row>) resultSet.all();
+                if(row.size()> 0){
+                    return response.getResponse("User data deleted successfully from user tnc table ", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, (String) userData.get("apiId"), userData);
+                }
+                else{
+                    return response.getResponse("User data could not be deleted from user tnc table ", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, (String) userData.get("apiId"), userData);
+                }
+            }
+            else{
+                return response.getResponse("User data could not be deleted from user tnc table ", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, (String) userData.get("apiId"), userData);
+            }
+ 
+        } catch (Exception ex) {
+            ProjectLogger.log("Exception occured while deleting user data from user tnc table" , ex, LoggerEnum.ERROR.name());
+            return response.getResponse("Exception while deleting user from user tnc table", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, (String) userData.get("apiId"), userData);
+        }
+    }
+    
     static class CassandraConnection extends Thread {
         @Override
         public void run() {

@@ -1,8 +1,5 @@
 package com.space.userautomation.database.postgresql;
 
-import com.datastax.driver.core.BoundStatement;
-import com.datastax.driver.core.Row;
-import com.datastax.driver.core.Session;
 import com.space.userautomation.common.LoggerEnum;
 import com.space.userautomation.common.ProjectLogger;
 import com.space.userautomation.common.Response;
@@ -29,7 +26,7 @@ public class Postgresql {
     private static String url = System.getenv("postgresql_url") ;
     private static String user = System.getenv("postgresql_name") ;
     private static String password = System.getenv("postgresql_password") ;
-    private static String tableName_userComplete = System.getenv("tableName_userComplete");
+    private static String tableName_userAutoComplete = System.getenv("tableName_userAutoComplete");
     private static String tableName_user = System.getenv("tableName_user");
     Response response = new Response();
 
@@ -132,14 +129,21 @@ public class Postgresql {
         ProjectLogger.log("Request recieved for deleting user data from user automation table "+ userData.get("user_id"), LoggerEnum.INFO.name());
         StringBuilder query = new StringBuilder();
         query.append("DELETE FROM ");
-        query.append( tableName_userComplete );
-        query.append(" WHERE email = '");
+        query.append( tableName_userAutoComplete );
+        query.append(" WHERE wid = '");
+        query.append(userData.get("wid_user") + "'");
+        query.append(" AND email = '");
         query.append(userData.get("email"));
         query.append("';");
         try  {
             PreparedStatement pst = con.prepareStatement(String.valueOf(query));
-            pst.executeUpdate();
-            return response.getResponse("User data deleted successfully from user automation ", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, "", userData);
+           int successcount = pst.executeUpdate();
+            if(successcount > 0){
+                return response.getResponse("User data deleted successfully from user automation ", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, "", userData);
+            }
+            else{
+                return response.getResponse("User data  could not be deleted ", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", userData);
+            }
         }
         catch (PSQLException ex){
             ProjectLogger.log("PSQL exception while deleting user from user automation"+ ex, LoggerEnum.ERROR.name());
@@ -148,6 +152,38 @@ public class Postgresql {
         catch (Exception ex) {
             ProjectLogger.log("Exception occured while deleting the data in postgresql from user automation table", ex, LoggerEnum.ERROR.name());
             return response.getResponse("Failed to delete user data from user automation", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", userData);
+        }
+    }
+    //delete the user data from user table in postgresql
+    public ResponseEntity<JSONObject> deleteUserDataFromUserTable(Map<String, Object> userData){
+        ProjectLogger.log("Request recieved for deleting user data from user table with userid "+ userData.get("user_id"), LoggerEnum.INFO.name());
+        StringBuilder query = new StringBuilder();
+        query.append("DELETE FROM ");
+        query.append( schemaName_postgresql + "." + tableName_user );
+        query.append(" WHERE email = '");
+        query.append(userData.get("email") + "'");
+        query.append(" AND kid = '" + userData.get("user_id") +"'");
+        query.append(" AND root_org = '" + userData.get("root_org") + "'");
+        query.append(" AND org = '" + userData.get("organisation") );
+        query.append("';");
+        try  {
+            PreparedStatement pst = con.prepareStatement(String.valueOf(query));
+           int successCount =  pst.executeUpdate();
+           if(successCount > 0){
+               return response.getResponse("User data deleted successfully from user table ", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, "", userData);
+           }
+           else{
+               return response.getResponse("User data could not be deleted ", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", userData);
+
+           }
+        }
+        catch (PSQLException ex){
+            ProjectLogger.log("PSQL exception while deleting user from user table "+ ex, LoggerEnum.ERROR.name());
+            return response.getResponse("PSQL exception while deleting user from user table", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", userData);
+        }
+        catch (Exception ex) {
+            ProjectLogger.log("Exception occured while deleting the data in postgresql from user table", ex, LoggerEnum.ERROR.name());
+            return response.getResponse("Failed to delete user data from user table", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", userData);
         }
     }
     //get email details of user for user details api.
@@ -183,7 +219,9 @@ public class Postgresql {
         StringBuilder query = new StringBuilder();
         query.append("SELECT " );
         query.append( "*" + " FROM ");
-        query.append( tableName_user );
+//        query.append( tableName_user );
+        query.append(schemaName_postgresql + "." + tableName_user );
+    
         query.append(" WHERE " + " root_org = '" + userData.getRoot_org() + "'");
         query.append(" AND " + "org = '" + userData.getOrganisation() + "'");
         query.append(";");

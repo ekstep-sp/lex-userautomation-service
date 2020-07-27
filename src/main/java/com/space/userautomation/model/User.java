@@ -254,6 +254,10 @@ public class User implements Serializable {
         Map<String,Object> userData = new HashMap<String, Object>();
         userData.put("user_id", this.getUser_id());
         userData.put("email", this.getEmail());
+        userData.put("organisation", this.getOrganisation());
+        userData.put("root_org", this.getRoot_org());
+        userData.put("apiId", this.getApiId());
+        userData.put("wid_user", this.getWid_user());
         return userData;
     }
     public Map<String,Object> toMapUserRolePostgresql(){

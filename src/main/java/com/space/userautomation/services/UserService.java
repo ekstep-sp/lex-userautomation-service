@@ -8,11 +8,13 @@ import java.security.SecureRandom;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.sql.CallableStatement;
 import java.util.*;
 
 import com.space.userautomation.common.LoggerEnum;
 import com.space.userautomation.common.Response;
 import com.space.userautomation.common.UserAutomationEnum;
+import com.space.userautomation.database.cassandra.Cassandra;
 import com.space.userautomation.database.postgresql.Postgresql;
 import com.space.userautomation.model.User;
 import com.space.userautomation.model.UserCredentials;
@@ -69,6 +71,7 @@ public class UserService {
     private String publicKey = System.getenv("public_key");
 
     Postgresql postgresql = new Postgresql();
+    Cassandra cassandra = new Cassandra();
     String roleForAdminUser = "org-admin";
 
     public String getToken(UserCredentials userCredentials) {
@@ -456,27 +459,82 @@ public class UserService {
     }
 
 
-    public JSONObject deleteUserFromUserAutoComplete(String email, String userId) {
+    public JSONObject deleteUserFromUserAutoComplete(String email, String wid) {
         JSONObject jsonObject = new JSONObject();
         try {
             User userData = new User();
             userData.setEmail(email);
-            userData.setUser_id(userId);
+            userData.setWid_user(wid);
             ResponseEntity<JSONObject> responseData = postgresql.deleteUserDataFromUserAutomation(userData.toMapUserDataForUserAutoComplete());
             Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
             if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
-                jsonObject.put("email",userData.getEmail());
-                jsonObject.put("success","true");
+                jsonObject.put("wid",wid);
+                jsonObject.put("status","true");
                 ProjectLogger.log("User data deleted  successfully from user autocomplete table with email: " + userData.getEmail(), LoggerEnum.INFO.name());
                 return jsonObject;
             } else {
                 jsonObject.put("email",userData.getEmail());
-                jsonObject.put("success","false");
+                jsonObject.put("status","false");
                 ProjectLogger.log("Failed to delete user data from user autocomplete table with email: " + userData.getEmail(), LoggerEnum.ERROR.name());
                 return jsonObject;
             }
         } catch (Exception ex) {
             ProjectLogger.log("Exception occured in deleteUserFromUserAutoComplete,  " + ex.getMessage(), LoggerEnum.ERROR.name());
+        }
+        return jsonObject;
+    }
+
+    public JSONObject deleteUserFromUserTable(String email, String userId, User user) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            User userData = new User();
+            userData.setEmail(email);
+            userData.setUser_id(userId);
+            userData.setRoot_org(user.getRoot_org());
+            userData.setOrganisation(user.getOrganisation());
+            ResponseEntity<JSONObject> responseData = postgresql.deleteUserDataFromUserTable(userData.toMapUserDataForUserAutoComplete());
+            Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
+            if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
+                jsonObject.put("email",userData.getEmail());
+                jsonObject.put("status","true");
+                ProjectLogger.log("User data deleted successfully from user table with email: " + userData.getEmail(), LoggerEnum.INFO.name());
+                return jsonObject;
+            } else {
+                jsonObject.put("email",userData.getEmail());
+                jsonObject.put("status","false");
+                ProjectLogger.log("Failed to delete user data from user table with email: " + userData.getEmail(), LoggerEnum.ERROR.name());
+                return jsonObject;
+            }
+        } catch (Exception ex) {
+            ProjectLogger.log("Exception occured in deleteUserFromUserTable,  " + ex.getMessage(), LoggerEnum.ERROR.name());
+        }
+        return jsonObject;
+    }
+    
+    
+    //delete the user from user terms and condition table in cassandra db.
+    public JSONObject deleteUserFromUserTncTable(String userId, User user) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            User userData = new User();
+            userData.setUser_id(userId);
+            userData.setRoot_org(user.getRoot_org());
+            userData.setApiId(user.getApiId());
+            ResponseEntity<JSONObject> responseData = cassandra.deleteUserDataFromUserTncTable(userData.toMapUserDataForUserAutoComplete());
+            Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
+            if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
+                jsonObject.put("userId",userId);
+                jsonObject.put("status","true");
+                ProjectLogger.log("User data deleted successfully from user table with email: " + userData.getEmail(), LoggerEnum.INFO.name());
+                return jsonObject;
+            } else {
+                jsonObject.put("userId",userId);
+                jsonObject.put("status","false");
+                ProjectLogger.log("Failed to delete user data from user table with email: " + userData.getEmail(), LoggerEnum.ERROR.name());
+                return jsonObject;
+            }
+        } catch (Exception ex) {
+            ProjectLogger.log("Exception occured in deleteUserFromUserTable,  " + ex.getMessage(), LoggerEnum.ERROR.name());
         }
         return jsonObject;
     }
