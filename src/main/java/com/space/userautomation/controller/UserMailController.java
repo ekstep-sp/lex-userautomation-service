@@ -64,11 +64,11 @@ public class UserMailController {
                                 Boolean userAutocompleteStatus = (Boolean) jsonObject_userautocomplete.get("status");
                                 //delete the user data from user table in postgresql
                                 JSONObject jsonObject_user = userService.deleteUserFromUserTable(emails.toString(),user_id.toString(), userData);
-                                Boolean userStatus = (Boolean) jsonObject_userautocomplete.get("status");
+                                Boolean userStatus = (Boolean) jsonObject_user.get("status");
                                 
                                 //delete the user data from user tnc in cassandra
                                 JSONObject jsonObject_userTncTable = userService.deleteUserFromUserTncTable(user_id.toString(), userData );
-                                Boolean userTncTable = (Boolean) jsonObject_userautocomplete.get("status");
+                                Boolean userTncTable = (Boolean) jsonObject_userTncTable.get("status");
                                 if(userAutocompleteStatus && userStatus && userTncTable){
                                     if (allowSendMail.equals("true")) {
                                         emailService.userRegistrationDeclineMail(emailArr);
