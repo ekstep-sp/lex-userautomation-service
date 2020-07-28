@@ -49,7 +49,7 @@ public class UserMailController {
                 if (isORG_ADMIN) {
                     if (emails != null && emails instanceof String && user_id instanceof String) {
                         String email = (String) emails;
-                        if (email.isEmpty()) {
+                        if (email.isEmpty() && userData.getWid_user().isEmpty() && ((String) user_id).isEmpty()) {
                             ProjectLogger.log("Bad Request Error.", LoggerEnum.ERROR.name());
                             return responses.getResponse("Missing request param ", HttpStatus.BAD_REQUEST, 400, "", "");
                         } else {
@@ -61,15 +61,15 @@ public class UserMailController {
                                 
                                 //delete the user data from uer autocomplete table in postgresql
                                 JSONObject jsonObject_userautocomplete = userService.deleteUserFromUserAutoComplete(emails.toString(), userData.getWid_user());
-                                Boolean userAutocompleteStatus = (Boolean) jsonObject_userautocomplete.get("status");
+                                String userAutocompleteStatus = (String) jsonObject_userautocomplete.get("status");
                                 //delete the user data from user table in postgresql
                                 JSONObject jsonObject_user = userService.deleteUserFromUserTable(emails.toString(),user_id.toString(), userData);
-                                Boolean userStatus = (Boolean) jsonObject_user.get("status");
+                                String userStatus = (String) jsonObject_user.get("status");
                                 
                                 //delete the user data from user tnc in cassandra
                                 JSONObject jsonObject_userTncTable = userService.deleteUserFromUserTncTable(user_id.toString(), userData );
-                                Boolean userTncTable = (Boolean) jsonObject_userTncTable.get("status");
-                                if(userAutocompleteStatus && userStatus && userTncTable){
+                                String userTncTable = (String) jsonObject_userTncTable.get("status");
+                                if(userAutocompleteStatus.equals("true") && userStatus.equals("true") && userTncTable.equals("true")){
                                     if (allowSendMail.equals("true")) {
                                         emailService.userRegistrationDeclineMail(emailArr);
                                     }

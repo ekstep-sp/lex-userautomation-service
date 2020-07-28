@@ -465,7 +465,7 @@ public class UserService {
             User userData = new User();
             userData.setEmail(email);
             userData.setWid_user(wid);
-            ResponseEntity<JSONObject> responseData = postgresql.deleteUserDataFromUserAutomation(userData.toMapUserDataForUserAutoComplete());
+            ResponseEntity<JSONObject> responseData = postgresql.deleteUserDataFromUserAutocomplete(userData.toMapUserDataForUserAutoComplete());
             Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
             if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
                 jsonObject.put("wid",wid);
@@ -525,12 +525,12 @@ public class UserService {
             if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
                 jsonObject.put("userId",userId);
                 jsonObject.put("status","true");
-                ProjectLogger.log("User data deleted successfully from user table with email: " + userData.getEmail(), LoggerEnum.INFO.name());
+                ProjectLogger.log("User data deleted successfully from user tnc table with userId : " + userId , LoggerEnum.INFO.name());
                 return jsonObject;
             } else {
                 jsonObject.put("userId",userId);
                 jsonObject.put("status","false");
-                ProjectLogger.log("Failed to delete user data from user table with email: " + userData.getEmail(), LoggerEnum.ERROR.name());
+                ProjectLogger.log("Failed to delete user data from user tnc table with userId: " + userId, LoggerEnum.ERROR.name());
                 return jsonObject;
             }
         } catch (Exception ex) {

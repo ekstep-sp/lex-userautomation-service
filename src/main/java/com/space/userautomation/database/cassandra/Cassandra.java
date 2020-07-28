@@ -133,24 +133,44 @@ public class Cassandra {
             Session session = cluster.connect();
             PreparedStatement prepared = session.prepare(String.valueOf(query));
             BoundStatement bound = prepared.bind();
-            ResultSet resultSet = session.execute(bound);
-            if(!resultSet.isExhausted()){
-                List<Row> row = (List<Row>) resultSet.all();
-                if(row.size()> 0){
-                    return response.getResponse("User data deleted successfully from user tnc table ", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, (String) userData.get("apiId"), userData);
-                }
-                else{
-                    return response.getResponse("User data could not be deleted from user tnc table ", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, (String) userData.get("apiId"), userData);
-                }
+            session.execute(bound);
+            session.close();
+            List<Object> deletedCount = getAllUsersFromTnc(userData);
+            if(deletedCount.size() == 0){
+               return response.getResponse("User data deleted successfully from user tnc table ", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, (String) userData.get("apiId"), userData);
             }
             else{
-                return response.getResponse("User data could not be deleted from user tnc table ", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, (String) userData.get("apiId"), userData);
+               return response.getResponse("User data could not be deleted from user tnc table ", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, (String) userData.get("apiId"), userData);
             }
- 
         } catch (Exception ex) {
             ProjectLogger.log("Exception occured while deleting user data from user tnc table" , ex, LoggerEnum.ERROR.name());
             return response.getResponse("Exception while deleting user from user tnc table", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, (String) userData.get("apiId"), userData);
         }
+    }
+    public List<Object> getAllUsersFromTnc(Map<String, Object> userData){
+        List<Object> userDetails = new ArrayList<>();
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT * FROM ");
+        query.append(keyspaceName + "." + tableName_userTnc + " ");
+        query.append("WHERE user_id = '");
+        query.append(userData.get("user_id"));
+        query.append("' AND root_org = '");
+        query.append(userData.get("root_org"));
+        query.append("' ALLOW FILTERING;");
+        try {
+            Session session = cluster.connect();
+            PreparedStatement prepared = session.prepare(String.valueOf(query));
+            BoundStatement bound = prepared.bind();
+            ResultSet resultSet = session.execute(bound);
+            if (!resultSet.isExhausted()) {
+                Row row = resultSet.one();
+                userDetails.add(row.getString("user_id"));
+                return userDetails;
+            }
+        } catch (Exception ex) {
+            ProjectLogger.log("Exception occured while retrieving user role for the given userId", ex, LoggerEnum.ERROR.name());
+        }
+        return userDetails;
     }
     
     static class CassandraConnection extends Thread {
@@ -166,7 +186,7 @@ public class Cassandra {
             }
         }
     }
-
+    
     public static String healthCheck() {
         String returnStatus = new String();
         try {

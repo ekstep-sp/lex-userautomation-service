@@ -26,7 +26,7 @@ public class Postgresql {
     private static String url = System.getenv("postgresql_url") ;
     private static String user = System.getenv("postgresql_name") ;
     private static String password = System.getenv("postgresql_password") ;
-    private static String tableName_userAutoComplete = System.getenv("tableName_userAutoComplete");
+    private static String tableName_userAutocomplete = System.getenv("tableName_userAutocomplete");
     private static String tableName_user = System.getenv("tableName_user");
     Response response = new Response();
 
@@ -125,11 +125,11 @@ public class Postgresql {
         }
     }
     
-    public ResponseEntity<JSONObject> deleteUserDataFromUserAutomation(Map<String, Object> userData){
+    public ResponseEntity<JSONObject> deleteUserDataFromUserAutocomplete(Map<String, Object> userData){
         ProjectLogger.log("Request recieved for deleting user data from user automation table "+ userData.get("user_id"), LoggerEnum.INFO.name());
         StringBuilder query = new StringBuilder();
         query.append("DELETE FROM ");
-        query.append( tableName_userAutoComplete );
+        query.append( schemaName_postgresql + "." + tableName_userAutocomplete );
         query.append(" WHERE wid = '");
         query.append(userData.get("wid_user") + "'");
         query.append(" AND email = '");
