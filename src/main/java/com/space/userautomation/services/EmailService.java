@@ -1,5 +1,20 @@
 package com.space.userautomation.services;
 
+import com.ecwid.mailchimp.MailChimpClient;
+import com.ecwid.mailchimp.MailChimpException;
+import com.ecwid.mailchimp.MailChimpObject;
+import com.ecwid.mailchimp.method.v1_3.campaign.CampaignCreateMethod;
+import com.ecwid.mailchimp.method.v1_3.campaign.CampaignSendNowMethod;
+import com.ecwid.mailchimp.method.v1_3.campaign.CampaignType;
+import com.ecwid.mailchimp.method.v1_3.list.ListInformation;
+import com.ecwid.mailchimp.method.v1_3.list.ListsResult;
+import com.ecwid.maleorang.MailchimpException;
+import com.ecwid.maleorang.MailchimpObject;
+import com.ecwid.maleorang.method.v3_0.campaigns.EditCampaignMethod;
+import com.ecwid.maleorang.method.v3_0.lists.members.EditMemberMethod;
+import com.ecwid.maleorang.method.v3_0.lists.members.MemberInfo;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sendgrid.*;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
@@ -7,12 +22,21 @@ import com.sendgrid.helpers.mail.objects.Email;
 import com.sendgrid.helpers.mail.objects.Personalization;
 import com.space.userautomation.common.LoggerEnum;
 import com.space.userautomation.common.ProjectLogger;
+
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import com.ecwid.maleorang.MailchimpClient;
+import com.ecwid.mailchimp.method.v1_3.list.ListsMethod;
+import com.ecwid.maleorang.method.v3_0.campaigns.CampaignActionMethod;
+import com.ecwid.maleorang.method.v3_0.campaigns.CampaignInfo;
+import com.ecwid.maleorang.method.v3_0.campaigns.CampaignInfo.SettingsInfo;
+import static com.ecwid.maleorang.method.v3_0.campaigns.CampaignInfo.Type.PLAINTEXT;
+import com.ecwid.maleorang.method.v3_0.campaigns.EditCampaignMethod;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class EmailService {
@@ -131,6 +155,7 @@ public class EmailService {
     public void replaceRoleName(List<String> roles){
         Collections.replaceAll(roles, roleNameForReplacement, roleNameToBeReplaced);
     }
+    
     public void sendMail(String subject, String body, String emailTo[], boolean replyToCheck) {
 
         try {

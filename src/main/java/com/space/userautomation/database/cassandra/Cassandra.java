@@ -124,7 +124,7 @@ public class Cassandra {
         query.append("DELETE FROM ");
         query.append(keyspaceName + "." + tableName_userTnc + " ");
         query.append("WHERE user_id = '");
-        query.append(userData.get("user_id"));
+        query.append(userData.get("wid_user"));
         query.append("' AND root_org = '");
         query.append(userData.get("root_org"));
         query.append("';");
@@ -153,7 +153,7 @@ public class Cassandra {
         query.append("SELECT * FROM ");
         query.append(keyspaceName + "." + tableName_userTnc + " ");
         query.append("WHERE user_id = '");
-        query.append(userData.get("user_id"));
+        query.append(userData.get("wid_user"));
         query.append("' AND root_org = '");
         query.append(userData.get("root_org"));
         query.append("' ALLOW FILTERING;");

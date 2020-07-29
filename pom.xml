@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.space.userautomation</groupId>
 	<artifactId>UserAutomation</artifactId>
-	<version>0.0.7-SNAPSHOT</version>
+	<version>0.0.8-SNAPSHOT</version>
 	<name>UserAutomation</name>
 	<description>User Automation Project</description>
 
@@ -93,6 +93,21 @@
 			<artifactId>jackson-databind</artifactId>
 			<version>2.11.0</version>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.ecwid/maleorang -->
+		<dependency>
+			<groupId>com.ecwid</groupId>
+			<artifactId>maleorang</artifactId>
+			<version>3.0-0.9.6</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.ecwid/ecwid-mailchimp -->
+		<dependency>
+			<groupId>com.ecwid</groupId>
+			<artifactId>ecwid-mailchimp</artifactId>
+			<version>2.0.1.0</version>
+		</dependency>
+
 
 		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider -->
 		<dependency>

@@ -40,10 +40,6 @@ public class UserMailController {
                 Object user_id = jsonObject.get("user_id");
                 ProjectLogger.log("User registration Decline Api Hit.", LoggerEnum.INFO.name());
                 userData.setWid_user((String)jsonObject.get("wid"));
-                userData.setApiId(responses.getApiId());
-                userData.setRoot_org((String) header.get("rootorg"));
-                userData.setOrganisation((String) header.get("org"));
-                userData.setWid_OrgAdmin((String) header.get("wid_orgadmin"));
                 JSONObject jObj = new JSONObject((Map) new UserRoleService().getRoleForAdmin(userData).getBody().get("DATA"));
                 Boolean isORG_ADMIN = (Boolean) jObj.get(roleForAdminUser);
                 if (isORG_ADMIN) {
@@ -57,11 +53,10 @@ public class UserMailController {
                             JSONObject job = new JSONObject(userService.deleteUser(user_id.toString()));
                             Integer statusCode = (Integer) job.get("statusCode");
                             if (statusCode == 204) {
-//                                userService.deleteUser(user_id.toString();
                                 
                                 //delete the user data from uer autocomplete table in postgresql
-                                JSONObject jsonObject_userautocomplete = userService.deleteUserFromUserAutoComplete(emails.toString(), userData.getWid_user());
-                                String userAutocompleteStatus = (String) jsonObject_userautocomplete.get("status");
+//                                JSONObject jsonObject_userautocomplete = userService.deleteUserFromUserAutoComplete(emails.toString(), userData.getWid_user());
+//                                String userAutocompleteStatus = (String) jsonObject_userautocomplete.get("status");
                                 //delete the user data from user table in postgresql
                                 JSONObject jsonObject_user = userService.deleteUserFromUserTable(emails.toString(),user_id.toString(), userData);
                                 String userStatus = (String) jsonObject_user.get("status");
@@ -69,7 +64,7 @@ public class UserMailController {
                                 //delete the user data from user tnc in cassandra
                                 JSONObject jsonObject_userTncTable = userService.deleteUserFromUserTncTable(user_id.toString(), userData );
                                 String userTncTable = (String) jsonObject_userTncTable.get("status");
-                                if(userAutocompleteStatus.equals("true") && userStatus.equals("true") && userTncTable.equals("true")){
+                                if(userStatus.equals("true") && userTncTable.equals("true")){
                                     if (allowSendMail.equals("true")) {
                                         emailService.userRegistrationDeclineMail(emailArr);
                                     }
@@ -93,18 +88,30 @@ public class UserMailController {
                         JSONObject job = new JSONObject(userService.deleteUser(user_id.toString()));
                         Integer statusCode = (Integer) job.get("statusCode");
                         if (statusCode == 204) {
-                            //delete the user data from uer autocomplete table in postgresql
-                            userService.deleteUserFromUserAutoComplete(emails.toString(), user_id.toString());
+//                            //delete the user data from uer autocomplete table in postgresql
+//                            userService.deleteUserFromUserAutoComplete(emails.toString(), user_id.toString());
 
-                            //delete the user data from user table in postgresql
-                            userService.deleteUserFromUserTable(emails.toString(),user_id.toString(), userData);
-                            
+                            JSONObject jsonObject_user = userService.deleteUserFromUserTable(emails.toString(),user_id.toString(), userData);
+                            String userStatus = (String) jsonObject_user.get("status");
+
                             //delete the user data from user tnc in cassandra
-                            userService.deleteUserFromUserTncTable(user_id.toString(), userData );
-                        if (allowSendMail.equals("true")) {
-                            emailService.userRegistrationDeclineMail(emailsToSend);
-                        }
-                        return responses.getResponse("Success", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), emailsToSend);
+                            JSONObject jsonObject_userTncTable = userService.deleteUserFromUserTncTable(user_id.toString(), userData );
+                            String userTncTable = (String) jsonObject_userTncTable.get("status");
+                            if(userStatus.equals("true") && userTncTable.equals("true")){
+                                if (allowSendMail.equals("true")) {
+                                    emailService.userRegistrationDeclineMail(emailsToSend);
+                                }
+                                ProjectLogger.log("User deleted successfully", LoggerEnum.ERROR.name());
+                                return responses.getResponse("User deleted successfully", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, "", emailsToSend);
+                            }
+                            else{
+                                ProjectLogger.log("Failed to delete user from table.", LoggerEnum.ERROR.name());
+                                return responses.getResponse("User could not be deleted.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, "", "");
+                            }
+//                        if (allowSendMail.equals("true")) {
+//                            emailService.userRegistrationDeclineMail(emailsToSend);
+//                        }
+//                        return responses.getResponse("Success", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), emailsToSend);
                         } else {
                             ProjectLogger.log("Failed to delete user.", LoggerEnum.ERROR.name());
                             return responses.getResponse("User could not be deleted.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, "", "");

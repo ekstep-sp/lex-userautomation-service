@@ -129,7 +129,7 @@ public class Postgresql {
         ProjectLogger.log("Request recieved for deleting user data from user automation table "+ userData.get("user_id"), LoggerEnum.INFO.name());
         StringBuilder query = new StringBuilder();
         query.append("DELETE FROM ");
-        query.append( schemaName_postgresql + "." + tableName_userAutocomplete );
+        query.append( tableName_userAutocomplete );
         query.append(" WHERE wid = '");
         query.append(userData.get("wid_user") + "'");
         query.append(" AND email = '");
@@ -159,10 +159,9 @@ public class Postgresql {
         ProjectLogger.log("Request recieved for deleting user data from user table with userid "+ userData.get("user_id"), LoggerEnum.INFO.name());
         StringBuilder query = new StringBuilder();
         query.append("DELETE FROM ");
-        query.append( schemaName_postgresql + "." + tableName_user );
-        query.append(" WHERE email = '");
-        query.append(userData.get("email") + "'");
-        query.append(" AND kid = '" + userData.get("user_id") +"'");
+        query.append( tableName_user );
+        query.append(" WHERE wid = '");
+        query.append(userData.get("wid_user") + "'");
         query.append(" AND root_org = '" + userData.get("root_org") + "'");
         query.append(" AND org = '" + userData.get("organisation") );
         query.append("';");
@@ -195,6 +194,7 @@ public class Postgresql {
         query.append("SELECT " );
         query.append(dataToBeRetrieved + " FROM ");
         query.append( tableName_user );
+        
         query.append(" WHERE " + " wid = '" + userData.getWid_user() + "'");
         query.append(";");
         try{
@@ -219,9 +219,7 @@ public class Postgresql {
         StringBuilder query = new StringBuilder();
         query.append("SELECT " );
         query.append( "*" + " FROM ");
-//        query.append( tableName_user );
-        query.append(schemaName_postgresql + "." + tableName_user );
-    
+        query.append( tableName_user );
         query.append(" WHERE " + " root_org = '" + userData.getRoot_org() + "'");
         query.append(" AND " + "org = '" + userData.getOrganisation() + "'");
         query.append(";");
@@ -255,7 +253,7 @@ public class Postgresql {
         int successcount = -1;
         StringBuilder query = new StringBuilder();
         query.append("UPDATE " );
-        query.append( tableName_user );
+        query.append(tableName_user );
         query.append(" SET " + " department_name = '" + userData.getOrganisation() + "'");
         query.append(" WHERE " + " wid = '" + userData.getWid_user() + "'");
         query.append(";");

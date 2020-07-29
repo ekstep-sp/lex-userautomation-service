@@ -11,6 +11,8 @@ import java.security.spec.X509EncodedKeySpec;
 import java.sql.CallableStatement;
 import java.util.*;
 
+import com.ecwid.mailchimp.MailChimpException;
+import com.ecwid.maleorang.MailchimpException;
 import com.space.userautomation.common.LoggerEnum;
 import com.space.userautomation.common.Response;
 import com.space.userautomation.common.UserAutomationEnum;
@@ -342,7 +344,7 @@ public class UserService {
 
     
     
-    public ResponseEntity<JSONObject> userListFromUserTable(String filter, User userData){
+    public ResponseEntity<JSONObject> userListFromUserTable(String filter, User userData) {
         try{
             JSONArray userList = (JSONArray) postgresql.getAllUserList(userData);
             List filteredUserList = new ArrayList();
@@ -491,6 +493,7 @@ public class UserService {
             userData.setEmail(email);
             userData.setUser_id(userId);
             userData.setRoot_org(user.getRoot_org());
+            userData.setWid_user(user.getWid_user());
             userData.setOrganisation(user.getOrganisation());
             ResponseEntity<JSONObject> responseData = postgresql.deleteUserDataFromUserTable(userData.toMapUserDataForUserAutoComplete());
             Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
@@ -517,7 +520,7 @@ public class UserService {
         JSONObject jsonObject = new JSONObject();
         try {
             User userData = new User();
-            userData.setUser_id(userId);
+            userData.setWid_user(user.getWid_user());
             userData.setRoot_org(user.getRoot_org());
             userData.setApiId(user.getApiId());
             ResponseEntity<JSONObject> responseData = cassandra.deleteUserDataFromUserTncTable(userData.toMapUserDataForUserAutoComplete());
