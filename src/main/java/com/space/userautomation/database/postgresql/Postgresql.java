@@ -187,8 +187,8 @@ public class Postgresql {
     }
     //get email details of user for user details api.
     public Object  getUserDetails(User userData, String dataToBeRetrieved){
-        Object responseData = new Object();
-        ProjectLogger.log("Request recieved to get user details from table user.", LoggerEnum.ERROR.name());
+        String emailResponse = new String();
+        ProjectLogger.log("Request recieved to get user details from table wingspan_user.", LoggerEnum.ERROR.name());
 
         StringBuilder query = new StringBuilder();
         query.append("SELECT " );
@@ -201,16 +201,16 @@ public class Postgresql {
             PreparedStatement pst = con.prepareStatement(String.valueOf(query));
             ResultSet resultSet =  pst.executeQuery();
             while (resultSet.next()) {
-              responseData = resultSet.getString(dataToBeRetrieved);
+                emailResponse = resultSet.getString(dataToBeRetrieved);
             }
 
         } catch (SQLException e) {
-            ProjectLogger.log("SQL Exception occured while updating organisation for user" + e, LoggerEnum.ERROR.name());
+            ProjectLogger.log("SQL Exception occured while updating user data in table wingspan_user" + e, LoggerEnum.ERROR.name());
         }
         catch(Exception ex) {
-            ProjectLogger.log("Exception occured while updating organisation for user"+ ex, LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured while updating user data in table  wingspan_user"+ ex, LoggerEnum.ERROR.name());
         }
-        return responseData;
+        return emailResponse;
     }
 //getting all users from userTable
     public Object  getAllUserList(User userData){
@@ -253,7 +253,7 @@ public class Postgresql {
         int successcount = -1;
         StringBuilder query = new StringBuilder();
         query.append("UPDATE " );
-        query.append(tableName_user );
+        query.append(tableName_user);
         query.append(" SET " + " department_name = '" + userData.getOrganisation() + "'");
         query.append(" WHERE " + " wid = '" + userData.getWid_user() + "'");
         query.append(";");

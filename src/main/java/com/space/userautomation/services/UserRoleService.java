@@ -40,6 +40,7 @@ public class UserRoleService {
     String roleForAdminUser = "org-admin";
     public Map<Object, Object>  requiredRoles = new HashMap<Object, Object>();
     List<String> existingRoles = new ArrayList<>();
+    List<String> oldUserRoles = new ArrayList<>();
     static final String  alreadyPresent = "A";
     static final String notPresent = "N";
     static final String create = "C";
@@ -264,9 +265,10 @@ public class UserRoleService {
                         userResponse.put("email",userData.getEmail());
                         userResponse.put("wid",userData.getWid());
                         if (statusCodeList == 200) {
-                            emailService.changeRole(userData.getName(), userData.getEmail(), (List<String>)responseMap.get("data"), existingRoles);
-                            userResponse.put("User_Roles", responseMap.get("data"));
-                          
+                            List<String> userExistingRoles =  new Postgresql().getUserRoles(userData.toMapUserRole());
+                            emailService.changeRole(userData.getName(), userData.getEmail(), userExistingRoles, oldUserRoles);
+//                            userResponse.put("User_Roles", responseMap.get("data"));
+                            userResponse.put("User_Roles", userExistingRoles);
                             return response.getResponse("User Role updated successfully", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), userResponse);
                         } else {
                             userResponse.put("User_Roles", "");
@@ -319,10 +321,29 @@ public class UserRoleService {
     
     // Validate already existing roles with the currently requested role
     public Map<Object,Object> validateUserRole(User userData) {
+        String userId = userData.getWid();
+        
         requiredRoles.clear();
         existingRoles.clear();
-        List<String> newRoles = new ArrayList<>();
-         existingRoles = postgresql.getUserRoles(userData.toMapUserRole());
+        oldUserRoles.clear();
+        
+        //userid is external_user_roles in getAllRoles and will return roles from existing_user_role table
+        ResponseEntity<JSONObject> responseData = getAllRoles(userData);
+        List<String> externalUserRoles = (List<String>) responseData.getBody().get("DATA");
+        
+        //userid is set to original user id
+        userData.setUser_id(userId);
+//        List<String> userExistingRoles =  new Postgresql().getUserRoles(userData.toMapUserRole());
+        oldUserRoles = new Postgresql().getUserRoles(userData.toMapUserRole());
+        
+        // filter the user existing roles that has roles from external_user_role table
+        for(String role:oldUserRoles ){
+            for(String externalRole: externalUserRoles){
+                if(role.equals(externalRole)){
+                    existingRoles.add(role);
+                }
+            }
+        }
         //assign the role to hashmap as already created
         for(String role: existingRoles) {
             if (role.equals(roleForAdminUser)) {

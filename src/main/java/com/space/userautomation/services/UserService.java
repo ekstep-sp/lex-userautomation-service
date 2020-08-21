@@ -395,6 +395,7 @@ public class UserService {
     }
 
     public ResponseEntity<JSONObject> userDetails(User userData) {
+        ProjectLogger.log("Request recieved for updating user data in wingspan_user table", LoggerEnum.ERROR.name());
         try {
             String newToken = getModifiedToken(userData.getTokenForUserDetails());
             Map<String, Object> user = new HashMap<>();
@@ -402,7 +403,7 @@ public class UserService {
             String organisation = (String) claimData.get("organisation");
             String emailFromToken = (String) claimData.get("email");
             if (validateWidWithToken(userData, emailFromToken)) {
-                if (!organisation.isEmpty() && (organisation != null)) {
+               if (organisation != null) {
                     userData.setOrganisation(organisation);
 //     DecodedJWT jwt = JWT.decode(userData.getTokenForUserDetails());
 //     String org = jwt.getClaim("organisation").asString();
@@ -415,13 +416,14 @@ public class UserService {
                         ProjectLogger.log("Failed to update the user data.", LoggerEnum.ERROR.name());
                         return responses.getResponse("Failed to update the user data.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), user);
                     }
-                } else {
-                    ProjectLogger.log("No organisation data was found", LoggerEnum.ERROR.name());
+                } 
+                else {
+                    ProjectLogger.log("No organisation data was found.", LoggerEnum.ERROR.name());
                     return responses.getResponse("No organisation data was found.", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
                 }
             } else {
                 ProjectLogger.log("Mismatched wid and token, please verify and try again.", LoggerEnum.ERROR.name());
-                return responses.getResponse("Mismatched wid and token, please verify and try again.", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
+                return responses.getResponse("Mismatched wid and token, please verify and try again.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), user);
             }
         } catch (ExpiredJwtException expiredJwtException) {
             ProjectLogger.log("Jwt token expired.Please try again" + expiredJwtException, LoggerEnum.INFO.name());
