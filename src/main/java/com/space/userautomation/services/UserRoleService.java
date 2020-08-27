@@ -18,11 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class UserRoleService {
@@ -41,6 +39,20 @@ public class UserRoleService {
     public Map<Object, Object>  requiredRoles = new HashMap<Object, Object>();
     List<String> existingRoles = new ArrayList<>();
     List<String> oldUserRoles = new ArrayList<>();
+//    List<String> adminRoles = Arrays.asList("org-admin","analytics","platform-feedback-admin");
+//    List<String> defaultRoles = Arrays.asList("privileged","author","my-analytics");
+//    String editorRole = "editor";
+//    String memberRole = "member";
+//    List<String> publisherRole = Arrays.asList("publisher");
+//    List<String> curatorRole = Arrays.asList("content-creator","content-feedback-admin");
+
+    List<String> adminRoles = new ArrayList<>();
+    List<String> defaultRoles = new ArrayList<>();
+    List<String> editorRoles =  new ArrayList<>();
+    List<String> memberRoles = new ArrayList<>();
+    List<String> publisherRoles = new ArrayList<>();
+    List<String> curatorRoles = new ArrayList<>();
+    
     static final String  alreadyPresent = "A";
     static final String notPresent = "N";
     static final String create = "C";
@@ -266,7 +278,7 @@ public class UserRoleService {
                         userResponse.put("wid",userData.getWid());
                         if (statusCodeList == 200) {
                             List<String> userExistingRoles =  new Postgresql().getUserRoles(userData.toMapUserRole());
-                            emailService.changeRole(userData.getName(), userData.getEmail(), userExistingRoles, oldUserRoles);
+                            emailService.changeRole(userData, userExistingRoles, oldUserRoles);
 //                            userResponse.put("User_Roles", responseMap.get("data"));
                             userResponse.put("User_Roles", userExistingRoles);
                             return response.getResponse("User Role updated successfully", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), userResponse);
@@ -291,7 +303,7 @@ public class UserRoleService {
     }
     
     //updating the roles and validate if there is existing roles for the user, and update only required roles.
-    public Map<String, Object> validateAndUpdateRoles(User userData){
+    public Map<String, Object> validateAndUpdateRoles(User userData) throws SQLException {
         Map<String, Object>  response = new HashMap<>();
       Integer statusCode;
         //validate user role with existing roles.
@@ -332,7 +344,7 @@ public class UserRoleService {
         List<String> externalUserRoles = (List<String>) responseData.getBody().get("DATA");
         
         //userid is set to original user id
-        userData.setUser_id(userId);
+        userData.setUser_id(userId);        
 //        List<String> userExistingRoles =  new Postgresql().getUserRoles(userData.toMapUserRole());
         oldUserRoles = new Postgresql().getUserRoles(userData.toMapUserRole());
         
@@ -355,7 +367,6 @@ public class UserRoleService {
         for (String role : userData.getRoles()) {
             if (!existingRoles.contains(role)) {
                 requiredRoles.put(role, create);
-//                newRoles.add(role);
             }
         }
         for (String role : existingRoles) {
@@ -364,14 +375,13 @@ public class UserRoleService {
                     requiredRoles.put(role, fixedRole);
                 } else {
                     requiredRoles.put(role, notPresent);
-//                newRoles.add(role);
                 }
             }
         }
         return requiredRoles;
     }
     
-    public List<String> updateRoles(Map<Object,Object> flaggedRoles, User userData) {
+    public List<String> updateRoles(Map<Object,Object> flaggedRoles, User userData) throws SQLException {
           List<String> userRoles = new ArrayList<>(); 
           allstatusCode.clear();
       
@@ -393,9 +403,6 @@ public class UserRoleService {
             }
             if(entry.getValue() == notPresent){
                 userData.setRole(entry.getKey().toString());
-//                if(entry.getKey() != roleForAdminUser){
-//                    
-//                }
                 ResponseEntity<JSONObject> responseData = new Postgresql().deleteUserRole(userData.toMapUserRole());
                 Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
                 if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
@@ -409,7 +416,6 @@ public class UserRoleService {
                 }
             }
             if(entry.getValue() == alreadyPresent || entry.getValue() == fixedRole){
-//                userData.setRole(entry.getKey().toString());
                 userRoles.add(entry.getKey().toString());
                 allstatusCode.put("AllSuccess", UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE);
                 continue;
@@ -417,6 +423,106 @@ public class UserRoleService {
         }
        return  userRoles;
     }
+    
+//    public List<String> newUserRoles(User user, List<String> existingRoles){
+//        Map<String, Object> newMapOfRoles = new HashMap<>();
+//        List<String> newListOfRoles = new ArrayList<>();
+//        //group the roles for admin, default, editor, publisher, curator, member roles 
+//        assignRolesForGeneralIds(user);
+//        //Renaming  and grouping  old roles to new roles.
+//        newMapOfRoles = mapToNewRoles(existingRoles);
+//        //converting roles of map type to list type and getting the keys from map 
+//        newListOfRoles = (List<String>) getKeysFromMappedRoles(newMapOfRoles);
+//        return newListOfRoles;
+//    }
+//    
+//    public Map<String, Object> mapToNewRoles(List<String> existingRolesOfUser){
+//        Map<String, Object> newMapOfRoles = new HashMap<>();
+//        if(adminRoles.stream().anyMatch(t -> existingRolesOfUser.stream().anyMatch(t::contains))){
+//            newMapOfRoles.put("Admin",adminRoles);
+//        }
+//        if(defaultRoles.stream().anyMatch(t-> existingRolesOfUser.stream().anyMatch(t::contains))){
+//            newMapOfRoles.put("Default",defaultRoles);
+//        }
+//        for(String role: existingRolesOfUser){
+//            if(memberRoles.contains(role)){
+//                newMapOfRoles.put("Member", memberRoles);
+//            }
+//            else if(publisherRoles.contains(role)){
+//                newMapOfRoles.put("Publisher", publisherRoles);
+//            }
+//            else if(curatorRoles.contains(role)){
+//                newMapOfRoles.put("Curator",curatorRoles);
+//            }
+//            else if(editorRoles.contains(role)){
+//                newMapOfRoles.put("Editor", editorRoles);
+//            }
+//        }
+//        return newMapOfRoles;
+//    }
+//    
+//    //getting keys from mapped roles and assigning to list of roles
+//    public Object getKeysFromMappedRoles(Map<String, Object> mappedRoles){
+//        List<String> listOfRoles = new ArrayList<>();
+//        for (Map.Entry<String, Object> entry : mappedRoles.entrySet()) {
+//            listOfRoles.add(entry.getKey());
+//        }
+//        return listOfRoles;
+//    }
+//    
+//    public void assignRolesForGeneralIds(User user){
+//        user.setUser_id("admin_roles");
+//        adminRoles = postgresql.getUserRoles(user.toMapUserRole());
+//
+//        user.setUser_id("default_role");
+//        defaultRoles = postgresql.getUserRoles(user.toMapUserRole());
+//
+//        user.setUser_id("editor_role");
+//        editorRoles = postgresql.getUserRoles(user.toMapUserRole());
+//
+//        user.setUser_id("member_role");
+//        memberRoles = postgresql.getUserRoles(user.toMapUserRole());
+//
+//        user.setUser_id("publisher_role");
+//        publisherRoles = postgresql.getUserRoles(user.toMapUserRole());
+//        
+//        user.setUser_id("curator_role");
+//        curatorRoles = postgresql.getUserRoles(user.toMapUserRole());
+//    }
+
+
+    public List<String> newUserRoles(User user, List<String> existingRoles){
+        Map<String, Object> mappedNewRoles =  assignAndMapRoles(user,existingRoles);
+        List<String>  newListOfRoles = (List<String>) getKeysFromMappedRoles(mappedNewRoles);
+        return newListOfRoles;
+    }
+    
+    //getting keys from mapped roles and assigning to list of roles
+    public Object getKeysFromMappedRoles(Map<String, Object> mappedRoles){
+        List<String> listOfRoles = new ArrayList<>();
+        for (Map.Entry<String, Object> entry : mappedRoles.entrySet()) {
+            listOfRoles.add(entry.getKey());
+        }
+        return listOfRoles;
+    }
+
+    public  Map<String, Object> assignAndMapRoles(User user, List<String> existingRolesOfUser){
+        //entry should be present with id of add_new_role and the id of that specific role
+        //eg: admin_role has role name ="newrole1" and newRole1 has role name = "member"
+        //The role name is shown in email template, so proper naming is to be provided in database.
+        user.setUser_id("add_new_role");
+        Map<String, Object> newMapOfRoles = new HashMap<>();
+        List<String> addNewRoles = postgresql.getUserRoles(user.toMapUserRole());
+        for(String role: addNewRoles){
+            user.setUser_id(role);
+           List<String> allRoles = postgresql.getUserRoles(user.toMapUserRole());
+            if(allRoles.stream().anyMatch(t -> existingRolesOfUser.stream().anyMatch(t::contains))){
+                newMapOfRoles.put(role,allRoles);
+            }
+        }
+        return newMapOfRoles;
+    }
+    
     //validate for master roles
     public boolean validateUserFromMasterRoles(User userData){
         userData.setUser_id("external_user_roles");

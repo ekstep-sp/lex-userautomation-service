@@ -63,7 +63,7 @@ public class Postgresql {
         }
     }
     
-    public ResponseEntity<JSONObject> insertUserRoles(Map<String, Object> userData){
+    public ResponseEntity<JSONObject> insertUserRoles(Map<String, Object> userData) throws SQLException {
         ProjectLogger.log("Request recieved for insert user role with user id "+ userData.get("user_id"), LoggerEnum.INFO.name());
         StringBuilder query = new StringBuilder();
         query.append("INSERT INTO ");
@@ -94,7 +94,6 @@ public class Postgresql {
             ProjectLogger.log("Exception occured while processing the data in postgresql", ex, LoggerEnum.ERROR.name());
             return response.getResponse("User Role cannot be updated", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", userData);
         }
-
     }
 
     public ResponseEntity<JSONObject> deleteUserRole(Map<String, Object> userData){
@@ -224,6 +223,7 @@ public class Postgresql {
         query.append(" AND " + "org = '" + userData.getOrganisation() + "'");
         query.append(";");
         try{
+            
             PreparedStatement pst = con.prepareStatement(String.valueOf(query));
             ResultSet resultSet =  pst.executeQuery();
     

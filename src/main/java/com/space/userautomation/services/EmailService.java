@@ -1,20 +1,5 @@
 package com.space.userautomation.services;
 
-import com.ecwid.mailchimp.MailChimpClient;
-import com.ecwid.mailchimp.MailChimpException;
-import com.ecwid.mailchimp.MailChimpObject;
-import com.ecwid.mailchimp.method.v1_3.campaign.CampaignCreateMethod;
-import com.ecwid.mailchimp.method.v1_3.campaign.CampaignSendNowMethod;
-import com.ecwid.mailchimp.method.v1_3.campaign.CampaignType;
-import com.ecwid.mailchimp.method.v1_3.list.ListInformation;
-import com.ecwid.mailchimp.method.v1_3.list.ListsResult;
-import com.ecwid.maleorang.MailchimpException;
-import com.ecwid.maleorang.MailchimpObject;
-import com.ecwid.maleorang.method.v3_0.campaigns.EditCampaignMethod;
-import com.ecwid.maleorang.method.v3_0.lists.members.EditMemberMethod;
-import com.ecwid.maleorang.method.v3_0.lists.members.MemberInfo;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.sendgrid.*;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
@@ -22,24 +7,16 @@ import com.sendgrid.helpers.mail.objects.Email;
 import com.sendgrid.helpers.mail.objects.Personalization;
 import com.space.userautomation.common.LoggerEnum;
 import com.space.userautomation.common.ProjectLogger;
+import com.space.userautomation.model.User;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import com.ecwid.maleorang.MailchimpClient;
-import com.ecwid.mailchimp.method.v1_3.list.ListsMethod;
-import com.ecwid.maleorang.method.v3_0.campaigns.CampaignActionMethod;
-import com.ecwid.maleorang.method.v3_0.campaigns.CampaignInfo;
-import com.ecwid.maleorang.method.v3_0.campaigns.CampaignInfo.SettingsInfo;
-import static com.ecwid.maleorang.method.v3_0.campaigns.CampaignInfo.Type.PLAINTEXT;
-import com.ecwid.maleorang.method.v3_0.campaigns.EditCampaignMethod;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class EmailService {
+    
 
     private static String email_from;
     private String platformLink = System.getenv("platformLink");
@@ -48,7 +25,7 @@ public class EmailService {
     private String domainForSPace = System.getenv("domainSPace");
     private String roleNameToBeReplaced = "default";
     private String roleNameForReplacement = "privileged";
-
+  
     public EmailService() {
     }
     public EmailService(String content) {
@@ -108,8 +85,10 @@ public class EmailService {
         }
     }
     
-    public void changeRole(String name,String emailId,List<String> roles, List<String> existingRoles) {
+    public void changeRole(User user, List<String> roles, List<String> existingRoles) {
         try {
+            String name = user.getName();
+            String emailId = user.getEmail();
             ProjectLogger.log("Received request to send mail for sending roles.", LoggerEnum.INFO.name());
             if(existingRoles == null || existingRoles.size() == 0)
             {
@@ -120,16 +99,18 @@ public class EmailService {
 //                    existingRoles.add("default");
 //                }
 //            }
-            replaceRoleName(roles);
-            replaceRoleName(existingRoles);
+//            replaceRoleName(roles);
+//            replaceRoleName(existingRoles);
+            List<String> newUserRoles= new UserRoleService().newUserRoles(user, roles);
+            List<String> existingUserRoles = new UserRoleService().newUserRoles(user, existingRoles);
             String subject = domainForSPace + " Platform - Role Change ";
             TemplateParser parser1 = new TemplateParser(EmailTemplate.changeRoleTemplate1);
             TemplateParser parser2 = new TemplateParser(EmailTemplate.changeRoleTemplate2);
             TemplateParser parser3 = new TemplateParser(EmailTemplate.changeRoleTemplate3);
             String body1 = setArguments(parser1.getContent(),name);
-            String previousRole =  returnRoleAsString(existingRoles);
+            String previousRole =  returnRoleAsString(existingUserRoles);
             String body2 = setArguments(parser2.getContent());
-            String newRoles =  returnRoleAsString(roles);
+            String newRoles =  returnRoleAsString(newUserRoles);
             String body3= setArguments(parser3.getContent() , domainForSPace);
             String body = body1 + previousRole + body2 + newRoles + body3;
             String email = emailId;
