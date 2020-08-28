@@ -39,19 +39,6 @@ public class UserRoleService {
     public Map<Object, Object>  requiredRoles = new HashMap<Object, Object>();
     List<String> existingRoles = new ArrayList<>();
     List<String> oldUserRoles = new ArrayList<>();
-//    List<String> adminRoles = Arrays.asList("org-admin","analytics","platform-feedback-admin");
-//    List<String> defaultRoles = Arrays.asList("privileged","author","my-analytics");
-//    String editorRole = "editor";
-//    String memberRole = "member";
-//    List<String> publisherRole = Arrays.asList("publisher");
-//    List<String> curatorRole = Arrays.asList("content-creator","content-feedback-admin");
-
-    List<String> adminRoles = new ArrayList<>();
-    List<String> defaultRoles = new ArrayList<>();
-    List<String> editorRoles =  new ArrayList<>();
-    List<String> memberRoles = new ArrayList<>();
-    List<String> publisherRoles = new ArrayList<>();
-    List<String> curatorRoles = new ArrayList<>();
     
     static final String  alreadyPresent = "A";
     static final String notPresent = "N";
@@ -281,6 +268,7 @@ public class UserRoleService {
                             emailService.changeRole(userData, userExistingRoles, oldUserRoles);
 //                            userResponse.put("User_Roles", responseMap.get("data"));
                             userResponse.put("User_Roles", userExistingRoles);
+                            ProjectLogger.log("User Role updated successfully", LoggerEnum.INFO.name());
                             return response.getResponse("User Role updated successfully", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), userResponse);
                         } else {
                             userResponse.put("User_Roles", "");

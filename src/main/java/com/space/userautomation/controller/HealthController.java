@@ -33,7 +33,7 @@ public class HealthController {
     public ResponseEntity<?> health() {
         ProjectLogger.log("Health Api hit : ", LoggerEnum.INFO.name());
         JSONObject response = new JSONObject();
-        response.put("status", "success");
+//        response.put("status", "success");
         response.put("spring_services", "UP");
         UserCredentials userCredentials = new UserCredentials();
         userCredentials.setUsername(adminName);

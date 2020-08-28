@@ -18,8 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Postgresql {
-
-    static Connection con;
+    
     private static String schemaName_postgresql = System.getenv("schemaName_postgresql");
     private static String tableName_postgresql = System.getenv("tableName_postgresql");
     private static String databaseName_postgresql = System.getenv("databaseName_postgresql");
@@ -29,12 +28,12 @@ public class Postgresql {
     private static String tableName_userAutocomplete = System.getenv("tableName_userAutocomplete");
     private static String tableName_user = System.getenv("tableName_user");
     Response response = new Response();
-
-    static{
+    
+    public Connection connect() {
+        Connection conn = null;
         try {
-            con = DriverManager.getConnection(url, user, password);
-            ProjectLogger.log("connecting to postgresql",LoggerEnum.INFO.name());
-            shutDownHook();
+            conn = DriverManager.getConnection(url, user, password);
+            ProjectLogger.log("connected to postgresql succesfully",LoggerEnum.INFO.name());
         } catch (SQLException sqlException) {
             ProjectLogger.log("Failed to connect to Postgresql" + sqlException, LoggerEnum.FATAL.name());
             System.exit(-1);
@@ -43,24 +42,7 @@ public class Postgresql {
             ProjectLogger.log("Failed to connect to Postgresql" + exception, LoggerEnum.FATAL.name());
             System.exit(-1);
         }
-    }
-    public static void shutDownHook() {
-        Runtime runtime = Runtime.getRuntime();
-        runtime.addShutdownHook(new PostgresqlConnection());
-    }
-
-    static class PostgresqlConnection extends Thread {
-        @Override
-        public void run() {
-            ProjectLogger.log("Killing postgresql connection", LoggerEnum.INFO.name());
-            try {
-                if (con != null) {
-                    con.close();
-                }
-            } catch (Exception e) {
-                ProjectLogger.log("failed to kill postgresql Connection.", e, LoggerEnum.FATAL.name());
-            }
-        }
+        return conn;
     }
     
     public ResponseEntity<JSONObject> insertUserRoles(Map<String, Object> userData) throws SQLException {
@@ -75,9 +57,9 @@ public class Postgresql {
         }
         query.deleteCharAt(query.length() - 1);
         query.append(");");
-  
-        try  {
-            PreparedStatement pst = con.prepareStatement(String.valueOf(query));
+        try (Connection conn = connect();
+             PreparedStatement pst = conn.prepareStatement(String.valueOf(query))) { 
+//            PreparedStatement pst = con.prepareStatement(String.valueOf(query));
             pst.setString(1, userData.get("root_org").toString());
             pst.setString(2,userData.get("user_id").toString());
             pst.setString(3, userData.get("role").toString());
@@ -109,8 +91,8 @@ public class Postgresql {
         query.append("' AND root_org = '");
         query.append(userData.get("root_org"));
         query.append("';");
-        try  {
-            PreparedStatement pst = con.prepareStatement(String.valueOf(query));
+        try(Connection conn = connect();
+            PreparedStatement pst = conn.prepareStatement(String.valueOf(query))){
             pst.executeUpdate();
             return response.getResponse("User Role deleted successfully", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, "", userData);
         }
@@ -134,8 +116,8 @@ public class Postgresql {
         query.append(" AND email = '");
         query.append(userData.get("email"));
         query.append("';");
-        try  {
-            PreparedStatement pst = con.prepareStatement(String.valueOf(query));
+        try(Connection conn = connect();
+            PreparedStatement pst = conn.prepareStatement(String.valueOf(query))){
            int successcount = pst.executeUpdate();
             if(successcount > 0){
                 return response.getResponse("User data deleted successfully from user automation ", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, "", userData);
@@ -164,8 +146,8 @@ public class Postgresql {
         query.append(" AND root_org = '" + userData.get("root_org") + "'");
         query.append(" AND org = '" + userData.get("organisation") );
         query.append("';");
-        try  {
-            PreparedStatement pst = con.prepareStatement(String.valueOf(query));
+        try(Connection conn = connect();
+            PreparedStatement pst = conn.prepareStatement(String.valueOf(query))){
            int successCount =  pst.executeUpdate();
            if(successCount > 0){
                return response.getResponse("User data deleted successfully from user table ", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, "", userData);
@@ -196,9 +178,9 @@ public class Postgresql {
         
         query.append(" WHERE " + " wid = '" + userData.getWid_user() + "'");
         query.append(";");
-        try{
-            PreparedStatement pst = con.prepareStatement(String.valueOf(query));
-            ResultSet resultSet =  pst.executeQuery();
+        try(Connection conn = connect();
+            PreparedStatement pst = conn.prepareStatement(String.valueOf(query));
+            ResultSet resultSet =  pst.executeQuery()){
             while (resultSet.next()) {
                 emailResponse = resultSet.getString(dataToBeRetrieved);
             }
@@ -212,7 +194,7 @@ public class Postgresql {
         return emailResponse;
     }
 //getting all users from userTable
-    public Object  getAllUserList(User userData){
+    public ResponseEntity<JSONObject>  getAllUserList(User userData){
         JSONArray json = new JSONArray();
         ProjectLogger.log("Request recieved to get all user list  from table user.", LoggerEnum.ERROR.name());
         StringBuilder query = new StringBuilder();
@@ -222,11 +204,9 @@ public class Postgresql {
         query.append(" WHERE " + " root_org = '" + userData.getRoot_org() + "'");
         query.append(" AND " + "org = '" + userData.getOrganisation() + "'");
         query.append(";");
-        try{
-            
-            PreparedStatement pst = con.prepareStatement(String.valueOf(query));
-            ResultSet resultSet =  pst.executeQuery();
-    
+        try(Connection conn = connect();
+            PreparedStatement pst = conn.prepareStatement(String.valueOf(query));
+            ResultSet resultSet =  pst.executeQuery()){
             ResultSetMetaData rsmd = resultSet.getMetaData();
             while(resultSet.next()) {
                 int numColumns = rsmd.getColumnCount();
@@ -237,14 +217,18 @@ public class Postgresql {
                 }
                 json.add(obj);
             }
-            return json;
+            ProjectLogger.log("User list retieved successfully from wingspan_user table", LoggerEnum.INFO.name());
+            return response.getResponse("User list retieved successfully", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, "", json);
+//            return json;
         } catch (SQLException e) {
-            ProjectLogger.log("SQL Exception occured while retieving list of users from user table" + e, LoggerEnum.ERROR.name());
+            ProjectLogger.log("SQL Exception occured while retieving list of users from wingspan_user table" + e, LoggerEnum.ERROR.name());
+            return response.getResponse("Internal Server error", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", "");
         }
         catch(Exception ex) {
-            ProjectLogger.log("Exception occured while retieving list of users from user table"+ ex, LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured while retieving list of users from wingspan_user table"+ ex, LoggerEnum.ERROR.name());
+            return response.getResponse("Internal Server error", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", "");
         }
-        return json;
+//        return json;
     }
     
     //update department_name for user table
@@ -257,8 +241,8 @@ public class Postgresql {
         query.append(" SET " + " department_name = '" + userData.getOrganisation() + "'");
         query.append(" WHERE " + " wid = '" + userData.getWid_user() + "'");
         query.append(";");
-        try{
-            PreparedStatement pst = con.prepareStatement(String.valueOf(query));
+        try(Connection conn = connect();
+            PreparedStatement pst = conn.prepareStatement(String.valueOf(query))){
            successcount = pst.executeUpdate();
             return successcount;
         } catch (SQLException e) {
@@ -271,6 +255,7 @@ public class Postgresql {
     }
     
     public List<String> getUserRoles(Map<String, Object> userData) {
+        ProjectLogger.log("Request recieved to get all user roles.", LoggerEnum.ERROR.name());
         List<String> role = new ArrayList<>();
         StringBuilder query = new StringBuilder();
         query.append("SELECT role FROM ");
@@ -280,9 +265,9 @@ public class Postgresql {
         query.append("' AND root_org = '");
         query.append(userData.get("root_org"));
         query.append("';");
-        try {
-            PreparedStatement pst = con.prepareStatement(String.valueOf(query));
-           ResultSet resultSet =  pst.executeQuery();
+        try(Connection conn = connect();
+            PreparedStatement pst = conn.prepareStatement(String.valueOf(query));
+            ResultSet resultSet =  pst.executeQuery()){
             while (resultSet.next()) {
                 role.add(resultSet.getString("role"));
             }
@@ -294,7 +279,7 @@ public class Postgresql {
     
     
     public Timestamp getTimestampValue(){
-        try (Connection con = DriverManager.getConnection(url, user, password);
+        try (Connection con = connect();
              Statement st = con.createStatement();
              ResultSet rs = st.executeQuery("SELECT CURRENT_TIMESTAMP;")) {
             if (rs.next()) {
@@ -310,7 +295,7 @@ public class Postgresql {
     }
     
     public Boolean healthCheck() {
-        try (Connection con = DriverManager.getConnection(url, user, password);
+        try (Connection con = connect();
              Statement st = con.createStatement();
              ResultSet rs = st.executeQuery("SELECT VERSION()")) {
             if (rs.next()) {
