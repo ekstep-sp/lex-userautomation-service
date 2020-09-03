@@ -8,11 +8,7 @@ import java.security.SecureRandom;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-import java.sql.CallableStatement;
 import java.util.*;
-
-import com.ecwid.mailchimp.MailChimpException;
-import com.ecwid.maleorang.MailchimpException;
 import com.space.userautomation.common.LoggerEnum;
 import com.space.userautomation.common.Response;
 import com.space.userautomation.common.UserAutomationEnum;
@@ -348,7 +344,6 @@ public class UserService {
             Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
             if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
                 JSONArray userList =  (JSONArray) responseData.getBody().get("DATA");
-//            JSONArray userList = (JSONArray) postgresql.getAllUserList(userData);
                 List filteredUserList = new ArrayList();
                 for (int i = 0; i < userList.size(); i++) {
                     JSONObject obj = (JSONObject) userList.get(i);
@@ -359,13 +354,6 @@ public class UserService {
             else{
                 return responses.getResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR, 500, userData.getApiId(), "");
             }
-//            JSONArray userList =  (JSONArray) responseData.getBody().get("DATA");
-//            List filteredUserList = new ArrayList();
-//                for (int i = 0; i < userList.size(); i++) {
-//                    JSONObject obj = (JSONObject) userList.get(i);
-//                    filteredUserList.add(obj); 
-//                }
-//            return responses.getResponse("userList of all users", HttpStatus.OK, 200, userData.getApiId(), filteredUserList);
         }
         catch(Exception ex){
             ProjectLogger.log("Exception occured in retrieving user list from user table " + ex.getMessage(), LoggerEnum.ERROR.name());

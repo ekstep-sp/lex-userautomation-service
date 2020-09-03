@@ -100,6 +100,7 @@ public class User implements Serializable {
     public String getRoot_org() {
         return root_org;
     }
+    User user;
 
 //    public List<String> getRoles() {
 //        return roles;
@@ -165,6 +166,11 @@ public class User implements Serializable {
      public User(String role)
     {
     this.role = role;
+    }
+
+    public User(User user)
+    {
+        this.user = user;
     }
 
 

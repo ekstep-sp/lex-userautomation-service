@@ -90,9 +90,10 @@ public class EmailService {
             String name = user.getName();
             String emailId = user.getEmail();
             ProjectLogger.log("Received request to send mail for sending roles.", LoggerEnum.INFO.name());
+            //mail template also should be shown as default for default role
             if(existingRoles == null || existingRoles.size() == 0)
             {
-                existingRoles.add("default");
+                existingRoles =  new UserRoleService().assignNewUserAsDefault(user);
             }
 //            for(String role: existingRoles) {
 //                if (role == null || role == ""|| role.isEmpty()) {

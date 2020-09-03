@@ -108,7 +108,7 @@ public class UserRoleController {
             userData.setEmail(userData.getEmail());
             userData.setName(userData.getName());
             if((userData.getRoot_org().equals(System.getenv("rootOrg")) && (!userData.getRoot_org().isEmpty())) && ( userData.getOrganisation().equals(System.getenv("org")) && (!userData.getOrganisation().isEmpty())) && (!userData.getWid_OrgAdmin().isEmpty())){
-                return userRoleService.changeRole(userData);
+                return  userRoleService.changeRole(userData);
             }
             else{
                 ProjectLogger.log("Inapproriate headers in request.", LoggerEnum.ERROR.name());
