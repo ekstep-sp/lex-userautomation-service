@@ -50,7 +50,7 @@ public class UserRoleService {
         try {
             ProjectLogger.log("createUserRole method is called" , LoggerEnum.INFO.name());
             JSONObject jObj = new JSONObject((Map) getRoleForAdmin(userData).getBody().get("DATA"));
-            Boolean isORG_ADMIN = (Boolean) jObj.get(roleForAdminUser);
+            Boolean isORG_ADMIN = (Boolean) jObj.get("isAdminUser");
             if (isORG_ADMIN) {
                 Map<String, Object> userDetails = new HashMap<>();
                 String token = new String();
@@ -130,11 +130,11 @@ public class UserRoleService {
             userDetailsForRoles.setUser_id(userDetailsForRoles.getWid_OrgAdmin());
             List<String> userRoles =  new Postgresql().getUserRoles(userDetailsForRoles.toMapUserRole());
             if(getSpecificRole(userRoles)){
-                roles.put(roleForAdminUser,true);
+                roles.put("isAdminUser",true);
                 return response.getResponse("org admin role", HttpStatus.FOUND, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userDetailsForRoles.getApiId(),roles);
             }
             else{
-                roles.put(roleForAdminUser,false);
+                roles.put("isAdminUser",false);
                 return response.getResponse("org admin role not found ", HttpStatus.NOT_FOUND, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userDetailsForRoles.getApiId(),roles);
             }
         }
@@ -174,7 +174,7 @@ public class UserRoleService {
                 JSONObject jObjForUserRole = new JSONObject((Map) getRoleForAdmin(userDetails).getBody().get("DATA"));
 
                 //Check if role of ADMIN user is ORG_ADMIN.
-                Boolean isORG_ADMIN = (Boolean) jObjForUserRole.get(roleForAdminUser);
+                Boolean isORG_ADMIN = (Boolean) jObjForUserRole.get("isAdminUser");
                 if (isORG_ADMIN) {
 
                     //Create token for  new user.
@@ -228,7 +228,7 @@ public class UserRoleService {
     public ResponseEntity<JSONObject> getAllRoles(User userData) {
         try {
             JSONObject jObj = new JSONObject((Map) getRoleForAdmin(userData).getBody().get("DATA"));
-            Boolean isORG_ADMIN = (Boolean) jObj.get(roleForAdminUser);
+            Boolean isORG_ADMIN = (Boolean) jObj.get("isAdminUser");
             if (isORG_ADMIN) {
                 userData.setUser_id("external_user_roles");
                List<String> userRoles =  new Postgresql().getUserRoles(userData.toMapUserRole());
@@ -237,7 +237,7 @@ public class UserRoleService {
                 return response.getResponse("Permission denied,user role can be retireved by admin only", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, "", "");
             }
         } catch (Exception ex) {
-            ProjectLogger.log("Exception occured " + ex, LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured in getAllRoles" +  Arrays.toString(ex.getStackTrace()) + ex, LoggerEnum.ERROR.name());
             return response.getResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, 500, userData.getApiId(), "");
         }
     }
@@ -249,7 +249,7 @@ public class UserRoleService {
             if((!userData.getWid().isEmpty() && userData.getWid() != null) &&(!userData.getRoles().isEmpty()) && (!userData.getName().isEmpty() && userData.getName() != null) &&(!userData.getEmail().isEmpty() && userData.getEmail() != null)) {
                 //validate for the admin user role
                 JSONObject jObj = new JSONObject((Map) getRoleForAdmin(userData).getBody().get("DATA"));
-                Boolean isORG_ADMIN = (Boolean) jObj.get(roleForAdminUser);
+                Boolean isORG_ADMIN = (Boolean) jObj.get("isAdminUser");
                 if (isORG_ADMIN) {
                     //get the external user roles 
 //                    List<String> externalUserRoles = getExternalUserRoles(userData);
@@ -290,7 +290,7 @@ public class UserRoleService {
                  return response.getResponse("User role could not be updated,please provide appropriate params", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), "");
             }
         } catch (Exception ex) {
-            ProjectLogger.log("Exception occured while changing role " + ex, LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured while changing role "  + ex, LoggerEnum.ERROR.name());
             ProjectLogger.log( Arrays.toString(ex.getStackTrace()), LoggerEnum.ERROR.name());
             return response.getResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, 500, userData.getApiId(), "");
         }

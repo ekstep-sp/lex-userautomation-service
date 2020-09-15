@@ -1,5 +1,6 @@
 package com.space.userautomation.model;
 
+import org.json.simple.JSONObject;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
@@ -28,7 +29,46 @@ public class User implements Serializable {
 
     private String appleId;
     
+    public String sourceProfilePicture;
+    
+    
     private String root_org;
+    public String userFirstName;
+
+    public String getSourceProfilePicture() {
+        return sourceProfilePicture;
+    }
+
+    public void setSourceProfilePicture(String sourceProfilePicture) {
+        this.sourceProfilePicture = sourceProfilePicture;
+    }
+
+    public String getUserFirstName() {
+        return userFirstName;
+    }
+
+    public void setUserFirstName(String userFirstName) {
+        this.userFirstName = userFirstName;
+    }
+
+    public String getUserLastName() {
+        return userLastName;
+    }
+
+    public void setUserLastName(String userLastName) {
+        this.userLastName = userLastName;
+    }
+
+    public JSONObject getUserProperties() {
+        return userProperties;
+    }
+
+    public void setUserProperties(JSONObject userProperties) {
+        this.userProperties = userProperties;
+    }
+
+    public String userLastName;
+    public JSONObject userProperties;
     
     private String user_id;
     private String updated_by;
@@ -266,6 +306,7 @@ public class User implements Serializable {
         userData.put("wid_user", this.getWid_user());
         return userData;
     }
+    
     public Map<String,Object> toMapUserRolePostgresql(){
         Map<String,Object> userData = new HashMap<String, Object>();
         userData.put("root_org",this.getRoot_org());

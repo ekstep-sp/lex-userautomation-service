@@ -262,7 +262,7 @@ public class UserService {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         try {
             JSONObject jObj = new JSONObject((Map) new UserRoleService().getRoleForAdmin(userData).getBody().get("DATA"));
-            Boolean isORG_ADMIN = (Boolean) jObj.get(roleForAdminUser);
+            Boolean isORG_ADMIN = (Boolean) jObj.get("isAdminUser");
             if (isORG_ADMIN) {
                 UserCredentials userCredentials = new UserCredentials();
                 userCredentials.setUsername(adminName);
@@ -338,29 +338,62 @@ public class UserService {
         }
     }
     
-    public ResponseEntity<JSONObject> userListFromUserTable(String filter, User userData) {
-        try{
-            ResponseEntity<JSONObject> responseData = postgresql.getAllUserList(userData);
-            Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
-            if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
-                JSONArray userList =  (JSONArray) responseData.getBody().get("DATA");
-                List filteredUserList = new ArrayList();
-                for (int i = 0; i < userList.size(); i++) {
-                    JSONObject obj = (JSONObject) userList.get(i);
-                    filteredUserList.add(obj);
+    public ResponseEntity<JSONObject> userListFromUserTable(User userData) {
+        try {
+            ProjectLogger.log("userListFromUserTable method is called" , LoggerEnum.INFO.name());
+            JSONObject jObj = new JSONObject((Map) new UserRoleService().getRoleForAdmin(userData).getBody().get("DATA"));
+            Boolean isORG_ADMIN = (Boolean) jObj.get("isAdminUser");
+            if (isORG_ADMIN) {
+                ResponseEntity<JSONObject> responseData = postgresql.getAllUserList(userData);
+                Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
+                if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
+                    JSONArray userList = (JSONArray) responseData.getBody().get("DATA");
+                    List filteredUserList = new ArrayList();
+                    for (int i = 0; i < userList.size(); i++) {
+                        JSONObject obj = (JSONObject) userList.get(i);
+                        filteredUserList.add(obj);
+                    }
+                    ProjectLogger.log("Successfully retrieved userList", LoggerEnum.INFO.name());
+                    return responses.getResponse("userList of all users", HttpStatus.OK, 200, userData.getApiId(), filteredUserList);
+                } else {
+                    ProjectLogger.log("Internal server error", LoggerEnum.ERROR.name());
+                    return responses.getResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR, 500, userData.getApiId(), "");
                 }
-                return responses.getResponse("userList of all users", HttpStatus.OK, 200, userData.getApiId(), filteredUserList);
             }
             else{
-                return responses.getResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR, 500, userData.getApiId(), "");
-            }
+                    return responses.getResponse("Permission denied,user list can be retireved by admin only", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, userData.getApiId(), "");
+                }
         }
         catch(Exception ex){
-            ProjectLogger.log("Exception occured in retrieving user list from user table " + ex.getMessage(), LoggerEnum.ERROR.name());
-            return responses.getResponse(" ", HttpStatus.BAD_REQUEST, 400, userData.getApiId(), "");
+            ProjectLogger.log("Exception occured in retrieving user list from user table " +  Arrays.toString(ex.getStackTrace()) + ex.getMessage(), LoggerEnum.ERROR.name());
+            return responses.getResponse("Something Went Wrong!!!", HttpStatus.BAD_REQUEST, 400, userData.getApiId(), "");
         }
     }
-    
+
+    public ResponseEntity<JSONObject> getUsersListForTaggingUsers(User userData) {
+        try {
+            ProjectLogger.log("getUsersListForTaggingUsers method is called" , LoggerEnum.INFO.name());
+                ResponseEntity<JSONObject> responseData = postgresql.getAllUserList(userData);
+                Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
+                if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
+                    JSONArray userList = (JSONArray) responseData.getBody().get("DATA");
+                    List filteredUserList = new ArrayList();
+                    for (int i = 0; i < userList.size(); i++) {
+                        JSONObject obj = (JSONObject) userList.get(i);
+                        filteredUserList.add(obj);
+                    }
+                    ProjectLogger.log("Successfully retrieved userList", LoggerEnum.INFO.name());
+                    return responses.getResponse("userList of all users", HttpStatus.OK, 200, userData.getApiId(), filteredUserList);
+                } else {
+                    ProjectLogger.log("Internal server error", LoggerEnum.ERROR.name());
+                    return responses.getResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR, 500, userData.getApiId(), "");
+                }
+        }
+        catch(Exception ex){
+            ProjectLogger.log("Exception occured in retrieving user list from user table in getUsersListForTaggingUsers" + Arrays.toString(ex.getStackTrace()) + ex.getMessage(), LoggerEnum.ERROR.name());
+            return responses.getResponse("Something Went Wrong!!!", HttpStatus.BAD_REQUEST, 400, userData.getApiId(), "");
+        }
+    }
     
     public JSONObject deleteUser(String user_id) {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
@@ -427,10 +460,10 @@ public class UserService {
                 return responses.getResponse("Mismatched wid and token, please verify and try again.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), user);
             }
         } catch (ExpiredJwtException expiredJwtException) {
-            ProjectLogger.log("Jwt token expired.Please try again" + expiredJwtException, LoggerEnum.INFO.name());
+            ProjectLogger.log("Jwt token expired.Please try again" +  Arrays.toString(expiredJwtException.getStackTrace()) +expiredJwtException, LoggerEnum.INFO.name());
             return responses.getResponse("JWT token expired, Please try again", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, userData.getApiId(), "");
         } catch (Exception ex) {
-            ProjectLogger.log("Exception occured in userDetails method. " + ex, LoggerEnum.INFO.name());
+            ProjectLogger.log("Exception occured in userDetails method. "  +  Arrays.toString(ex.getStackTrace()) + ex, LoggerEnum.INFO.name());
             return responses.getResponse("Something went wrong !!!.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), "");
         }
     }
@@ -512,11 +545,54 @@ public class UserService {
                 return jsonObject;
             }
         } catch (Exception ex) {
-            ProjectLogger.log("Exception occured in deleteUserFromUserTable,  " + ex.getMessage(), LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured in deleteUserFromUserTable,  " +  Arrays.toString(ex.getStackTrace())  + ex.getMessage(), LoggerEnum.ERROR.name());
         }
         return jsonObject;
     }
+
+    public ResponseEntity<JSONObject> editUserProfile(User userData){
+        //user_properties:"{"bio":"text","profileLink":"text"}
+        //wid check
+
+        ProjectLogger.log("Request recieved for editing the user profile data in wingspan_user table", LoggerEnum.ERROR.name());
+        //update the data in db
+        try{
+            if(userData.getWid() != null) {
+                if (userData.getEmail() != null) {
+                    ProjectLogger.log("Email cannot be updated", LoggerEnum.ERROR.name());
+                    return responses.getResponse("Email cannot be updated", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), "");
+                }
+                Map<String, Object> user = new HashMap<>();
+                Map<String, Object> userMap = toMapUserDataForUserEditProfile(userData);
+                int successCount = postgresql.updateUserProfile(userData.getWid(),userMap);
+                if (successCount > 0) {
+                    user.put("wid", userData.getWid());
+                    ProjectLogger.log("User profile updated successfully", LoggerEnum.INFO.name());
+                    return responses.getResponse("User profile updated successfully", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
+                } else {
+                    ProjectLogger.log("Failed to update the user profile data.", LoggerEnum.ERROR.name());
+                    return responses.getResponse("Failed to update the user profile  data.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), user);
+                }
+            }else{
+                ProjectLogger.log("Wid is missing", LoggerEnum.ERROR.name());
+                return responses.getResponse("Missing metadata wid!!!", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), "");
+            }
+        }
+        catch (Exception ex) {
+            ProjectLogger.log("Exception occured in edit user profile method. " +  Arrays.toString(ex.getStackTrace())+ "exception" + ex, LoggerEnum.ERROR.name());
+            return responses.getResponse("Something went wrong !!!.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), "");
+        }
+    }
     
+    public Map<String,Object> toMapUserDataForUserEditProfile(User userData){
+        Map<String,Object> userDataResponse = new HashMap<String, Object>();
+        userDataResponse.put("department_name", userData.getOrganisation());
+        userDataResponse.put("first_name",userData.getUserFirstName());
+        userDataResponse.put("last_name", userData.getUserLastName());
+        userDataResponse.put("source_profile_picture", userData.getSourceProfilePicture());
+        userDataResponse.put("user_properties", userData.getUserProperties());
+        return userDataResponse;
+    }
     
     //delete the user from user terms and condition table in cassandra db.
     public JSONObject deleteUserFromUserTncTable(String userId, User user) {
@@ -540,9 +616,10 @@ public class UserService {
                 return jsonObject;
             }
         } catch (Exception ex) {
-            ProjectLogger.log("Exception occured in deleteUserFromUserTable,  " + ex.getMessage(), LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured in deleteUserFromUserTable,  " +  Arrays.toString(ex.getStackTrace())  + ex.getMessage(), LoggerEnum.ERROR.name());
         }
         return jsonObject;
     }
+    
 }
     

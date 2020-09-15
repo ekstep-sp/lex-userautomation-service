@@ -41,7 +41,7 @@ public class UserMailController {
                 ProjectLogger.log("User registration Decline Api Hit.", LoggerEnum.INFO.name());
                 userData.setWid_user((String)jsonObject.get("wid"));
                 JSONObject jObj = new JSONObject((Map) new UserRoleService().getRoleForAdmin(userData).getBody().get("DATA"));
-                Boolean isORG_ADMIN = (Boolean) jObj.get(roleForAdminUser);
+                Boolean isORG_ADMIN = (Boolean) jObj.get("isAdminUser");
                 if (isORG_ADMIN) {
                     if (emails != null && emails instanceof String && user_id instanceof String) {
                         String email = (String) emails;

@@ -12,10 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Postgresql {
     
@@ -101,7 +98,7 @@ public class Postgresql {
             return response.getResponse("PSQL exception ", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", userData);
         }
         catch (Exception ex) {
-            ProjectLogger.log("Exception occured while deleting the data in postgresql", ex, LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured while deleting the data in postgresql"+ Arrays.toString(ex.getStackTrace()) + ex, LoggerEnum.ERROR.name());
             return response.getResponse("User Role cannot be deleted", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", userData);
         }
     }
@@ -127,11 +124,11 @@ public class Postgresql {
             }
         }
         catch (PSQLException ex){
-            ProjectLogger.log("PSQL exception while deleting user from user automation"+ ex, LoggerEnum.ERROR.name());
+            ProjectLogger.log("PSQL exception while deleting user from user automation"+ Arrays.toString(ex.getStackTrace()) +  ex, LoggerEnum.ERROR.name());
             return response.getResponse("PSQL exception while deleting user from user automation", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", userData);
         }
         catch (Exception ex) {
-            ProjectLogger.log("Exception occured while deleting the data in postgresql from user automation table", ex, LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured while deleting the data in postgresql from user automation table"  + Arrays.toString(ex.getStackTrace()) , ex, LoggerEnum.ERROR.name());
             return response.getResponse("Failed to delete user data from user automation", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", userData);
         }
     }
@@ -158,11 +155,11 @@ public class Postgresql {
            }
         }
         catch (PSQLException ex){
-            ProjectLogger.log("PSQL exception while deleting user from user table "+ ex, LoggerEnum.ERROR.name());
+            ProjectLogger.log("PSQL exception while deleting user from user table "+ Arrays.toString(ex.getStackTrace())+  ex, LoggerEnum.ERROR.name());
             return response.getResponse("PSQL exception while deleting user from user table", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", userData);
         }
         catch (Exception ex) {
-            ProjectLogger.log("Exception occured while deleting the data in postgresql from user table", ex, LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured while deleting the data in postgresql from user table" + Arrays.toString(ex.getStackTrace()) + ex, LoggerEnum.ERROR.name());
             return response.getResponse("Failed to delete user data from user table", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", userData);
         }
     }
@@ -189,7 +186,7 @@ public class Postgresql {
             ProjectLogger.log("SQL Exception occured while updating user data in table wingspan_user" + e, LoggerEnum.ERROR.name());
         }
         catch(Exception ex) {
-            ProjectLogger.log("Exception occured while updating user data in table  wingspan_user"+ ex, LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured while updating user data in table  wingspan_user" + Arrays.toString(ex.getStackTrace())+ ex, LoggerEnum.ERROR.name());
         }
         return emailResponse;
     }
@@ -221,11 +218,11 @@ public class Postgresql {
             return response.getResponse("User list retieved successfully", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, "", json);
 //            return json;
         } catch (SQLException e) {
-            ProjectLogger.log("SQL Exception occured while retieving list of users from wingspan_user table" + e, LoggerEnum.ERROR.name());
+            ProjectLogger.log("SQL Exception occured while retieving list of users from wingspan_user table" + Arrays.toString(e.getStackTrace())+ e, LoggerEnum.ERROR.name());
             return response.getResponse("Internal Server error", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", "");
         }
         catch(Exception ex) {
-            ProjectLogger.log("Exception occured while retieving list of users from wingspan_user table"+ ex, LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured while retieving list of users from wingspan_user table"+ Arrays.toString(ex.getStackTrace()) +  ex, LoggerEnum.ERROR.name());
             return response.getResponse("Internal Server error", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", "");
         }
 //        return json;
@@ -246,10 +243,10 @@ public class Postgresql {
            successcount = pst.executeUpdate();
             return successcount;
         } catch (SQLException e) {
-            ProjectLogger.log("SQL Exception occured while updating organisation for user" + e, LoggerEnum.ERROR.name());
+            ProjectLogger.log("SQL Exception occured while updating organisation for user" + Arrays.toString(e.getStackTrace()) +  e, LoggerEnum.ERROR.name());
         }
         catch(Exception ex) {
-            ProjectLogger.log("Exception occured while updating organisation for user" + ex, LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured while updating organisation for user" + Arrays.toString(ex.getStackTrace()) + ex, LoggerEnum.ERROR.name());
         }
         return successcount;
     }
@@ -272,11 +269,37 @@ public class Postgresql {
                 role.add(resultSet.getString("role"));
             }
         } catch (Exception ex) {
-            ProjectLogger.log("Exception occured while retrieving user role for the given userId", ex, LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured while retrieving user role for the given userId" + Arrays.toString(ex.getStackTrace()), ex, LoggerEnum.ERROR.name());
         }
         return role;
     }
-    
+
+    public int  updateUserProfile(String wid, Map<String ,Object> userMap){
+        ProjectLogger.log("Request recieved to update the user profile details.", LoggerEnum.ERROR.name());
+        int successcount = -1;
+        StringBuilder query = new StringBuilder();
+        query.append("UPDATE " );
+        query.append(tableName_user);
+        query.append(" SET " );
+        for (Map.Entry<String, Object> entry : userMap.entrySet()) {
+            query.append(entry.getKey() + " = '" + entry.getValue() + "',");
+        }
+        query.deleteCharAt(query.length() - 1);
+        query.append(" WHERE " + " wid = '" + wid + "'");
+        query.append(";");
+        System.out.println("query"+ query);
+        try(Connection conn = connect();
+            PreparedStatement pst = conn.prepareStatement(String.valueOf(query))){
+            successcount = pst.executeUpdate();
+            return successcount;
+        } catch (SQLException e) {
+            ProjectLogger.log("SQL Exception occured while updating user profile" + Arrays.toString(e.getStackTrace()) + " exception: " + e, LoggerEnum.ERROR.name());
+        }
+        catch(Exception ex) {
+            ProjectLogger.log("Exception occured while updating user profile" + Arrays.toString(ex.getStackTrace()) + " exception: " + ex, LoggerEnum.ERROR.name());
+        }
+        return successcount;
+    }
     
     public Timestamp getTimestampValue(){
         try (Connection con = connect();
