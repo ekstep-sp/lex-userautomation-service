@@ -9,6 +9,8 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
+
+import com.google.gson.JsonObject;
 import com.space.userautomation.common.LoggerEnum;
 import com.space.userautomation.common.Response;
 import com.space.userautomation.common.UserAutomationEnum;
@@ -60,6 +62,8 @@ public class UserService {
     String CLIENTID = System.getenv("keycloak_resource");
     private String AUTHURL = System.getenv("keycloak_auth_server_url");
     private String REALM = System.getenv("keycloak_realm");
+    private String ROOT_ORG = System.getenv("rootOrg");
+    private String ORGANISATION = System.getenv("org");
 
     private String adminName = System.getenv("adminName");
     private String adminPassword = System.getenv("adminPassword");
@@ -436,7 +440,11 @@ public class UserService {
             Claims claimData = getDataFromToken(newToken);
             String organisation = (String) claimData.get("organisation");
             String emailFromToken = (String) claimData.get("email");
+            String sourceProfilePicture = "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.theverge.com%2F2020%2F4%2F23%2F21233545%2Fnetflix-avatar-the-last-airbender-may-15th&psig=AOvVaw09jTWTXi0Ov0mR6LQrUHrr&ust=1600325169281000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCJD36_uJ7esCFQAAAAAdAAAAABAJ";
             if (validateWidWithToken(userData, emailFromToken)) {
+                if(setSourceProfilePicture(userData, sourceProfilePicture)){
+                        userData.setSourceProfilePicture(sourceProfilePicture);
+                }
                if (organisation != null) {
                     userData.setOrganisation(organisation);
 //     DecodedJWT jwt = JWT.decode(userData.getTokenForUserDetails());
@@ -452,8 +460,8 @@ public class UserService {
                     }
                 } 
                 else {
-                    ProjectLogger.log("No organisation data was found.", LoggerEnum.ERROR.name());
-                    return responses.getResponse("No organisation data was found.", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
+                    ProjectLogger.log("No data was found.", LoggerEnum.ERROR.name());
+                    return responses.getResponse("No data was found.", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
                 }
             } else {
                 ProjectLogger.log("Mismatched wid and token, please verify and try again.", LoggerEnum.ERROR.name());
@@ -477,7 +485,7 @@ public class UserService {
             return oldtoken;
         }
     }
-
+    
     public Claims getDataFromToken(String token) throws NoSuchAlgorithmException, InvalidKeySpecException {
         X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(Base64.getDecoder().decode(publicKey));
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
@@ -495,7 +503,21 @@ public class UserService {
         }
         return false;
     }
-
+    
+    private boolean setSourceProfilePicture(User userData, String sourceProfilePicture) {
+        User userResponseObject = new User(userData);
+        
+        // get the userdetails and check if the source profile picture is not null,
+        //case1: if the profile picture is not null, then no updation required in wingspan_user
+        //case2: if the profile picture is null, then update is required in wingspan_user
+        String responseSourceProfilePicture = (String) postgresql.getUserDetails(userResponseObject, "source_profile_picture");
+        if (responseSourceProfilePicture == null && sourceProfilePicture != null) {
+          return true;
+        }
+        else{
+            return false;
+        }
+    }
 
     public JSONObject deleteUserFromUserAutoComplete(String email, String wid) {
         JSONObject jsonObject = new JSONObject();
