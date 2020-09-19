@@ -287,7 +287,6 @@ public class Postgresql {
         query.deleteCharAt(query.length() - 1);
         query.append(" WHERE " + " wid = '" + wid + "'");
         query.append(";");
-        System.out.println("query"+ query);
         try(Connection conn = connect();
             PreparedStatement pst = conn.prepareStatement(String.valueOf(query))){
             successcount = pst.executeUpdate();
