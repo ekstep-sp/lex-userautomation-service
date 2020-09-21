@@ -457,7 +457,7 @@ public class UserService {
 //     DecodedJWT jwt = JWT.decode(userData.getTokenForUserDetails());
 //     String org = jwt.getClaim("organisation").asString();
                     Map<String, Object> userMap = toMapUserDataForUserDetails(userData);
-                    int successCountForUpdate = postgresql.updateUserProfile(userData.getWid(),userMap);
+                    int successCountForUpdate = postgresql.updateUserProfile(userData,userMap);
                     user.put("wid", userData.getWid_user());
                     if (successCountForUpdate > 0) {
                         ProjectLogger.log("Successfully updated the user data.", LoggerEnum.ERROR.name());
@@ -593,7 +593,7 @@ public class UserService {
                 }
                 Map<String, Object> user = new HashMap<>();
                 Map<String, Object> userMap = toMapUserDataForUserEditProfile(userData);
-                int successCount = postgresql.updateUserProfile(userData.getWid(),userMap);
+                int successCount = postgresql.updateUserProfile(userData,userMap);
                 if (successCount > 0) {
                     user.put("wid", userData.getWid());
                     ProjectLogger.log("User profile updated successfully", LoggerEnum.INFO.name());
@@ -615,7 +615,7 @@ public class UserService {
 
     public Map<String,Object> toMapUserDataForUserEditProfile(User userData){
         Map<String,Object> userDataResponse = new HashMap<String, Object>();
-        userDataResponse.put("department_name", userData.getOrganisation());
+        userDataResponse.put("department_name", userData.getUserOrganisation());
         userDataResponse.put("first_name",userData.getUserFirstName());
         userDataResponse.put("last_name", userData.getUserLastName());
         userDataResponse.put("source_profile_picture", userData.getSourceProfilePicture());

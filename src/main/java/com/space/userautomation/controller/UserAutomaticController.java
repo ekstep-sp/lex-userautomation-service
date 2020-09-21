@@ -163,15 +163,15 @@ public class UserAutomaticController {
         }
     }
 
-    @RequestMapping(value = "/v1/editprofile",headers={"rootOrg","newOrg"}, method = RequestMethod.PATCH)
+    @RequestMapping(value = "/v1/editprofile",headers={"rootOrg","Org"}, method = RequestMethod.PATCH)
     public ResponseEntity<JSONObject> editProfile(@RequestBody User userData, @RequestHeader Map<Object, Object> header) {
         ProjectLogger.log("UserAutomation editProfile Api called.", LoggerEnum.INFO.name());
         try
         {
             userData.setApiId(response.getApiId());
             userData.setRoot_org((String) header.get("rootorg"));
-            userData.setOrganisation((String) header.get("neworg"));
-            if(userData.getRoot_org().equals(System.getenv("rootOrg")) && (!userData.getOrganisation().isEmpty())){
+            userData.setOrganisation((String) header.get("org"));
+            if(userData.getRoot_org().equals(System.getenv("rootOrg")) && (userData.getOrganisation().equals(System.getenv("org")))){
                 return userService.editUserProfile(userData);
             }
             else{

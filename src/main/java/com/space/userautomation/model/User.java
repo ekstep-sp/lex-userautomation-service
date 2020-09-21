@@ -27,12 +27,24 @@ public class User implements Serializable {
 
     private String organisation;
 
+    public String getUserOrganisation() {
+        return userOrganisation;
+    }
+
+    public void setUserOrganisation(String userOrganisation) {
+        this.userOrganisation = userOrganisation;
+    }
+
+    private String userOrganisation;
+
     private String appleId;
     
     public String sourceProfilePicture;
     
     
     private String root_org;
+    
+
     public String userFirstName;
 
     public String getSourceProfilePicture() {
@@ -50,7 +62,7 @@ public class User implements Serializable {
     public void setUserFirstName(String userFirstName) {
         this.userFirstName = userFirstName;
     }
-
+    
     public String getUserLastName() {
         return userLastName;
     }
@@ -74,7 +86,17 @@ public class User implements Serializable {
     private String updated_by;
     private Timestamp updated_on;
     private String wid_OrgAdmin;
+
+    public String getDepartmentName() {
+        return departmentName;
+    }
+
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
+    }
+
     private String role;
+    public String departmentName;
     
     public List<String> getRoles() {
         return roles;

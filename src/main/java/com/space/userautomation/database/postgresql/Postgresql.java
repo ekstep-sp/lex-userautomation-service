@@ -274,7 +274,7 @@ public class Postgresql {
         return role;
     }
 
-    public int  updateUserProfile(String wid, Map<String ,Object> userMap){
+    public int  updateUserProfile(User user, Map<String ,Object> userMap){
         ProjectLogger.log("Request recieved to update the user profile details.", LoggerEnum.ERROR.name());
         int successcount = -1;
         StringBuilder query = new StringBuilder();
@@ -285,7 +285,9 @@ public class Postgresql {
             query.append(entry.getKey() + " = '" + entry.getValue() + "',");
         }
         query.deleteCharAt(query.length() - 1);
-        query.append(" WHERE " + " wid = '" + wid + "'");
+        query.append(" WHERE " + " wid = '" + user.getWid() + "'");
+        query.append(" AND " + " root_org = '" + user.getRoot_org() + "'");
+        query.append(" AND " + "org = '" + user.getOrganisation() + "'");
         query.append(";");
         try(Connection conn = connect();
             PreparedStatement pst = conn.prepareStatement(String.valueOf(query))){
