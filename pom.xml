@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.space.userautomation</groupId>
 	<artifactId>UserAutomation</artifactId>
-	<version>0.1.5-SNAPSHOT</version>
+	<version>0.1.6-SNAPSHOT</version>
 	<name>UserAutomation</name>
 	<description>User Automation Project</description>
 

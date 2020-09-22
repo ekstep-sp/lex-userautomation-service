@@ -275,7 +275,7 @@ public class Postgresql {
     }
 
     public int  updateUserProfile(User user, Map<String ,Object> userMap){
-        ProjectLogger.log("Request recieved to update the user profile details.", LoggerEnum.ERROR.name());
+        ProjectLogger.log("Request recieved to update the user data.", LoggerEnum.ERROR.name());
         int successcount = -1;
         StringBuilder query = new StringBuilder();
         query.append("UPDATE " );
@@ -294,10 +294,10 @@ public class Postgresql {
             successcount = pst.executeUpdate();
             return successcount;
         } catch (SQLException e) {
-            ProjectLogger.log("SQL Exception occured while updating user profile" + Arrays.toString(e.getStackTrace()) + " exception: " + e, LoggerEnum.ERROR.name());
+            ProjectLogger.log("SQL Exception occured while updating user data" + Arrays.toString(e.getStackTrace()) + " exception: " + e, LoggerEnum.ERROR.name());
         }
         catch(Exception ex) {
-            ProjectLogger.log("Exception occured while updating user profile" + Arrays.toString(ex.getStackTrace()) + " exception: " + ex, LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured while updating user data" + Arrays.toString(ex.getStackTrace()) + " exception: " + ex, LoggerEnum.ERROR.name());
         }
         return successcount;
     }

@@ -427,7 +427,7 @@ public class UserService {
                 return jsonobject;
             }
         } catch (Exception ex) {
-            ProjectLogger.log(ex.getMessage(), LoggerEnum.ERROR.name());
+            ProjectLogger.log(ex.getMessage() + Arrays.toString(ex.getStackTrace())  + ex.getMessage() , LoggerEnum.ERROR.name());
         }
         return jsonobject;
     }
@@ -550,7 +550,7 @@ public class UserService {
                 return jsonObject;
             }
         } catch (Exception ex) {
-            ProjectLogger.log("Exception occured in deleteUserFromUserAutoComplete,  " + ex.getMessage(), LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured in deleteUserFromUserAutoComplete,  " + Arrays.toString(ex.getStackTrace())  + ex.getMessage(), LoggerEnum.ERROR.name());
         }
         return jsonObject;
     }
