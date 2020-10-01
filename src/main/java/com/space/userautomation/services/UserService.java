@@ -9,6 +9,8 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
+
+import com.google.gson.JsonObject;
 import com.space.userautomation.common.LoggerEnum;
 import com.space.userautomation.common.Response;
 import com.space.userautomation.common.UserAutomationEnum;
@@ -60,6 +62,8 @@ public class UserService {
     String CLIENTID = System.getenv("keycloak_resource");
     private String AUTHURL = System.getenv("keycloak_auth_server_url");
     private String REALM = System.getenv("keycloak_realm");
+    private String ROOT_ORG = System.getenv("rootOrg");
+    private String ORGANISATION = System.getenv("org");
 
     private String adminName = System.getenv("adminName");
     private String adminPassword = System.getenv("adminPassword");
@@ -337,7 +341,7 @@ public class UserService {
             return responses.getResponse(" ", HttpStatus.BAD_REQUEST, 400, userData.getApiId(), "");
         }
     }
-    
+
     public ResponseEntity<JSONObject> userListFromUserTable(User userData) {
         try {
             ProjectLogger.log("userListFromUserTable method is called" , LoggerEnum.INFO.name());
@@ -361,8 +365,8 @@ public class UserService {
                 }
             }
             else{
-                    return responses.getResponse("Permission denied,user list can be retireved by admin only", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, userData.getApiId(), "");
-                }
+                return responses.getResponse("Permission denied,user list can be retireved by admin only", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, userData.getApiId(), "");
+            }
         }
         catch(Exception ex){
             ProjectLogger.log("Exception occured in retrieving user list from user table " +  Arrays.toString(ex.getStackTrace()) + ex.getMessage(), LoggerEnum.ERROR.name());
@@ -373,28 +377,28 @@ public class UserService {
     public ResponseEntity<JSONObject> getUsersListForTaggingUsers(User userData) {
         try {
             ProjectLogger.log("getUsersListForTaggingUsers method is called" , LoggerEnum.INFO.name());
-                ResponseEntity<JSONObject> responseData = postgresql.getAllUserList(userData);
-                Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
-                if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
-                    JSONArray userList = (JSONArray) responseData.getBody().get("DATA");
-                    List filteredUserList = new ArrayList();
-                    for (int i = 0; i < userList.size(); i++) {
-                        JSONObject obj = (JSONObject) userList.get(i);
-                        filteredUserList.add(obj);
-                    }
-                    ProjectLogger.log("Successfully retrieved userList", LoggerEnum.INFO.name());
-                    return responses.getResponse("userList of all users", HttpStatus.OK, 200, userData.getApiId(), filteredUserList);
-                } else {
-                    ProjectLogger.log("Internal server error", LoggerEnum.ERROR.name());
-                    return responses.getResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR, 500, userData.getApiId(), "");
+            ResponseEntity<JSONObject> responseData = postgresql.getAllUserList(userData);
+            Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
+            if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
+                JSONArray userList = (JSONArray) responseData.getBody().get("DATA");
+                List filteredUserList = new ArrayList();
+                for (int i = 0; i < userList.size(); i++) {
+                    JSONObject obj = (JSONObject) userList.get(i);
+                    filteredUserList.add(obj);
                 }
+                ProjectLogger.log("Successfully retrieved userList", LoggerEnum.INFO.name());
+                return responses.getResponse("userList of all users", HttpStatus.OK, 200, userData.getApiId(), filteredUserList);
+            } else {
+                ProjectLogger.log("Internal server error", LoggerEnum.ERROR.name());
+                return responses.getResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR, 500, userData.getApiId(), "");
+            }
         }
         catch(Exception ex){
             ProjectLogger.log("Exception occured in retrieving user list from user table in getUsersListForTaggingUsers" + Arrays.toString(ex.getStackTrace()) + ex.getMessage(), LoggerEnum.ERROR.name());
             return responses.getResponse("Something Went Wrong!!!", HttpStatus.BAD_REQUEST, 400, userData.getApiId(), "");
         }
     }
-    
+
     public JSONObject deleteUser(String user_id) {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         JSONObject jsonobject = new JSONObject();
@@ -423,47 +427,68 @@ public class UserService {
                 return jsonobject;
             }
         } catch (Exception ex) {
-            ProjectLogger.log(ex.getMessage(), LoggerEnum.ERROR.name());
+            ProjectLogger.log(ex.getMessage() + Arrays.toString(ex.getStackTrace())  + ex.getMessage() , LoggerEnum.ERROR.name());
         }
         return jsonobject;
     }
 
-    public ResponseEntity<JSONObject> userDetails(User userData) {
-        ProjectLogger.log("Request recieved for updating user data in wingspan_user table", LoggerEnum.ERROR.name());
+    public ResponseEntity<JSONObject> updateUserDetails(User userData) {
+        ProjectLogger.log("Request recieved for updating user data in wingspan_user table", LoggerEnum.INFO.name());
         try {
             String newToken = getModifiedToken(userData.getTokenForUserDetails());
             Map<String, Object> user = new HashMap<>();
             Claims claimData = getDataFromToken(newToken);
             String organisation = (String) claimData.get("organisation");
             String emailFromToken = (String) claimData.get("email");
-            if (validateWidWithToken(userData, emailFromToken)) {
-               if (organisation != null) {
-                    userData.setOrganisation(organisation);
-//     DecodedJWT jwt = JWT.decode(userData.getTokenForUserDetails());
-//     String org = jwt.getClaim("organisation").asString();
-                    int successCountForUpdate = postgresql.updateUserDetails(userData);
-                    user.put("wid", userData.getWid_user());
-                    if (successCountForUpdate > 0) {
-                        ProjectLogger.log("Successfully updated the user data.", LoggerEnum.ERROR.name());
-                        return responses.getResponse("Successfully updated the user data.", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
-                    } else {
-                        ProjectLogger.log("Failed to update the user data.", LoggerEnum.ERROR.name());
-                        return responses.getResponse("Failed to update the user data.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), user);
+            String sourceProfilePicture = (String) claimData.get("picture");
+            String email = getUserDetailsForSingleSelection(userData, "email");
+            if(organisation != null || sourceProfilePicture != null) {
+                if (validateWidWithToken(userData, emailFromToken, email)) {
+                    String departmentName = getUserDetailsForSingleSelection(userData, "department_name");
+                    if (setUserData(userData, organisation, departmentName, false)) {
+                        userData.setDepartmentName(organisation);
                     }
-                } 
-                else {
-                    ProjectLogger.log("No organisation data was found.", LoggerEnum.ERROR.name());
-                    return responses.getResponse("No organisation data was found.", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
+                    String originalSourceProfilePicture = getUserDetailsForSingleSelection(userData, "source_profile_picture");
+                    if (setUserData(userData, sourceProfilePicture, originalSourceProfilePicture, true)) {
+                        userData.setSourceProfilePicture(sourceProfilePicture);
+                    }
+//                else{
+//                    userData.setSourceProfilePicture(originalSourceProfilePicture);
+//                }
+//                    if (userData.getDepartmentName() != null || userData.getSourceProfilePicture() != null) {
+//     DecodedJWT jwt = JWT.decode(userData.getTokenForUserDetails());
+//     String org = jwt.getClaim("organisation").asString();    
+                    Map<String, Object> userMap = toMapUserDataForUserDetails(userData);
+                    if(!userMap.isEmpty()) {
+                        int successCountForUpdate = postgresql.updateUserProfile(userData, userMap);
+                        user.put("wid", userData.getWid_user());
+                        user.put("department_name", userMap.get("department_name"));
+                        user.put("source_profile_picture", userMap.get("source_profile_picture"));
+                        if (successCountForUpdate > 0) {
+                            ProjectLogger.log("Successfully updated the user data.", LoggerEnum.INFO.name());
+                            return responses.getResponse("Successfully updated the user data.", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
+                        } else {
+                            ProjectLogger.log("Failed to update the user data. ", LoggerEnum.ERROR.name());
+                            return responses.getResponse("Failed to update the user data.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), user);
+                        }
+                    } else {
+                        ProjectLogger.log("No new data found to update the user details", LoggerEnum.ERROR.name());
+                        return responses.getResponse("No new data found to update the user details", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
+                    }
+                } else {
+                    ProjectLogger.log("Mismatched wid and token, please verify and try again.", LoggerEnum.ERROR.name());
+                    return responses.getResponse("Mismatched wid and token, please verify and try again.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), user);
                 }
-            } else {
-                ProjectLogger.log("Mismatched wid and token, please verify and try again.", LoggerEnum.ERROR.name());
-                return responses.getResponse("Mismatched wid and token, please verify and try again.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), user);
+            }
+            else {
+                ProjectLogger.log("No required data was found from the token to update user details", LoggerEnum.ERROR.name());
+                return responses.getResponse("No required data was found from the token to update user details", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
             }
         } catch (ExpiredJwtException expiredJwtException) {
-            ProjectLogger.log("Jwt token expired.Please try again" +  Arrays.toString(expiredJwtException.getStackTrace()) +expiredJwtException, LoggerEnum.INFO.name());
+            ProjectLogger.log("Jwt token expired.Please try again" +  Arrays.toString(expiredJwtException.getStackTrace()) +expiredJwtException, LoggerEnum.ERROR.name());
             return responses.getResponse("JWT token expired, Please try again", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, userData.getApiId(), "");
         } catch (Exception ex) {
-            ProjectLogger.log("Exception occured in userDetails method. "  +  Arrays.toString(ex.getStackTrace()) + ex, LoggerEnum.INFO.name());
+            ProjectLogger.log("Exception occured in userDetails method. "  +  Arrays.toString(ex.getStackTrace()) + ex, LoggerEnum.ERROR.name());
             return responses.getResponse("Something went wrong !!!.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), "");
         }
     }
@@ -483,20 +508,37 @@ public class UserService {
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         RSAPublicKey pubKey = (RSAPublicKey) keyFactory.generatePublic(keySpecX509);
         Jws<Claims> claims = Jwts.parser().setSigningKey(pubKey).parseClaimsJws(token);
-//        String organisation = (String) claims.getBody().get("organisation"); 
         Claims getBody = claims.getBody();
         return getBody;
     }
 
-    public Boolean validateWidWithToken(User user, String emailFromToken) {
-        String emailResponse = (String) postgresql.getUserDetails(user, "email");
-        if (emailFromToken.equals(emailResponse)) {
+    public Boolean validateWidWithToken(User user, String emailFromToken, String email) {
+        if (emailFromToken.equals(email)) {
             return true;
         }
         return false;
     }
 
+    private boolean setUserData(User userData, String newData, String originalData, Boolean checkforEmpty) {
+        Boolean isCheckRequired = false;
+        if(checkforEmpty){
+            isCheckRequired = (originalData != null)? originalData.isEmpty():false;
+        }
+        // get the userdetails and check if the source profile picture is not null,
+        //case1: if the profile picture is not null, then no updation required in wingspan_user
+        //case2: if the profile picture is null, then update is required in wingspan_user
+        if (((originalData == null) || (isCheckRequired) || originalData.equals("null")) && newData != null) {
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 
+    public String getUserDetailsForSingleSelection( User userResponseObject, String dataTobeSelected){
+        String response = (String) postgresql.getUserDetails(userResponseObject, dataTobeSelected);
+        return response;
+    }
     public JSONObject deleteUserFromUserAutoComplete(String email, String wid) {
         JSONObject jsonObject = new JSONObject();
         try {
@@ -517,7 +559,7 @@ public class UserService {
                 return jsonObject;
             }
         } catch (Exception ex) {
-            ProjectLogger.log("Exception occured in deleteUserFromUserAutoComplete,  " + ex.getMessage(), LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured in deleteUserFromUserAutoComplete,  " + Arrays.toString(ex.getStackTrace())  + ex.getMessage(), LoggerEnum.ERROR.name());
         }
         return jsonObject;
     }
@@ -551,11 +593,7 @@ public class UserService {
     }
 
     public ResponseEntity<JSONObject> editUserProfile(User userData){
-        //user_properties:"{"bio":"text","profileLink":"text"}
-        //wid check
-
         ProjectLogger.log("Request recieved for editing the user profile data in wingspan_user table", LoggerEnum.ERROR.name());
-        //update the data in db
         try{
             if(userData.getWid() != null) {
                 if (userData.getEmail() != null) {
@@ -564,7 +602,7 @@ public class UserService {
                 }
                 Map<String, Object> user = new HashMap<>();
                 Map<String, Object> userMap = toMapUserDataForUserEditProfile(userData);
-                int successCount = postgresql.updateUserProfile(userData.getWid(),userMap);
+                int successCount = postgresql.updateUserProfile(userData,userMap);
                 if (successCount > 0) {
                     user.put("wid", userData.getWid());
                     ProjectLogger.log("User profile updated successfully", LoggerEnum.INFO.name());
@@ -583,17 +621,29 @@ public class UserService {
             return responses.getResponse("Something went wrong !!!.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), "");
         }
     }
-    
+
     public Map<String,Object> toMapUserDataForUserEditProfile(User userData){
         Map<String,Object> userDataResponse = new HashMap<String, Object>();
-        userDataResponse.put("department_name", userData.getOrganisation());
-        userDataResponse.put("first_name",userData.getUserFirstName());
+        userDataResponse.put("department_name", userData.getUserOrganisation());
+        userDataResponse.put("first_name", userData.getUserFirstName());
         userDataResponse.put("last_name", userData.getUserLastName());
         userDataResponse.put("source_profile_picture", userData.getSourceProfilePicture());
         userDataResponse.put("user_properties", userData.getUserProperties());
         return userDataResponse;
     }
-    
+
+    public Map<String,Object> toMapUserDataForUserDetails(User userData){
+        Map<String,Object> userDataResponse = new HashMap<String, Object>();
+        if(userData.getDepartmentName() != null ){
+            userDataResponse.put("department_name", userData.getDepartmentName());
+        }
+        if(userData.getSourceProfilePicture() != null){
+            userDataResponse.put("source_profile_picture", userData.getSourceProfilePicture());
+        }
+        return userDataResponse;
+    }
+
+
     //delete the user from user terms and condition table in cassandra db.
     public JSONObject deleteUserFromUserTncTable(String userId, User user) {
         JSONObject jsonObject = new JSONObject();
@@ -620,6 +670,6 @@ public class UserService {
         }
         return jsonObject;
     }
-    
+
 }
     

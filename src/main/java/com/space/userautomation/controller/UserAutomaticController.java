@@ -97,15 +97,17 @@ public class UserAutomaticController {
             return response.getResponse("Users could not be uploaded", HttpStatus.BAD_REQUEST, 400, "", "");
         }
     }
-    @RequestMapping(value = "/v2/userdetails", headers={"authorization"},  method = RequestMethod.PATCH)
+    @RequestMapping(value = "/v2/userdetails", headers={"rootOrg","Org","authorization"},  method = RequestMethod.PATCH)
     public ResponseEntity<JSONObject> userDetails(@RequestParam(required = true) String wid,  User userData, @RequestHeader Map<Object, Object> header){
         ProjectLogger.log("User Details api is called.", LoggerEnum.INFO.name());
         try {
             userData.setApiId(response.getApiId());
+            userData.setRoot_org((String) header.get("rootorg"));
+            userData.setOrganisation((String) header.get("org"));
             userData.setTokenForUserDetails((String) header.get("authorization"));
             userData.setWid_user(wid);
             if((!userData.getTokenForUserDetails().isEmpty()) && (!userData.getWid_user().isEmpty())){
-                return userService.userDetails(userData);
+                return userService.updateUserDetails(userData);
             }
             else{
                 ProjectLogger.log("Inapproriate headers in request.", LoggerEnum.ERROR.name());
@@ -163,7 +165,7 @@ public class UserAutomaticController {
         }
     }
 
-    @RequestMapping(value = "/v1/editprofile",headers={"rootOrg","org"}, method = RequestMethod.PATCH)
+    @RequestMapping(value = "/v1/editprofile",headers={"rootOrg","Org"}, method = RequestMethod.PATCH)
     public ResponseEntity<JSONObject> editProfile(@RequestBody User userData, @RequestHeader Map<Object, Object> header) {
         ProjectLogger.log("UserAutomation editProfile Api called.", LoggerEnum.INFO.name());
         try
@@ -171,7 +173,7 @@ public class UserAutomaticController {
             userData.setApiId(response.getApiId());
             userData.setRoot_org((String) header.get("rootorg"));
             userData.setOrganisation((String) header.get("org"));
-            if(userData.getRoot_org().equals(System.getenv("rootOrg")) && (!userData.getOrganisation().isEmpty())){
+            if(userData.getRoot_org().equals(System.getenv("rootOrg")) && (userData.getOrganisation().equals(System.getenv("org")))){
                 return userService.editUserProfile(userData);
             }
             else{

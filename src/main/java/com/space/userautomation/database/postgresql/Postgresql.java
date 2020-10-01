@@ -166,7 +166,7 @@ public class Postgresql {
     //get email details of user for user details api.
     public Object  getUserDetails(User userData, String dataToBeRetrieved){
         String emailResponse = new String();
-        ProjectLogger.log("Request recieved to get user details from table wingspan_user.", LoggerEnum.ERROR.name());
+        ProjectLogger.log("Request recieved to get user details from table wingspan_user.", LoggerEnum.INFO.name());
 
         StringBuilder query = new StringBuilder();
         query.append("SELECT " );
@@ -193,7 +193,7 @@ public class Postgresql {
 //getting all users from userTable
     public ResponseEntity<JSONObject>  getAllUserList(User userData){
         JSONArray json = new JSONArray();
-        ProjectLogger.log("Request recieved to get all user list  from table user.", LoggerEnum.ERROR.name());
+        ProjectLogger.log("Request recieved to get all user list  from table user.", LoggerEnum.INFO.name());
         StringBuilder query = new StringBuilder();
         query.append("SELECT " );
         query.append( "*" + " FROM ");
@@ -230,7 +230,7 @@ public class Postgresql {
     
     //update department_name for user table
     public int  updateUserDetails(User userData){
-        ProjectLogger.log("Request recieved to update the user organisation details.", LoggerEnum.ERROR.name());
+        ProjectLogger.log("Request recieved to update the user organisation details.", LoggerEnum.INFO.name());
         int successcount = -1;
         StringBuilder query = new StringBuilder();
         query.append("UPDATE " );
@@ -252,7 +252,7 @@ public class Postgresql {
     }
     
     public List<String> getUserRoles(Map<String, Object> userData) {
-        ProjectLogger.log("Request recieved to get all user roles.", LoggerEnum.ERROR.name());
+        ProjectLogger.log("Request recieved to get all user roles.", LoggerEnum.INFO.name());
         List<String> role = new ArrayList<>();
         StringBuilder query = new StringBuilder();
         query.append("SELECT role FROM ");
@@ -274,29 +274,32 @@ public class Postgresql {
         return role;
     }
 
-    public int  updateUserProfile(String wid, Map<String ,Object> userMap){
-        ProjectLogger.log("Request recieved to update the user profile details.", LoggerEnum.ERROR.name());
+    public int  updateUserProfile(User user, Map<String ,Object> userMap){
+        ProjectLogger.log("Request recieved to update the user data.", LoggerEnum.INFO.name());
         int successcount = -1;
         StringBuilder query = new StringBuilder();
         query.append("UPDATE " );
         query.append(tableName_user);
         query.append(" SET " );
         for (Map.Entry<String, Object> entry : userMap.entrySet()) {
-            query.append(entry.getKey() + " = '" + entry.getValue() + "',");
+            if(entry.getValue() != null){
+                query.append(entry.getKey() + " = '" + entry.getValue() + "',"); 
+            }
         }
         query.deleteCharAt(query.length() - 1);
-        query.append(" WHERE " + " wid = '" + wid + "'");
+        query.append(" WHERE " + " wid = '" + user.getWid() + "'");
+        query.append(" AND " + " root_org = '" + user.getRoot_org() + "'");
+        query.append(" AND " + "org = '" + user.getOrganisation() + "'");
         query.append(";");
-        System.out.println("query"+ query);
         try(Connection conn = connect();
             PreparedStatement pst = conn.prepareStatement(String.valueOf(query))){
             successcount = pst.executeUpdate();
             return successcount;
         } catch (SQLException e) {
-            ProjectLogger.log("SQL Exception occured while updating user profile" + Arrays.toString(e.getStackTrace()) + " exception: " + e, LoggerEnum.ERROR.name());
+            ProjectLogger.log("SQL Exception occured while updating user data" + Arrays.toString(e.getStackTrace()) + " exception: " + e, LoggerEnum.ERROR.name());
         }
         catch(Exception ex) {
-            ProjectLogger.log("Exception occured while updating user profile" + Arrays.toString(ex.getStackTrace()) + " exception: " + ex, LoggerEnum.ERROR.name());
+            ProjectLogger.log("Exception occured while updating user data" + Arrays.toString(ex.getStackTrace()) + " exception: " + ex, LoggerEnum.ERROR.name());
         }
         return successcount;
     }
