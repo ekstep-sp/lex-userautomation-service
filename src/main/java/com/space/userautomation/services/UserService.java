@@ -432,54 +432,63 @@ public class UserService {
         return jsonobject;
     }
 
-    public ResponseEntity<JSONObject> userDetails(User userData) {
-        ProjectLogger.log("Request recieved for updating user data in wingspan_user table", LoggerEnum.ERROR.name());
+    public ResponseEntity<JSONObject> updateUserDetails(User userData) {
+        ProjectLogger.log("Request recieved for updating user data in wingspan_user table", LoggerEnum.INFO.name());
         try {
             String newToken = getModifiedToken(userData.getTokenForUserDetails());
             Map<String, Object> user = new HashMap<>();
             Claims claimData = getDataFromToken(newToken);
             String organisation = (String) claimData.get("organisation");
             String emailFromToken = (String) claimData.get("email");
-            String sourceProfilePicture = (String) claimData.get("source_profile_picture");
+            String sourceProfilePicture = (String) claimData.get("picture");
             String email = getUserDetailsForSingleSelection(userData, "email");
-            if (validateWidWithToken(userData, emailFromToken, email)) {
-                String originalSourceProfilePicture = getUserDetailsForSingleSelection(userData, "source_profile_picture");
-                if(setSourceProfilePicture(userData, sourceProfilePicture, originalSourceProfilePicture)){
-                    userData.setSourceProfilePicture(sourceProfilePicture);
-                }
-                else{
-                    userData.setSourceProfilePicture(originalSourceProfilePicture);
-                }
-                if (organisation != null) {
-                    userData.setOrganisation(organisation);
-                }
-                if(userData.getOrganisation() != null || userData.getSourceProfilePicture() != null){
-//     DecodedJWT jwt = JWT.decode(userData.getTokenForUserDetails());
-//     String org = jwt.getClaim("organisation").asString();
-                    Map<String, Object> userMap = toMapUserDataForUserDetails(userData);
-                    int successCountForUpdate = postgresql.updateUserProfile(userData,userMap);
-                    user.put("wid", userData.getWid_user());
-                    if (successCountForUpdate > 0) {
-                        ProjectLogger.log("Successfully updated the user data.", LoggerEnum.ERROR.name());
-                        return responses.getResponse("Successfully updated the user data.", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
-                    } else {
-                        ProjectLogger.log("Failed to update the user data.", LoggerEnum.ERROR.name());
-                        return responses.getResponse("Failed to update the user data.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), user);
+            if(organisation != null || sourceProfilePicture != null) {
+                if (validateWidWithToken(userData, emailFromToken, email)) {
+                    String departmentName = getUserDetailsForSingleSelection(userData, "department_name");
+                    if (setUserData(userData, organisation, departmentName, false)) {
+                        userData.setDepartmentName(organisation);
                     }
+                    String originalSourceProfilePicture = getUserDetailsForSingleSelection(userData, "source_profile_picture");
+                    if (setUserData(userData, sourceProfilePicture, originalSourceProfilePicture, true)) {
+                        userData.setSourceProfilePicture(sourceProfilePicture);
+                    }
+//                else{
+//                    userData.setSourceProfilePicture(originalSourceProfilePicture);
+//                }
+//                    if (userData.getDepartmentName() != null || userData.getSourceProfilePicture() != null) {
+//     DecodedJWT jwt = JWT.decode(userData.getTokenForUserDetails());
+//     String org = jwt.getClaim("organisation").asString();    
+                    Map<String, Object> userMap = toMapUserDataForUserDetails(userData);
+                    if(!userMap.isEmpty()) {
+                        int successCountForUpdate = postgresql.updateUserProfile(userData, userMap);
+                        user.put("wid", userData.getWid_user());
+                        user.put("department_name", userMap.get("department_name"));
+                        user.put("source_profile_picture", userMap.get("source_profile_picture"));
+                        if (successCountForUpdate > 0) {
+                            ProjectLogger.log("Successfully updated the user data.", LoggerEnum.INFO.name());
+                            return responses.getResponse("Successfully updated the user data.", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
+                        } else {
+                            ProjectLogger.log("Failed to update the user data. ", LoggerEnum.ERROR.name());
+                            return responses.getResponse("Failed to update the user data.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), user);
+                        }
+                    } else {
+                        ProjectLogger.log("No new data found to update the user details", LoggerEnum.ERROR.name());
+                        return responses.getResponse("No new data found to update the user details", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
+                    }
+                } else {
+                    ProjectLogger.log("Mismatched wid and token, please verify and try again.", LoggerEnum.ERROR.name());
+                    return responses.getResponse("Mismatched wid and token, please verify and try again.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), user);
                 }
-                else {
-                    ProjectLogger.log("No data was found.", LoggerEnum.ERROR.name());
-                    return responses.getResponse("No data was found.", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
-                }
-            } else {
-                ProjectLogger.log("Mismatched wid and token, please verify and try again.", LoggerEnum.ERROR.name());
-                return responses.getResponse("Mismatched wid and token, please verify and try again.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), user);
+            }
+            else {
+                ProjectLogger.log("No required data was found from the token to update user details", LoggerEnum.ERROR.name());
+                return responses.getResponse("No required data was found from the token to update user details", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, userData.getApiId(), user);
             }
         } catch (ExpiredJwtException expiredJwtException) {
-            ProjectLogger.log("Jwt token expired.Please try again" +  Arrays.toString(expiredJwtException.getStackTrace()) +expiredJwtException, LoggerEnum.INFO.name());
+            ProjectLogger.log("Jwt token expired.Please try again" +  Arrays.toString(expiredJwtException.getStackTrace()) +expiredJwtException, LoggerEnum.ERROR.name());
             return responses.getResponse("JWT token expired, Please try again", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, userData.getApiId(), "");
         } catch (Exception ex) {
-            ProjectLogger.log("Exception occured in userDetails method. "  +  Arrays.toString(ex.getStackTrace()) + ex, LoggerEnum.INFO.name());
+            ProjectLogger.log("Exception occured in userDetails method. "  +  Arrays.toString(ex.getStackTrace()) + ex, LoggerEnum.ERROR.name());
             return responses.getResponse("Something went wrong !!!.", HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE, userData.getApiId(), "");
         }
     }
@@ -499,26 +508,26 @@ public class UserService {
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         RSAPublicKey pubKey = (RSAPublicKey) keyFactory.generatePublic(keySpecX509);
         Jws<Claims> claims = Jwts.parser().setSigningKey(pubKey).parseClaimsJws(token);
-//        String organisation = (String) claims.getBody().get("organisation"); 
         Claims getBody = claims.getBody();
         return getBody;
     }
 
     public Boolean validateWidWithToken(User user, String emailFromToken, String email) {
-//        String emailResponse = (String) postgresql.getUserDetails(user, "email");
         if (emailFromToken.equals(email)) {
             return true;
         }
         return false;
     }
 
-    private boolean setSourceProfilePicture(User userData, String sourceProfilePicture, String originalSourceProfilePicture) {
-        User userResponseObject = userData;
-
+    private boolean setUserData(User userData, String newData, String originalData, Boolean checkforEmpty) {
+        Boolean isCheckRequired = false;
+        if(checkforEmpty){
+            isCheckRequired = (originalData != null)? originalData.isEmpty():false;
+        }
         // get the userdetails and check if the source profile picture is not null,
         //case1: if the profile picture is not null, then no updation required in wingspan_user
         //case2: if the profile picture is null, then update is required in wingspan_user
-        if ((originalSourceProfilePicture == null) || (originalSourceProfilePicture.isEmpty()) && sourceProfilePicture != null) {
+        if (((originalData == null) || (isCheckRequired) || originalData.equals("null")) && newData != null) {
             return true;
         }
         else{
@@ -616,7 +625,7 @@ public class UserService {
     public Map<String,Object> toMapUserDataForUserEditProfile(User userData){
         Map<String,Object> userDataResponse = new HashMap<String, Object>();
         userDataResponse.put("department_name", userData.getUserOrganisation());
-        userDataResponse.put("first_name",userData.getUserFirstName());
+        userDataResponse.put("first_name", userData.getUserFirstName());
         userDataResponse.put("last_name", userData.getUserLastName());
         userDataResponse.put("source_profile_picture", userData.getSourceProfilePicture());
         userDataResponse.put("user_properties", userData.getUserProperties());
@@ -625,8 +634,12 @@ public class UserService {
 
     public Map<String,Object> toMapUserDataForUserDetails(User userData){
         Map<String,Object> userDataResponse = new HashMap<String, Object>();
-        userDataResponse.put("department_name", userData.getOrganisation());
-        userDataResponse.put("source_profile_picture", userData.getSourceProfilePicture());
+        if(userData.getDepartmentName() != null ){
+            userDataResponse.put("department_name", userData.getDepartmentName());
+        }
+        if(userData.getSourceProfilePicture() != null){
+            userDataResponse.put("source_profile_picture", userData.getSourceProfilePicture());
+        }
         return userDataResponse;
     }
 

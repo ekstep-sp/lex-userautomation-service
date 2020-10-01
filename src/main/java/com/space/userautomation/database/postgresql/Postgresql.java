@@ -166,7 +166,7 @@ public class Postgresql {
     //get email details of user for user details api.
     public Object  getUserDetails(User userData, String dataToBeRetrieved){
         String emailResponse = new String();
-        ProjectLogger.log("Request recieved to get user details from table wingspan_user.", LoggerEnum.ERROR.name());
+        ProjectLogger.log("Request recieved to get user details from table wingspan_user.", LoggerEnum.INFO.name());
 
         StringBuilder query = new StringBuilder();
         query.append("SELECT " );
@@ -193,7 +193,7 @@ public class Postgresql {
 //getting all users from userTable
     public ResponseEntity<JSONObject>  getAllUserList(User userData){
         JSONArray json = new JSONArray();
-        ProjectLogger.log("Request recieved to get all user list  from table user.", LoggerEnum.ERROR.name());
+        ProjectLogger.log("Request recieved to get all user list  from table user.", LoggerEnum.INFO.name());
         StringBuilder query = new StringBuilder();
         query.append("SELECT " );
         query.append( "*" + " FROM ");
@@ -230,7 +230,7 @@ public class Postgresql {
     
     //update department_name for user table
     public int  updateUserDetails(User userData){
-        ProjectLogger.log("Request recieved to update the user organisation details.", LoggerEnum.ERROR.name());
+        ProjectLogger.log("Request recieved to update the user organisation details.", LoggerEnum.INFO.name());
         int successcount = -1;
         StringBuilder query = new StringBuilder();
         query.append("UPDATE " );
@@ -252,7 +252,7 @@ public class Postgresql {
     }
     
     public List<String> getUserRoles(Map<String, Object> userData) {
-        ProjectLogger.log("Request recieved to get all user roles.", LoggerEnum.ERROR.name());
+        ProjectLogger.log("Request recieved to get all user roles.", LoggerEnum.INFO.name());
         List<String> role = new ArrayList<>();
         StringBuilder query = new StringBuilder();
         query.append("SELECT role FROM ");
@@ -275,14 +275,16 @@ public class Postgresql {
     }
 
     public int  updateUserProfile(User user, Map<String ,Object> userMap){
-        ProjectLogger.log("Request recieved to update the user data.", LoggerEnum.ERROR.name());
+        ProjectLogger.log("Request recieved to update the user data.", LoggerEnum.INFO.name());
         int successcount = -1;
         StringBuilder query = new StringBuilder();
         query.append("UPDATE " );
         query.append(tableName_user);
         query.append(" SET " );
         for (Map.Entry<String, Object> entry : userMap.entrySet()) {
-            query.append(entry.getKey() + " = '" + entry.getValue() + "',");
+            if(entry.getValue() != null){
+                query.append(entry.getKey() + " = '" + entry.getValue() + "',"); 
+            }
         }
         query.deleteCharAt(query.length() - 1);
         query.append(" WHERE " + " wid = '" + user.getWid() + "'");
