@@ -8,9 +8,8 @@ import java.security.SecureRandom;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.sql.Timestamp;
 import java.util.*;
-
-import com.google.gson.JsonObject;
 import com.space.userautomation.common.LoggerEnum;
 import com.space.userautomation.common.Response;
 import com.space.userautomation.common.UserAutomationEnum;
@@ -32,6 +31,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.apache.tomcat.jni.Time;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import com.space.userautomation.common.ProjectLogger;
@@ -40,6 +40,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.util.SystemPropertyUtils;
+
+import javax.print.DocFlavor;
 
 @Component
 
@@ -343,26 +346,12 @@ public class UserService {
     }
 
     public ResponseEntity<JSONObject> userListFromUserTable(User userData) {
-        try {
-            ProjectLogger.log("userListFromUserTable method is called" , LoggerEnum.INFO.name());
+        try { 
             JSONObject jObj = new JSONObject((Map) new UserRoleService().getRoleForAdmin(userData).getBody().get("DATA"));
             Boolean isORG_ADMIN = (Boolean) jObj.get("isAdminUser");
             if (isORG_ADMIN) {
-                ResponseEntity<JSONObject> responseData = postgresql.getAllUserList(userData);
-                Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
-                if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
-                    JSONArray userList = (JSONArray) responseData.getBody().get("DATA");
-                    List filteredUserList = new ArrayList();
-                    for (int i = 0; i < userList.size(); i++) {
-                        JSONObject obj = (JSONObject) userList.get(i);
-                        filteredUserList.add(obj);
-                    }
-                    ProjectLogger.log("Successfully retrieved userList", LoggerEnum.INFO.name());
-                    return responses.getResponse("userList of all users", HttpStatus.OK, 200, userData.getApiId(), filteredUserList);
-                } else {
-                    ProjectLogger.log("Internal server error", LoggerEnum.ERROR.name());
-                    return responses.getResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR, 500, userData.getApiId(), "");
-                }
+                List<Map<String, Object>> responseData = postgresql.getAllUserList(userData.getRoot_org(), userData.getOrganisation());
+                return responses.getResponse("userList of all users", HttpStatus.OK, 200, userData.getApiId(), responseData);
             }
             else{
                 return responses.getResponse("Permission denied,user list can be retireved by admin only", HttpStatus.FORBIDDEN, UserAutomationEnum.FORBIDDEN, userData.getApiId(), "");
@@ -370,35 +359,23 @@ public class UserService {
         }
         catch(Exception ex){
             ProjectLogger.log("Exception occured in retrieving user list from user table " +  Arrays.toString(ex.getStackTrace()) + ex.getMessage(), LoggerEnum.ERROR.name());
-            return responses.getResponse("Something Went Wrong!!!", HttpStatus.BAD_REQUEST, 400, userData.getApiId(), "");
+            return responses.getResponse("Something Went Wrong!!!", HttpStatus.INTERNAL_SERVER_ERROR, 500, userData.getApiId(), "");
         }
     }
-
-    public ResponseEntity<JSONObject> getUsersListForTaggingUsers(User userData) {
-        try {
-            ProjectLogger.log("getUsersListForTaggingUsers method is called" , LoggerEnum.INFO.name());
-            ResponseEntity<JSONObject> responseData = postgresql.getAllUserList(userData);
-            Integer statusCode = (Integer) responseData.getBody().get("STATUS_CODE");
-            if (statusCode == UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE) {
-                JSONArray userList = (JSONArray) responseData.getBody().get("DATA");
-                List filteredUserList = new ArrayList();
-                for (int i = 0; i < userList.size(); i++) {
-                    JSONObject obj = (JSONObject) userList.get(i);
-                    filteredUserList.add(obj);
-                }
-                ProjectLogger.log("Successfully retrieved userList", LoggerEnum.INFO.name());
-                return responses.getResponse("userList of all users", HttpStatus.OK, 200, userData.getApiId(), filteredUserList);
-            } else {
-                ProjectLogger.log("Internal server error", LoggerEnum.ERROR.name());
-                return responses.getResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR, 500, userData.getApiId(), "");
-            }
-        }
-        catch(Exception ex){
-            ProjectLogger.log("Exception occured in retrieving user list from user table in getUsersListForTaggingUsers" + Arrays.toString(ex.getStackTrace()) + ex.getMessage(), LoggerEnum.ERROR.name());
-            return responses.getResponse("Something Went Wrong!!!", HttpStatus.BAD_REQUEST, 400, userData.getApiId(), "");
-        }
-    }
-
+    
+    public ResponseEntity<?> getUsersListForTaggingUsers(String rootOrg, String org, Timestamp startDate, Timestamp endDate) {
+        List<Map<String, Object>> responseData = postgresql.getAllUserList(rootOrg, org, true, startDate, endDate);
+        return new ResponseEntity<>(responseData, HttpStatus.OK);
+    } 
+    
+     // this will return the count of users and filter with registerd date
+     public ResponseEntity<?> getUserCount(Timestamp startDate, Timestamp endDate, String rootOrg, String org) {
+         int count = postgresql.getUserCount(startDate, endDate, rootOrg, org);
+         return new ResponseEntity<>(new HashMap<String, Integer>() {{
+             put("count", count);
+         }}, HttpStatus.OK);
+     }
+     
     public JSONObject deleteUser(String user_id) {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         JSONObject jsonobject = new JSONObject();

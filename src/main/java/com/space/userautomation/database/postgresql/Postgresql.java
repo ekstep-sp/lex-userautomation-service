@@ -10,6 +10,7 @@ import org.json.simple.JSONObject;
 import org.postgresql.util.PSQLException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.*;
 import java.util.*;
@@ -190,42 +191,71 @@ public class Postgresql {
         }
         return emailResponse;
     }
-//getting all users from userTable
-    public ResponseEntity<JSONObject>  getAllUserList(User userData){
-        JSONArray json = new JSONArray();
-        ProjectLogger.log("Request recieved to get all user list  from table user.", LoggerEnum.INFO.name());
+
+    public List<Map<String, Object>> getAllUserList(String rootOrg, String org) {
+        return getAllUserList(rootOrg, org, false, null, null);
+    }
+        
+        //new method for getting all users from userTable
+    public List<Map<String, Object>> getAllUserList(String rootOrg, String org, Boolean isTagUserApi, Timestamp startDate, Timestamp endDate) {
+        List<Map<String, Object>> userList = new ArrayList<>();
         StringBuilder query = new StringBuilder();
-        query.append("SELECT " );
-        query.append( "*" + " FROM ");
-        query.append( tableName_user );
-        query.append(" WHERE " + " root_org = '" + userData.getRoot_org() + "'");
-        query.append(" AND " + "org = '" + userData.getOrganisation() + "'");
+        query.append("SELECT ");
+        query.append((isTagUserApi ? "wid, first_name, last_name, department_name, email " : "*") + " FROM ");
+        query.append(tableName_user);
+        query.append(" WHERE root_org = ? ");
+        query.append(" AND org = ? ");
+        if (startDate != null && endDate != null) {
+            query.append(" AND time_inserted >= ? AND time_inserted <= ? ");
+        }
         query.append(";");
-        try(Connection conn = connect();
-            PreparedStatement pst = conn.prepareStatement(String.valueOf(query));
-            ResultSet resultSet =  pst.executeQuery()){
-            ResultSetMetaData rsmd = resultSet.getMetaData();
-            while(resultSet.next()) {
-                int numColumns = rsmd.getColumnCount();
-                JSONObject obj = new JSONObject();
-                for (int i=1; i<=numColumns; i++) {
-                    String column_name = rsmd.getColumnName(i);
-                    obj.put(column_name, resultSet.getObject(column_name));
-                }
-                json.add(obj);
+        try (Connection conn = connect();
+             PreparedStatement pst = conn.prepareStatement(String.valueOf(query))) {
+            pst.setString(1, rootOrg);
+            pst.setString(2, org);
+            if (startDate != null && endDate != null) {
+                pst.setTimestamp(3, startDate);
+                pst.setTimestamp(4, endDate);
             }
-            ProjectLogger.log("User list retieved successfully from wingspan_user table", LoggerEnum.INFO.name());
-            return response.getResponse("User list retieved successfully", HttpStatus.OK, UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE, "", json);
-//            return json;
-        } catch (SQLException e) {
-            ProjectLogger.log("SQL Exception occured while retieving list of users from wingspan_user table" + Arrays.toString(e.getStackTrace())+ e, LoggerEnum.ERROR.name());
-            return response.getResponse("Internal Server error", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", "");
+            ResultSet resultSet = pst.executeQuery();
+            ResultSetMetaData rsmd = resultSet.getMetaData();
+            while (resultSet.next()) {
+                Map<String, Object> obj = new HashMap<>();
+                for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+                    obj.put(rsmd.getColumnName(i), resultSet.getObject(i));
+                }
+                userList.add(obj);
+            }
+            return userList;
+        } catch (Exception ex) {
+            ProjectLogger.log("Exception occured while retieving list of users" + Arrays.toString(ex.getStackTrace()) + ex, LoggerEnum.ERROR.name());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
-        catch(Exception ex) {
-            ProjectLogger.log("Exception occured while retieving list of users from wingspan_user table"+ Arrays.toString(ex.getStackTrace()) +  ex, LoggerEnum.ERROR.name());
-            return response.getResponse("Internal Server error", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", "");
+    }
+    public int getUserCount(Timestamp startDate, Timestamp endDate, String rootOrg, String org) {
+        String query = "SELECT " +
+                "count(*) as total" + " FROM " +
+                tableName_user +
+                " WHERE root_org = ? " +
+                " AND org = ? ";
+        if (startDate != null && endDate != null) {
+            query += " AND time_inserted >= ? AND time_inserted <= ? ";
         }
-//        return json;
+        try (Connection conn = connect();
+             PreparedStatement pst = conn.prepareStatement(query)) {
+            pst.setString(1, rootOrg);
+            pst.setString(2, org);
+            if (startDate != null && endDate != null) {
+                pst.setTimestamp(3, startDate);
+                pst.setTimestamp(4, endDate);
+            }
+            ResultSet resultSet = pst.executeQuery();
+            if (resultSet.next()) return resultSet.getInt("total");
+            return 0;
+        } catch (Exception ex) {
+            ProjectLogger.log("Exception occurred while retrieving count of users" + Arrays.toString(ex.getStackTrace()) + ex, LoggerEnum.ERROR.name());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        }
     }
     
     //update department_name for user table

@@ -8,19 +8,26 @@ import com.space.userautomation.common.UserAutomationEnum;
 import com.space.userautomation.model.User;
 import com.space.userautomation.services.ExcelReader;
 import com.space.userautomation.services.UserService;
+import jnr.ffi.Struct;
+import org.apache.tomcat.jni.Time;
+import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.print.DocFlavor;
+import javax.validation.constraints.NotBlank;
+import java.sql.Timestamp;
+import java.util.*;
 
 @RestController
+@Validated
 @RequestMapping("/usersubmission/user")
 public class UserAutomaticController {
 
@@ -121,7 +128,7 @@ public class UserAutomaticController {
     }
 
     @RequestMapping(value = "/v2/users",headers={"rootOrg","org","wid_OrgAdmin"}, method = RequestMethod.GET)
-    public ResponseEntity<JSONObject> listAllUsersFromUserTable(User userData, @RequestHeader Map<Object, Object> header) {
+    public ResponseEntity<?> listAllUsersFromUserTable(User userData, @RequestHeader Map<Object, Object> header) {
         ProjectLogger.log("UserAutomation getUsers Api called.", LoggerEnum.INFO.name());
         try
         {
@@ -139,29 +146,21 @@ public class UserAutomaticController {
         }
         catch(Exception ex){
             ProjectLogger.log("Exception occured in listAllUsers method", LoggerEnum.ERROR.name());
-            return response.getResponse("Please verify the headers before processing the request",HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE,userData.getApiId(),"");
+            return response.getResponse("Users details could not be retrieved",HttpStatus.INTERNAL_SERVER_ERROR, UserAutomationEnum.INTERNAL_SERVER_ERROR,userData.getApiId(),"");
         }
     }
 
-    @RequestMapping(value = "/v2/users/taguser",headers={"rootOrg","org"}, method = RequestMethod.GET)
-    public ResponseEntity<JSONObject> getUserListForTag(User userData, @RequestHeader Map<Object, Object> header) {
+    @GetMapping(value = "/v2/users/taguser")
+    public ResponseEntity<?> getUserListForTag(@RequestParam(required = false) Timestamp startDate,
+                                               @RequestParam(required = false) Timestamp endDate,
+                                               @RequestHeader(value = "rootOrg") String rootOrg,
+                                               @RequestHeader(value = "org") String org) {
         ProjectLogger.log("UserAutomation getUserListForTag Api called.", LoggerEnum.INFO.name());
-        try
-        {
-            userData.setApiId(response.getApiId());
-            userData.setRoot_org((String) header.get("rootorg"));
-            userData.setOrganisation((String) header.get("org"));
-            if(userData.getRoot_org().equals(System.getenv("rootOrg")) && (!userData.getOrganisation().isEmpty())){
-                return userService.getUsersListForTaggingUsers(userData);
-            }
-            else{
-                ProjectLogger.log("Inapproriate headers in request.", LoggerEnum.ERROR.name());
-                return response.getResponse("Please verify the headers before processing the request",HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE,userData.getApiId(),"");
-            }
-        }
-        catch(Exception ex){
-            ProjectLogger.log("Exception occured in getUserListForTag method", LoggerEnum.ERROR.name());
-            return response.getResponse("Please verify the headers before processing the request",HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE,userData.getApiId(),"");
+
+        if (Objects.equals(rootOrg, System.getenv("rootOrg")) && StringUtils.hasText(org)) {
+            return userService.getUsersListForTaggingUsers(rootOrg, org, startDate, endDate);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Incorrect Headers");
         }
     }
 
@@ -184,6 +183,18 @@ public class UserAutomaticController {
         catch(Exception ex){
             ProjectLogger.log("Exception occured in edit profile method", LoggerEnum.ERROR.name());
             return response.getResponse("Exception occured in edit profile method",HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE,userData.getApiId(),"");
+        }
+    }
+    
+    @GetMapping(value = "/v2/users/count")
+    public ResponseEntity<?> getUserCount(@RequestParam(required = false) Timestamp startDate,
+                                          @RequestParam(required = false) Timestamp endDate,
+                                          @RequestHeader(value = "rootOrg") String rootOrg,
+                                          @RequestHeader(value = "org")  String org) {
+        if (Objects.equals(rootOrg, System.getenv("rootOrg")) && StringUtils.hasText(org)) {
+            return userService.getUserCount(startDate, endDate, rootOrg, org);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Incorrect Headers");
         }
     }
     

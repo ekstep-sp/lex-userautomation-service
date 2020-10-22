@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -46,6 +47,26 @@ public class User implements Serializable {
     
 
     public String userFirstName;
+     public Timestamp startDate;
+
+    public Timestamp getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Timestamp startDate) {
+        this.startDate = startDate;
+    }
+
+    public Timestamp getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Timestamp endDate) {
+        this.endDate = endDate;
+    }
+
+    public Timestamp endDate;
+     
 
     public String getSourceProfilePicture() {
         return sourceProfilePicture;
