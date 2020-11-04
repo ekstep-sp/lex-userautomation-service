@@ -12,11 +12,10 @@ import com.space.userautomation.model.User;
 import java.time.LocalDateTime;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class EmailService {
-    
+
 
     private static String email_from;
     private String platformLink = System.getenv("platformLink");
@@ -25,7 +24,31 @@ public class EmailService {
     private String domainForSPace = System.getenv("domainSPace");
     private String roleNameToBeReplaced = "default";
     private String roleNameForReplacement = "privileged";
-  
+
+    public static final HashMap<String, String> ROLE_GROUP_DEFINITION;
+
+    public static final List<String> ROLE_ORDER;
+
+    static {
+        ROLE_GROUP_DEFINITION = new HashMap<String, String>(){{
+            put("Default", "This is the role you get when you sign up on platform for the first time. It allows you to access the platform in a view-only mode. You can browse and download resources, assets, collections. You can view Q&A and blogs. You can create your own playlist and goals.");
+            put("Member", "This is a privileged role that allows you to engage with users on the platform through 'share content with others', 'rate content', 'provide feedback', 'email curator', 'write blog', 'ask question', 'comment/post' etc.");
+            put("Curator", "This is a privileged role that allows you to create resources, assets and collections on the platform.");
+            put("Publisher", "This is a privileged role that allows you to review and either publish or reject a content as sent to you by a curator.");
+            put("Editor", "This is a super privileged role that allows you to not only edit your own content but also edit anyone else's content on the platform. As an editor, you can also create content and add someone else as a curator of that content. You can also delete any blog or Q&A.");
+            put("Admin", "This is a super privileged admin role. It allows you to look at learning analytics. It allows you to change roles for users on the platform. It allows you to view platform feedback given by users.");
+        }};
+
+        ROLE_ORDER = new ArrayList<String>(){{
+            add("Default");
+            add("Member");
+            add("Curator");
+            add("Publisher");
+            add("Editor");
+            add("Admin");
+        }};
+    }
+
     public EmailService() {
     }
     public EmailService(String content) {
@@ -84,7 +107,7 @@ public class EmailService {
             ProjectLogger.log("Failed to send mail in acceptmail " + e, LoggerEnum.ERROR.name());
         }
     }
-    
+
     public void changeRole(User user, List<String> roles, List<String> existingRoles) {
         try {
             String name = user.getName();
@@ -108,7 +131,7 @@ public class EmailService {
             TemplateParser parser1 = new TemplateParser(EmailTemplate.changeRoleTemplate1);
             TemplateParser parser2 = new TemplateParser(EmailTemplate.changeRoleTemplate2);
             TemplateParser parser3 = new TemplateParser(EmailTemplate.changeRoleTemplate3);
-            String body1 = setArguments(parser1.getContent(),name);
+            String body1 = setArguments(parser1.getContent(),name, domainForSPace, domainForSPace);
             String previousRole =  returnRoleAsString(existingUserRoles);
             String body2 = setArguments(parser2.getContent());
             String newRoles =  returnRoleAsString(newUserRoles);
@@ -122,22 +145,19 @@ public class EmailService {
         }
     }
     public String returnRoleAsString(List<String> roles){
-        String roleForEachUser = " ";
-       for(int i = 0 ; i < roles.size(); i++){
-          int  index = i+1;
-           roleForEachUser =  roleForEachUser + "Role " + index + ": ";
-           roleForEachUser = roleForEachUser + roles.get(i) + " ";
-           TemplateParser parser = new TemplateParser(EmailTemplate.templateSpace);
-           String body = setArguments(parser.getContent());
-           roleForEachUser = roleForEachUser + body;
-           index = index+1;
-       }
-        return roleForEachUser;
+        roles.sort(Comparator.comparingInt(ROLE_ORDER::indexOf));
+        StringBuilder roleForEachUser = new StringBuilder();
+        for (int i = 0; i < roles.size(); i++) {
+            TemplateParser parser = new TemplateParser(EmailTemplate.roleDefinition);
+            String body = setArguments(parser.getContent(), (i + 1), roles.get(i), ROLE_GROUP_DEFINITION.get(roles.get(i)));
+            roleForEachUser.append(body);
+        }
+        return roleForEachUser.toString();
     }
     public void replaceRoleName(List<String> roles){
         Collections.replaceAll(roles, roleNameForReplacement, roleNameToBeReplaced);
     }
-    
+
     public void sendMail(String subject, String body, String emailTo[], boolean replyToCheck) {
 
         try {
