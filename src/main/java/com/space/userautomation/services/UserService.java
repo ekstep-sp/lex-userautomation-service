@@ -18,6 +18,7 @@ import com.space.userautomation.database.postgresql.Postgresql;
 import com.space.userautomation.model.User;
 import com.space.userautomation.model.UserCredentials;
 import io.jsonwebtoken.*;
+import jnr.ffi.annotations.In;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -346,7 +347,7 @@ public class UserService {
     }
 
     public ResponseEntity<JSONObject> userListFromUserTable(User userData) {
-        try { 
+        try {
             JSONObject jObj = new JSONObject((Map) new UserRoleService().getRoleForAdmin(userData).getBody().get("DATA"));
             Boolean isORG_ADMIN = (Boolean) jObj.get("isAdminUser");
             if (isORG_ADMIN) {
@@ -362,12 +363,12 @@ public class UserService {
             return responses.getResponse("Something Went Wrong!!!", HttpStatus.INTERNAL_SERVER_ERROR, 500, userData.getApiId(), "");
         }
     }
-    
+
     public ResponseEntity<?> getUsersListForTaggingUsers(String rootOrg, String org, Timestamp startDate, Timestamp endDate) {
         List<Map<String, Object>> responseData = postgresql.getAllUserList(rootOrg, org, true, startDate, endDate);
         return new ResponseEntity<>(responseData, HttpStatus.OK);
-    } 
-    
+    }
+
      // this will return the count of users and filter with registerd date
      public ResponseEntity<?> getUserCount(Timestamp startDate, Timestamp endDate, String rootOrg, String org) {
          int count = postgresql.getUserCount(startDate, endDate, rootOrg, org);
@@ -375,7 +376,12 @@ public class UserService {
              put("count", count);
          }}, HttpStatus.OK);
      }
-     
+
+    public ResponseEntity<?> getUserStatsByField(String rootOrg, String fieldName, Timestamp startDate, Timestamp endDate) {
+        List<HashMap<String, Object>> result = postgresql.getUserStatsByField(rootOrg, fieldName, startDate, endDate);
+        return new ResponseEntity<>(result, result.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK);
+    }
+
     public JSONObject deleteUser(String user_id) {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         JSONObject jsonobject = new JSONObject();
@@ -434,7 +440,7 @@ public class UserService {
 //                }
 //                    if (userData.getDepartmentName() != null || userData.getSourceProfilePicture() != null) {
 //     DecodedJWT jwt = JWT.decode(userData.getTokenForUserDetails());
-//     String org = jwt.getClaim("organisation").asString();    
+//     String org = jwt.getClaim("organisation").asString();
                     Map<String, Object> userMap = toMapUserDataForUserDetails(userData);
                     if(!userMap.isEmpty()) {
                         int successCountForUpdate = postgresql.updateUserProfile(userData, userMap);
@@ -649,4 +655,3 @@ public class UserService {
     }
 
 }
-    

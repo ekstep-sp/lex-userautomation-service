@@ -5,18 +5,20 @@ import com.space.userautomation.common.ProjectLogger;
 import com.space.userautomation.common.Response;
 import com.space.userautomation.common.UserAutomationEnum;
 import com.space.userautomation.model.User;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.postgresql.util.PSQLException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.*;
 import java.util.*;
+import java.util.function.ToIntFunction;
+import java.util.stream.Collectors;
 
 public class Postgresql {
-    
+
     private static String schemaName_postgresql = System.getenv("schemaName_postgresql");
     private static String tableName_postgresql = System.getenv("tableName_postgresql");
     private static String databaseName_postgresql = System.getenv("databaseName_postgresql");
@@ -26,7 +28,7 @@ public class Postgresql {
     private static String tableName_userAutocomplete = System.getenv("tableName_userAutocomplete");
     private static String tableName_user = System.getenv("tableName_user");
     Response response = new Response();
-    
+
     public Connection connect() {
         Connection conn = null;
         try {
@@ -42,7 +44,7 @@ public class Postgresql {
         }
         return conn;
     }
-    
+
     public ResponseEntity<JSONObject> insertUserRoles(Map<String, Object> userData) throws SQLException {
         ProjectLogger.log("Request recieved for insert user role with user id "+ userData.get("user_id"), LoggerEnum.INFO.name());
         StringBuilder query = new StringBuilder();
@@ -56,7 +58,7 @@ public class Postgresql {
         query.deleteCharAt(query.length() - 1);
         query.append(");");
         try (Connection conn = connect();
-             PreparedStatement pst = conn.prepareStatement(String.valueOf(query))) { 
+             PreparedStatement pst = conn.prepareStatement(String.valueOf(query))) {
 //            PreparedStatement pst = con.prepareStatement(String.valueOf(query));
             pst.setString(1, userData.get("root_org").toString());
             pst.setString(2,userData.get("user_id").toString());
@@ -103,7 +105,7 @@ public class Postgresql {
             return response.getResponse("User Role cannot be deleted", HttpStatus.BAD_REQUEST, UserAutomationEnum.INTERNAL_SERVER_ERROR, "", userData);
         }
     }
-    
+
     public ResponseEntity<JSONObject> deleteUserDataFromUserAutocomplete(Map<String, Object> userData){
         ProjectLogger.log("Request recieved for deleting user data from user automation table "+ userData.get("user_id"), LoggerEnum.INFO.name());
         StringBuilder query = new StringBuilder();
@@ -173,7 +175,7 @@ public class Postgresql {
         query.append("SELECT " );
         query.append(dataToBeRetrieved + " FROM ");
         query.append( tableName_user );
-        
+
         query.append(" WHERE " + " wid = '" + userData.getWid_user() + "'");
         query.append(";");
         try(Connection conn = connect();
@@ -195,7 +197,7 @@ public class Postgresql {
     public List<Map<String, Object>> getAllUserList(String rootOrg, String org) {
         return getAllUserList(rootOrg, org, false, null, null);
     }
-        
+
         //new method for getting all users from userTable
     public List<Map<String, Object>> getAllUserList(String rootOrg, String org, Boolean isTagUserApi, Timestamp startDate, Timestamp endDate) {
         List<Map<String, Object>> userList = new ArrayList<>();
@@ -257,7 +259,67 @@ public class Postgresql {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
-    
+
+    public List<HashMap<String, Object>> getUserStatsByField(String rootOrg, String fieldName, Timestamp startDate, Timestamp endDate) {
+        String query = "SELECT " + fieldName + "," +
+                "count(*) as count" + " FROM " +
+                tableName_user +
+                " WHERE root_org = ? ";
+        if (startDate != null) {
+            query += " AND time_inserted >= ?";
+        }
+        if (endDate != null) {
+            query += " AND time_inserted <= ? ";
+        }
+        query += " group by " + fieldName;
+        try (Connection conn = connect();
+             PreparedStatement pst = conn.prepareStatement(query)) {
+            int i = 1;
+            pst.setString(i, rootOrg);
+            if (startDate != null) {
+                pst.setTimestamp(++i, startDate);
+            }
+            if (endDate != null) {
+                pst.setTimestamp(++i, endDate);
+            }
+            ResultSet resultSet = pst.executeQuery();
+            Map<String, Integer> userStats = new HashMap<>();
+            while (resultSet.next()) {
+                String key = resultSet.getString(fieldName);
+                if (!StringUtils.hasText(key)){
+                    key = "No Data";
+                } else {
+                    char[] charArray = key.toCharArray();
+                    StringBuilder newKey = new StringBuilder();
+                    char prevChar = ' ';
+                    for (char ch:charArray) {
+                        if (Character.isLetterOrDigit(ch) || (Character.isWhitespace(ch) && !Character.isWhitespace(prevChar))) {
+                            newKey.append(Character.toLowerCase(ch));
+                            prevChar = ch;
+                        }
+                    }
+                    if (newKey.length() == 0) {
+                        newKey.append("No Data");
+                    }
+                    key = StringUtils.capitalize(newKey.toString().trim());
+                }
+                userStats.merge(key, resultSet.getInt("count"), Integer::sum);
+            }
+            return userStats.entrySet().stream()
+                    .sorted(Comparator.comparingInt((ToIntFunction<Map.Entry<String, Integer>>) Map.Entry::getValue).reversed())
+                    .map(entry -> {
+                        HashMap<String, Object> temp = new HashMap<>();
+                        temp.put("key", entry.getKey());
+                        temp.put("value", entry.getValue());
+                        return temp;
+                    })
+                    .collect(Collectors.toList());
+        } catch (Exception ex) {
+            ProjectLogger.log("Exception occurred while retrieving count of users" + Arrays.toString(ex.getStackTrace()) + ex, LoggerEnum.ERROR.name());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        }
+    }
+
     //update department_name for user table
     public int  updateUserDetails(User userData){
         ProjectLogger.log("Request recieved to update the user organisation details.", LoggerEnum.INFO.name());
@@ -280,7 +342,7 @@ public class Postgresql {
         }
         return successcount;
     }
-    
+
     public List<String> getUserRoles(Map<String, Object> userData) {
         ProjectLogger.log("Request recieved to get all user roles.", LoggerEnum.INFO.name());
         List<String> role = new ArrayList<>();
@@ -313,7 +375,7 @@ public class Postgresql {
         query.append(" SET " );
         for (Map.Entry<String, Object> entry : userMap.entrySet()) {
             if(entry.getValue() != null){
-                query.append(entry.getKey() + " = '" + entry.getValue() + "',"); 
+                query.append(entry.getKey() + " = '" + entry.getValue() + "',");
             }
         }
         query.deleteCharAt(query.length() - 1);
@@ -333,7 +395,7 @@ public class Postgresql {
         }
         return successcount;
     }
-    
+
     public Timestamp getTimestampValue(){
         try (Connection con = connect();
              Statement st = con.createStatement();
@@ -341,7 +403,7 @@ public class Postgresql {
             if (rs.next()) {
                 ProjectLogger.log("Connected to postgresql successfully with version" + rs.getString(1), LoggerEnum.INFO.name());
           return (rs.getTimestamp(1));
-  
+
             }
 
         } catch (SQLException ex) {
@@ -349,7 +411,7 @@ public class Postgresql {
         }
         return null;
     }
-    
+
     public Boolean healthCheck() {
         try (Connection con = connect();
              Statement st = con.createStatement();

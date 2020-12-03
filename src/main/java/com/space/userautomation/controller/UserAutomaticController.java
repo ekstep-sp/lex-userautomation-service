@@ -185,7 +185,7 @@ public class UserAutomaticController {
             return response.getResponse("Exception occured in edit profile method",HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE,userData.getApiId(),"");
         }
     }
-    
+
     @GetMapping(value = "/v2/users/count")
     public ResponseEntity<?> getUserCount(@RequestParam(required = false) Timestamp startDate,
                                           @RequestParam(required = false) Timestamp endDate,
@@ -197,6 +197,17 @@ public class UserAutomaticController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Incorrect Headers");
         }
     }
-    
-    
+
+    @GetMapping(value = "/v1/users/{fieldName}/stats")
+    public ResponseEntity<?> getUserStatsByField(@RequestParam(required = false) Timestamp startDate,
+                                                 @RequestParam(required = false) Timestamp endDate,
+                                                 @PathVariable String fieldName,
+                                                 @RequestHeader(value = "rootOrg") String rootOrg,
+                                                 @RequestHeader(value = "org") String org) {
+        if (Objects.equals(rootOrg, System.getenv("rootOrg")) && StringUtils.hasText(org)) {
+            return userService.getUserStatsByField(rootOrg, fieldName, startDate, endDate);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Incorrect Headers");
+        }
+    }
 }
