@@ -293,6 +293,9 @@ public class Postgresql {
                     StringBuilder newKey = new StringBuilder();
                     char prevChar = ' ';
                     for (char ch:charArray) {
+                        if (!Character.isLetterOrDigit(ch)) {
+                            ch = ' ';
+                        }
                         if (Character.isLetterOrDigit(ch) || (Character.isWhitespace(ch) && !Character.isWhitespace(prevChar))) {
                             newKey.append(Character.toLowerCase(ch));
                             prevChar = ch;
