@@ -153,12 +153,32 @@ public class UserAutomaticController {
     @GetMapping(value = "/v2/users/taguser")
     public ResponseEntity<?> getUserListForTag(@RequestParam(required = false) Timestamp startDate,
                                                @RequestParam(required = false) Timestamp endDate,
+                                               @RequestParam(required = false, name = "search_query") String searchQuery,
+                                               @RequestParam(value = "searchSize", required = false, defaultValue = "0") int searchSize,
+                                               @RequestParam(value = "offSet", required = false, defaultValue = "0") int offSet,
                                                @RequestHeader(value = "rootOrg") String rootOrg,
                                                @RequestHeader(value = "org") String org) {
         ProjectLogger.log("UserAutomation getUserListForTag Api called.", LoggerEnum.INFO.name());
 
         if (Objects.equals(rootOrg, System.getenv("rootOrg")) && StringUtils.hasText(org)) {
-            return userService.getUsersListForTaggingUsers(rootOrg, org, startDate, endDate);
+            return userService.getUsersListForTaggingUsers(rootOrg, org, startDate, endDate, searchQuery, searchSize, offSet);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Incorrect Headers");
+        }
+    }
+
+    @GetMapping(value = "/v2/users/public")
+    public ResponseEntity<?> getUserListForPublic(@RequestParam(required = false) Timestamp startDate,
+                                                  @RequestParam(required = false) Timestamp endDate,
+                                                  @RequestParam(required = false, name = "search_query") String searchQuery,
+                                                  @RequestParam(value = "searchSize", required = false, defaultValue = "0") int searchSize,
+                                                  @RequestParam(value = "offSet", required = false, defaultValue = "0") int offSet,
+                                                  @RequestHeader(value = "rootOrg") String rootOrg,
+                                                  @RequestHeader(value = "org") String org) {
+        ProjectLogger.log("UserAutomation getUserListForTag Api called.", LoggerEnum.INFO.name());
+
+        if (Objects.equals(rootOrg, System.getenv("rootOrg")) && StringUtils.hasText(org)) {
+            return userService.getUsersListForPublic(rootOrg, org, startDate, endDate, searchQuery, searchSize, offSet);
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Incorrect Headers");
         }

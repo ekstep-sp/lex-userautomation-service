@@ -195,29 +195,42 @@ public class Postgresql {
     }
 
     public List<Map<String, Object>> getAllUserList(String rootOrg, String org) {
-        return getAllUserList(rootOrg, org, false, null, null);
+        return getAllUserList(rootOrg, org, "*", null, null, null, 0, 0);
     }
 
         //new method for getting all users from userTable
-    public List<Map<String, Object>> getAllUserList(String rootOrg, String org, Boolean isTagUserApi, Timestamp startDate, Timestamp endDate) {
+    public List<Map<String, Object>> getAllUserList(String rootOrg, String org, String fields, Timestamp startDate, Timestamp endDate, String searchQuery, int searchSize, int offSet) {
         List<Map<String, Object>> userList = new ArrayList<>();
         StringBuilder query = new StringBuilder();
         query.append("SELECT ");
-        query.append((isTagUserApi ? "wid, first_name, last_name, department_name, email " : "*") + " FROM ");
+        query.append(fields).append(" FROM ");
         query.append(tableName_user);
         query.append(" WHERE root_org = ? ");
         query.append(" AND org = ? ");
         if (startDate != null && endDate != null) {
             query.append(" AND time_inserted >= ? AND time_inserted <= ? ");
         }
+        if (StringUtils.hasText(searchQuery)) {
+            query.append(" AND (concat(lower(first_name), ' ', lower(middle_name), ' ',lower(last_name))  like ? OR concat(lower(first_name), ' ',lower(last_name))  like ?) ");
+        }
+        if (searchSize != 0) {
+            query.append(" LIMIT ").append(searchSize);
+            query.append(" OFFSET ").append(offSet);
+        }
         query.append(";");
         try (Connection conn = connect();
              PreparedStatement pst = conn.prepareStatement(String.valueOf(query))) {
-            pst.setString(1, rootOrg);
-            pst.setString(2, org);
+            int params = 0;
+            pst.setString(++params, rootOrg);
+            pst.setString(++params, org);
             if (startDate != null && endDate != null) {
-                pst.setTimestamp(3, startDate);
-                pst.setTimestamp(4, endDate);
+                pst.setTimestamp(++params, startDate);
+                pst.setTimestamp(++params, endDate);
+            }
+            if (StringUtils.hasText(searchQuery)) {
+                searchQuery = "%" + searchQuery.toLowerCase() + "%";
+                pst.setString(++params, searchQuery);
+                pst.setString(++params, searchQuery);
             }
             ResultSet resultSet = pst.executeQuery();
             ResultSetMetaData rsmd = resultSet.getMetaData();

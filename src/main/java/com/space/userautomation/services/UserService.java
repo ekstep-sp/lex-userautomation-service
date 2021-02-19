@@ -42,6 +42,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.util.SystemPropertyUtils;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.print.DocFlavor;
 
@@ -364,8 +365,8 @@ public class UserService {
         }
     }
 
-    public ResponseEntity<?> getUsersListForTaggingUsers(String rootOrg, String org, Timestamp startDate, Timestamp endDate) {
-        List<Map<String, Object>> responseData = postgresql.getAllUserList(rootOrg, org, true, startDate, endDate);
+    public ResponseEntity<?> getUsersListForTaggingUsers(String rootOrg, String org, Timestamp startDate, Timestamp endDate, String searchQuery, int searchSize, int offSet) {
+        List<Map<String, Object>> responseData = postgresql.getAllUserList(rootOrg, org, "wid, first_name, last_name, department_name, email", startDate, endDate, searchQuery, searchSize, offSet);
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
@@ -654,4 +655,8 @@ public class UserService {
         return jsonObject;
     }
 
+    public ResponseEntity<?> getUsersListForPublic(String rootOrg, String org, Timestamp startDate, Timestamp endDate, String searchQuery, int searchSize, int offSet) {
+        List<Map<String, Object>> responseData = postgresql.getAllUserList(rootOrg, org, "wid, first_name, middle_name, last_name, department_name, email, source_profile_picture, user_properties, time_inserted", startDate, endDate, searchQuery, searchSize, offSet);
+        return new Response().getResponse("SUCCESS", HttpStatus.OK, HttpStatus.OK.value(), ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand().getPath(), responseData);
+    }
 }
