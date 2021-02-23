@@ -211,7 +211,7 @@ public class Postgresql {
             query.append(" AND time_inserted >= ? AND time_inserted <= ? ");
         }
         if (StringUtils.hasText(searchQuery)) {
-            query.append(" AND (concat(lower(first_name), ' ', lower(middle_name), ' ',lower(last_name))  like ? OR concat(lower(first_name), ' ',lower(last_name))  like ?) ");
+            query.append(" AND (concat(lower(first_name), ' ', lower(middle_name), ' ',lower(last_name))  like ? OR concat(lower(first_name), ' ',lower(last_name))  like ? OR lower(department_name)  like ?) ");
         }
         if (searchSize != 0) {
             query.append(" LIMIT ").append(searchSize);
@@ -229,8 +229,9 @@ public class Postgresql {
             }
             if (StringUtils.hasText(searchQuery)) {
                 searchQuery = "%" + searchQuery.toLowerCase() + "%";
-                pst.setString(++params, searchQuery);
-                pst.setString(++params, searchQuery);
+                pst.setString(++params, searchQuery); // for first name + middle name + last name
+                pst.setString(++params, searchQuery); // for first name + last name
+                pst.setString(++params, searchQuery); // for department name
             }
             ResultSet resultSet = pst.executeQuery();
             ResultSetMetaData rsmd = resultSet.getMetaData();
