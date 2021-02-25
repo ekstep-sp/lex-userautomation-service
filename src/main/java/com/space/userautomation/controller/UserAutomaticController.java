@@ -171,7 +171,7 @@ public class UserAutomaticController {
     public ResponseEntity<?> getUserListForPublic(@RequestParam(required = false) Timestamp startDate,
                                                   @RequestParam(required = false) Timestamp endDate,
                                                   @RequestParam(required = false, name = "search_query") String searchQuery,
-                                                  @RequestParam(value = "searchSize", required = false, defaultValue = "0") int searchSize,
+                                                  @RequestParam(value = "searchSize", required = false, defaultValue = "1000") int searchSize,
                                                   @RequestParam(value = "offSet", required = false, defaultValue = "0") int offSet,
                                                   @RequestHeader(value = "rootOrg") String rootOrg,
                                                   @RequestHeader(value = "org") String org) {
