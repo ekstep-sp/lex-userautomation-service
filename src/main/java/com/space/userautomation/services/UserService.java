@@ -656,7 +656,7 @@ public class UserService {
     }
 
     public ResponseEntity<?> getUsersListForPublic(String rootOrg, String org, Timestamp startDate, Timestamp endDate, String searchQuery, int searchSize, int offSet) {
-        List<Map<String, Object>> responseData = postgresql.getAllUserList(rootOrg, org, "wid, first_name, middle_name, last_name, department_name, email, source_profile_picture, user_properties, time_inserted", startDate, endDate, searchQuery, searchSize, offSet);
+        List<Map<String, Object>> responseData = postgresql.getAllUserList(rootOrg, org, "wid, first_name, middle_name, last_name, department_name, source_profile_picture, user_properties, time_inserted", startDate, endDate, searchQuery, searchSize, offSet);
         return new Response().getResponse("SUCCESS", HttpStatus.OK, HttpStatus.OK.value(), ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand().getPath(), responseData);
     }
 }
