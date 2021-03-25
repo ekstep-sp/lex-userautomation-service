@@ -6,12 +6,13 @@ import com.space.userautomation.common.Response;
 import com.space.userautomation.common.UserAutomationEnum;
 import com.space.userautomation.model.User;
 import com.space.userautomation.services.UserRoleService;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.BadRequestException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,17 +39,21 @@ public class UserRoleController {
         }
     }
 
-    @RequestMapping(value = "/v1/checkorgadmin", method = RequestMethod.GET)
-    public ResponseEntity<?> getUserRole(){
-        ProjectLogger.log("Fetching user role from cassandra", LoggerEnum.INFO.name());
-        try{
-            User user = new User();
-            user.setApiId(response.getApiId());
-            return userRoleService.getRoleForAdmin(user);
+    @RequestMapping(value = "/v1/check/admin", headers = {"rootOrg", "wid"}, method = RequestMethod.GET)
+    public @ResponseBody
+    Map<String, Boolean> checkOrgAdmin(@RequestHeader Map<String, Object> header) {
+        ProjectLogger.log("Fetching user role from postgres table", LoggerEnum.INFO.name());
+        Map<String, Object> userRole = new HashMap<>();
+
+        if (header.get("rootorg") == null || header.get("rootorg") == "") {
+            throw new BadRequestException("Pass rootOrg in headers");
         }
-        catch(Exception ex){
-            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        if (header.get("wid") == null || header.get("wid") == "") {
+            throw new BadRequestException("Pass userId in headers");
         }
+        userRole.put("root_org", header.get("rootorg"));
+        userRole.put("user_id", header.get("wid"));
+        return Collections.singletonMap("isAdmin", userRoleService.checkOrgAdmin(userRole));
     }
 
     @RequestMapping(value = "/v1/acceptuser", headers={"rootOrg","org","wid_OrgAdmin"}, method = RequestMethod.POST)
