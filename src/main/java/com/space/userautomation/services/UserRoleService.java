@@ -146,7 +146,7 @@ public class UserRoleService {
 
     public boolean checkOrgAdmin(Map<String, Object> userRole) {
         List<String> userRoles = new Postgresql().getUserRoles(userRole);
-        return userRoles.contains("org-admin");
+        return userRoles.contains(roleForAdminUser);
     }
 
     public boolean getSpecificRole(List<String> userRoles){

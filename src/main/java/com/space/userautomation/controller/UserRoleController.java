@@ -9,6 +9,7 @@ import com.space.userautomation.services.UserRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.ws.rs.BadRequestException;
@@ -45,10 +46,13 @@ public class UserRoleController {
         ProjectLogger.log("Fetching user role from postgres table", LoggerEnum.INFO.name());
         Map<String, Object> userRole = new HashMap<>();
 
-        if (header.get("rootorg") == null || header.get("rootorg") == "") {
+        if(header.isEmpty()){
+            throw new BadRequestException("Header should not be empty");
+        }
+        if (header.get("rootorg") == null || StringUtils.isEmpty(header.get("rootorg"))) {
             throw new BadRequestException("Pass rootOrg in headers");
         }
-        if (header.get("wid") == null || header.get("wid") == "") {
+        if (header.get("wid") == null || StringUtils.isEmpty(header.get("wid"))) {
             throw new BadRequestException("Pass userId in headers");
         }
         userRole.put("root_org", header.get("rootorg"));
