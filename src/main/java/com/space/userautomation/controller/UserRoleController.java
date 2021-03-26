@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotBlank;
 import javax.ws.rs.BadRequestException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,23 +41,20 @@ public class UserRoleController {
         }
     }
 
-    @RequestMapping(value = "/v1/check/admin", headers = {"rootOrg", "wid"}, method = RequestMethod.GET)
+    @GetMapping("/v1/check/admin")
     public @ResponseBody
-    Map<String, Boolean> checkOrgAdmin(@RequestHeader Map<String, Object> header) {
+    Map<String, Boolean> checkOrgAdmin(@NotBlank @RequestHeader String rootOrg, @NotBlank @RequestHeader String wid) {
         ProjectLogger.log("Fetching user role from postgres table", LoggerEnum.INFO.name());
         Map<String, Object> userRole = new HashMap<>();
 
-        if(header.isEmpty()){
-            throw new BadRequestException("Header should not be empty");
+        if (!StringUtils.hasText(rootOrg)) {
+            throw new BadRequestException("Pass rootOrg value in headers");
         }
-        if (header.get("rootorg") == null || StringUtils.isEmpty(header.get("rootorg"))) {
-            throw new BadRequestException("Pass rootOrg in headers");
+        if (!StringUtils.hasText(wid)) {
+            throw new BadRequestException("Pass userId value in headers");
         }
-        if (header.get("wid") == null || StringUtils.isEmpty(header.get("wid"))) {
-            throw new BadRequestException("Pass userId in headers");
-        }
-        userRole.put("root_org", header.get("rootorg"));
-        userRole.put("user_id", header.get("wid"));
+        userRole.put("root_org", rootOrg);
+        userRole.put("user_id", wid);
         return Collections.singletonMap("isAdmin", userRoleService.checkOrgAdmin(userRole));
     }
 
