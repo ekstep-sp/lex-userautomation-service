@@ -6,17 +6,22 @@ import com.space.userautomation.common.Response;
 import com.space.userautomation.common.UserAutomationEnum;
 import com.space.userautomation.model.User;
 import com.space.userautomation.services.UserRoleService;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotBlank;
+import javax.ws.rs.BadRequestException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/usersubmission/user")
+@Validated
 public class UserRoleController {
 
     @Autowired
@@ -38,17 +43,21 @@ public class UserRoleController {
         }
     }
 
-    @RequestMapping(value = "/v1/checkorgadmin", method = RequestMethod.GET)
-    public ResponseEntity<?> getUserRole(){
-        ProjectLogger.log("Fetching user role from cassandra", LoggerEnum.INFO.name());
-        try{
-            User user = new User();
-            user.setApiId(response.getApiId());
-            return userRoleService.getRoleForAdmin(user);
+    @GetMapping("/v1/check/admin")
+    public @ResponseBody
+    Map<String, Boolean> checkOrgAdmin(@NotBlank @RequestHeader String rootOrg, @NotBlank @RequestHeader String wid) {
+        ProjectLogger.log("Fetching user role from postgres table", LoggerEnum.INFO.name());
+        Map<String, Object> userRole = new HashMap<>();
+
+        if (!StringUtils.hasText(rootOrg)) {
+            throw new BadRequestException("Pass rootOrg value in headers");
         }
-        catch(Exception ex){
-            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        if (!StringUtils.hasText(wid)) {
+            throw new BadRequestException("Pass userId value in headers");
         }
+        userRole.put("root_org", rootOrg);
+        userRole.put("user_id", wid);
+        return Collections.singletonMap("isAdmin", userRoleService.checkOrgAdmin(userRole));
     }
 
     @RequestMapping(value = "/v1/acceptuser", headers={"rootOrg","org","wid_OrgAdmin"}, method = RequestMethod.POST)
