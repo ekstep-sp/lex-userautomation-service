@@ -384,6 +384,31 @@ public class Postgresql {
         return role;
     }
 
+    public List<String> getUserIdsByRole(String rootOrg, String role) {
+        ProjectLogger.log("Request recieved to get all user roles.", LoggerEnum.INFO.name());
+        List<String> userIds = new ArrayList<>();
+        String query = "SELECT user_id FROM " +
+                schemaName_postgresql + "." + tableName_postgresql + " " +
+                "WHERE role = '" +
+                role +
+                "' AND root_org = '" +
+                rootOrg +
+                "';";
+        try(Connection conn = connect();
+            PreparedStatement pst = conn.prepareStatement(query);
+            ResultSet resultSet =  pst.executeQuery()){
+            while (resultSet.next()) {
+                String userId = resultSet.getString("user_id");
+                if (userId != null && userId.split("-").length == 5) {
+                    userIds.add(resultSet.getString("user_id"));
+                }
+            }
+        } catch (Exception ex) {
+            ProjectLogger.log("Exception occured while retrieving user role for the given userId" + Arrays.toString(ex.getStackTrace()), ex, LoggerEnum.ERROR.name());
+        }
+        return userIds;
+    }
+
     public int  updateUserProfile(User user, Map<String ,Object> userMap){
         ProjectLogger.log("Request recieved to update the user data.", LoggerEnum.INFO.name());
         int successcount = -1;

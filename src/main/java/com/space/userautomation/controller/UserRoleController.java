@@ -27,7 +27,7 @@ public class UserRoleController {
     @Autowired
     UserRoleService userRoleService;
     Response response = new Response();
-    
+
     @RequestMapping(value = "/v1/create", headers={"rootOrg","org"}, method = RequestMethod.POST)
     public ResponseEntity<?> createUserRole(@RequestBody User userData ,  @RequestHeader Map<String, String> header){
         ProjectLogger.log("Creating user role in cassandra", LoggerEnum.INFO.name());
@@ -48,17 +48,18 @@ public class UserRoleController {
     Map<String, Boolean> checkOrgAdmin(@NotBlank @RequestHeader String rootOrg, @NotBlank @RequestHeader String wid) {
         ProjectLogger.log("Fetching user role from postgres table", LoggerEnum.INFO.name());
         Map<String, Object> userRole = new HashMap<>();
-
-        if (!StringUtils.hasText(rootOrg)) {
-            throw new BadRequestException("Pass rootOrg value in headers");
-        }
-        if (!StringUtils.hasText(wid)) {
-            throw new BadRequestException("Pass userId value in headers");
-        }
         userRole.put("root_org", rootOrg);
         userRole.put("user_id", wid);
         return Collections.singletonMap("isAdmin", userRoleService.checkOrgAdmin(userRole));
     }
+
+    @GetMapping("/v1/roles/{role}/users")
+    public ResponseEntity<?> getUserIdsByRole(@NotBlank @RequestHeader String rootOrg,
+                                              @NotBlank @RequestHeader("wid_OrgAdmin") String adminWid,
+                                              @NotBlank @PathVariable("role") String role) {
+        return userRoleService.getUserIdsByRole(rootOrg, adminWid, role);
+    }
+
 
     @RequestMapping(value = "/v1/acceptuser", headers={"rootOrg","org","wid_OrgAdmin"}, method = RequestMethod.POST)
     public ResponseEntity<?> acceptUser(@RequestBody User userData, @RequestHeader Map<Object, Object> header){
@@ -76,7 +77,7 @@ public class UserRoleController {
                 ProjectLogger.log("Inapproriate headers in request.", LoggerEnum.ERROR.name());
                 return response.getResponse("Please verify the headers before processing the request",HttpStatus.BAD_REQUEST, UserAutomationEnum.BAD_REQUEST_STATUS_CODE,userData.getApiId(),"");
             }
-        } 
+        }
         catch(Exception ex){
             ProjectLogger.log("Exception occured in acceptUser method", LoggerEnum.ERROR.name());
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);

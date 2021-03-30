@@ -24,13 +24,13 @@ import java.util.*;
 
 @Component
 public class UserRoleService {
-    
+
     Cassandra cassandra = new Cassandra();
     Response response = new Response();
     EmailService emailService = new EmailService();
     Postgresql postgresql = new Postgresql();
     UpdateUserInformation userInformation = new UpdateUserInformation();
-    
+
 
     private String root_org = System.getenv("rootOrg");
     private String org = System.getenv("org");
@@ -39,11 +39,11 @@ public class UserRoleService {
 
 
 //    List<String> oldUserRole = new ArrayList<>();
-    
+
     static final String  alreadyPresent = "A";
     static final String notPresent = "N";
     static final String create = "C";
-    static final String fixedRole= "F"; 
+    static final String fixedRole= "F";
 
     public ResponseEntity<JSONObject> createUserRole(User userData) throws IOException {
         String userId = userData.getUser_id();
@@ -249,14 +249,14 @@ public class UserRoleService {
 
     public ResponseEntity<JSONObject> changeRole(User userData) {
         Map<String, Object> userResponse = new HashMap<>();
-      
+
         try {
             if((!userData.getWid().isEmpty() && userData.getWid() != null) &&(!userData.getRoles().isEmpty()) && (!userData.getName().isEmpty() && userData.getName() != null) &&(!userData.getEmail().isEmpty() && userData.getEmail() != null)) {
                 //validate for the admin user role
                 JSONObject jObj = new JSONObject((Map) getRoleForAdmin(userData).getBody().get("DATA"));
                 Boolean isORG_ADMIN = (Boolean) jObj.get("isAdminUser");
                 if (isORG_ADMIN) {
-                    //get the external user roles 
+                    //get the external user roles
 //                    List<String> externalUserRoles = getExternalUserRoles(userData);
                     userData.setUser_id(userData.getWid());
                     Timestamp timestamp = new Postgresql().getTimestampValue();
@@ -264,9 +264,9 @@ public class UserRoleService {
                     userData.setUpdated_by(userData.getWid_OrgAdmin());
                     List<String> oldUserRoles =  getOldUserRoles(userData);
                     List<String> externalUserRoles = getExternalUserRoles(userData);
-                    //validate if the roles provided is existing in master roles    
+                    //validate if the roles provided is existing in master roles
                     if (validateUserFromMasterRoles(userData)) {
-                     
+
                         userData.setUser_id(userData.getWid());
                         //update the roles for the user
                         Map<String, Object> responseMap = validateAndUpdateRoles(userData, oldUserRoles, externalUserRoles);
@@ -300,7 +300,7 @@ public class UserRoleService {
             return response.getResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, 500, userData.getApiId(), "");
         }
     }
-    
+
     //updating the roles and validate if there is existing roles for the user, and update only required roles.
     public Map<String, Object> validateAndUpdateRoles(User userData, List<String> existingUserRoles, List<String> externalUserRoles) throws SQLException {
         Map<String, Object>  response = new HashMap<>();
@@ -316,19 +316,19 @@ public class UserRoleService {
         }
         else{
             statusCode = UserAutomationEnum.SUCCESS_RESPONSE_STATUS_CODE;
-             response.put("statusCode",statusCode );  
+             response.put("statusCode",statusCode );
              response.put("data", responseData);
         }
         return response;
      }
-     
+
     // Validate already existing roles with the currently requested role
     public Map<Object,Object> validateUserRole(User userData, List<String> existingUserRoles, List<String> externalUserRoles) {
         Map<Object, Object>  requiredRoles = new HashMap<Object, Object>();
         List<String> existingRoles = new ArrayList<>();
         requiredRoles.clear();
         existingRoles.clear();
-        
+
         // filter the user existing roles that has roles from external_user_role table
         for(String role:existingUserRoles ){
             for(String externalRole: externalUserRoles){
@@ -337,7 +337,7 @@ public class UserRoleService {
                 }
             }
         }
-        
+
         //assign the role to hashmap as already created
         for(String role: existingRoles) {
             if (role.equals(roleForAdminUser)) {
@@ -368,22 +368,22 @@ public class UserRoleService {
         List<String> userRoles =  new Postgresql().getUserRoles(userData.toMapUserRole());
         return userRoles;
     }
-    
+
     //get all existing user roles
     public List<String> getOldUserRoles(User userData){
         List<String> userRoles = new Postgresql().getUserRoles(userData.toMapUserRole());
         return userRoles;
     }
-    
 
-    
+
+
     public List<String> updateRoles(Map<Object,Object> flaggedRoles, User userData, Map<Object, Object> allstatusCode) throws SQLException {
           List<String> userRoles = new ArrayList<>();
-          
+
         Iterator it = flaggedRoles.entrySet().iterator();
         while (it.hasNext()){
             Map.Entry item = (Map.Entry) it.next();
-            String value = (String)item.getValue(); 
+            String value = (String)item.getValue();
             String key = (String) item.getKey();
             if (value == create) {
                 userData.setRole(key);
@@ -422,13 +422,13 @@ public class UserRoleService {
         }
        return  userRoles;
     }
-    
+
     public List<String> newUserRoles(User user, List<String> existingRoles){
         Map<String, Object> mappedNewRoles =  assignAndMapRoles(user,existingRoles);
         List<String>  newListOfRoles = (List<String>) getKeysFromMappedRoles(mappedNewRoles);
         return newListOfRoles;
     }
-    
+
     //getting keys from mapped roles and assigning to list of roles
     public Object getKeysFromMappedRoles(Map<String, Object> mappedRoles){
         List<String> listOfRoles = new ArrayList<>();
@@ -467,7 +467,7 @@ public class UserRoleService {
         }
         return newMapOfRoles;
     }
-    
+
     //validate for master roles
     public boolean validateUserFromMasterRoles(User userData){
         userData.setUser_id("external_user_roles");
@@ -479,6 +479,28 @@ public class UserRoleService {
         }
         return true;
     }
+
+	public ResponseEntity<?> getUserIdsByRole(String rootOrg, String adminWid, String role) {
+        Map<String, Object> checkAdmin = new HashMap<>();
+        checkAdmin.put("root_org", rootOrg);
+        checkAdmin.put("user_id", adminWid);
+        Map<String, Object> response = new HashMap<>();
+        HttpStatus status = HttpStatus.OK;
+        if (!checkOrgAdmin(checkAdmin)) {
+            response.put("error", HttpStatus.FORBIDDEN.name());
+            response.put("status", HttpStatus.FORBIDDEN.value());
+            response.put("message", "Admin access required");
+            status = HttpStatus.FORBIDDEN;
+        } else {
+            List<String> userIds = postgresql.getUserIdsByRole(rootOrg, role);
+            if (userIds.isEmpty()) {
+                status = HttpStatus.NO_CONTENT;
+            } else {
+                response.put("users", userIds);
+            }
+        }
+        return new ResponseEntity<>(response, status);
+	}
 //    public ResponseEntity<JSONObject> getRoles(String user_id,User userDetailsForRoles) {
 //        try {
 //            JSONObject jObj = new JSONObject((Map) getRoleForAdmin(userDetailsForRoles).getBody().get("DATA"));
