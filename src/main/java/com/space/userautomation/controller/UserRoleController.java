@@ -55,7 +55,7 @@ public class UserRoleController {
 
     @GetMapping("/v1/roles/{role}/users")
     public ResponseEntity<?> getUserIdsByRole(@NotBlank @RequestHeader String rootOrg,
-                                              @NotBlank @RequestHeader("wid_OrgAdmin") String adminWid,
+                                              @NotBlank @RequestHeader("wid") String adminWid,
                                               @NotBlank @PathVariable("role") String role) {
         return userRoleService.getUserIdsByRole(rootOrg, adminWid, role);
     }
