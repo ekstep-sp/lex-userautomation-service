@@ -28,6 +28,26 @@ public class User implements Serializable {
 
     private String organisation;
 
+    private String country;
+
+    private String currentRole;
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getCurrentRole() {
+        return currentRole;
+    }
+
+    public void setCurrentRole(String currentRole) {
+        this.currentRole = currentRole;
+    }
+
     public String getUserOrganisation() {
         return userOrganisation;
     }
@@ -39,12 +59,12 @@ public class User implements Serializable {
     private String userOrganisation;
 
     private String appleId;
-    
+
     public String sourceProfilePicture;
-    
-    
+
+
     private String root_org;
-    
+
 
     public String userFirstName;
      public Timestamp startDate;
@@ -66,7 +86,7 @@ public class User implements Serializable {
     }
 
     public Timestamp endDate;
-     
+
 
     public String getSourceProfilePicture() {
         return sourceProfilePicture;
@@ -83,7 +103,7 @@ public class User implements Serializable {
     public void setUserFirstName(String userFirstName) {
         this.userFirstName = userFirstName;
     }
-    
+
     public String getUserLastName() {
         return userLastName;
     }
@@ -102,7 +122,7 @@ public class User implements Serializable {
 
     public String userLastName;
     public JSONObject userProperties;
-    
+
     private String user_id;
     private String updated_by;
     private Timestamp updated_on;
@@ -118,7 +138,7 @@ public class User implements Serializable {
 
     private String role;
     public String departmentName;
-    
+
     public List<String> getRoles() {
         return roles;
     }
@@ -224,8 +244,8 @@ public class User implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
-    
-    
+
+
     public String getUsername() {
         return username;
     }
@@ -263,7 +283,7 @@ public class User implements Serializable {
         this.firstName = firstName;
         return firstName;
     }
-    
+
     public String wid;
 
     public String getWid() {
@@ -298,7 +318,7 @@ public class User implements Serializable {
             return "";
         }
     }
-    
+
     public String getPassword() {
         return password;
     }
@@ -319,7 +339,7 @@ public class User implements Serializable {
         this.organisation = organisation;
     }
 
-  
+
     public Map<String, String> toMap() {
         Map<String, String> userDetails = new HashMap<>();
         userDetails.put("email", email);
@@ -329,7 +349,7 @@ public class User implements Serializable {
         userDetails.put("password", password);
         return userDetails;
     }
-    
+
     public Map<String,Object> toMapUserRole(){
         Map<String,Object> userData = new HashMap<String, Object>();
         userData.put("root_org",this.getRoot_org());
@@ -349,7 +369,7 @@ public class User implements Serializable {
         userData.put("wid_user", this.getWid_user());
         return userData;
     }
-    
+
     public Map<String,Object> toMapUserRolePostgresql(){
         Map<String,Object> userData = new HashMap<String, Object>();
         userData.put("root_org",this.getRoot_org());

@@ -613,6 +613,8 @@ public class UserService {
         userDataResponse.put("last_name", userData.getUserLastName());
         userDataResponse.put("source_profile_picture", userData.getSourceProfilePicture());
         userDataResponse.put("user_properties", userData.getUserProperties());
+        userDataResponse.put("organization_location_country", userData.getCountry());
+        userDataResponse.put("job_role", userData.getCurrentRole());
         return userDataResponse;
     }
 
