@@ -615,6 +615,8 @@ public class UserService {
         userDataResponse.put("user_properties", userData.getUserProperties());
         userDataResponse.put("organization_location_country", userData.getCountry());
         userDataResponse.put("job_role", userData.getCurrentRole());
+        userDataResponse.put("area_of_work", userData.getAreaOfWork());
+        userDataResponse.put("area_of_expertise", userData.getAreaOfExpertise());
         return userDataResponse;
     }
 
@@ -658,7 +660,7 @@ public class UserService {
     }
 
     public ResponseEntity<?> getUsersListForPublic(String rootOrg, String org, Timestamp startDate, Timestamp endDate, String searchQuery, int searchSize, int offSet) {
-        List<Map<String, Object>> responseData = postgresql.getAllUserList(rootOrg, org, "wid, first_name, middle_name, last_name, department_name, organization_location_country, job_role, source_profile_picture, user_properties, time_inserted", startDate, endDate, searchQuery, searchSize, offSet);
+        List<Map<String, Object>> responseData = postgresql.getAllUserList(rootOrg, org, "wid, first_name, middle_name, last_name, department_name, organization_location_country, job_role, source_profile_picture, user_properties, time_inserted, area_of_work, area_of_expertise", startDate, endDate, searchQuery, searchSize, offSet);
         return new Response().getResponse("SUCCESS", HttpStatus.OK, HttpStatus.OK.value(), ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand().getPath(), responseData);
     }
 }

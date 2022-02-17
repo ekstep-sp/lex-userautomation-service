@@ -32,6 +32,26 @@ public class User implements Serializable {
 
     private String currentRole;
 
+    private String areaOfWork;
+
+    private String areaOfExpertise;
+
+    public String getAreaOfWork() {
+        return areaOfWork;
+    }
+
+    public void setAreaOfWork(String areaOfWork) {
+        this.areaOfWork = areaOfWork;
+    }
+
+    public String getAreaOfExpertise() {
+        return areaOfExpertise;
+    }
+
+    public void setAreaOfExpertise(String areaOfExpertise) {
+        this.areaOfExpertise = areaOfExpertise;
+    }
+
     public String getCountry() {
         return country;
     }
