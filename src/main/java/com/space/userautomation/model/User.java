@@ -36,6 +36,16 @@ public class User implements Serializable {
 
     private String areaOfExpertise;
 
+    private boolean isSubscribedToSpace;
+
+    public boolean isSubscribedToSpace() {
+        return isSubscribedToSpace;
+    }
+
+    public void setSubscribedToSpace(boolean subscribedToSpace) {
+        isSubscribedToSpace = subscribedToSpace;
+    }
+
     public String getAreaOfWork() {
         return areaOfWork;
     }
