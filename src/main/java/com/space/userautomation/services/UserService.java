@@ -617,7 +617,7 @@ public class UserService {
         userDataResponse.put("job_role", userData.getCurrentRole());
         userDataResponse.put("area_of_work", userData.getAreaOfWork());
         userDataResponse.put("area_of_expertise", userData.getAreaOfExpertise());
-        userDataResponse.put("is_subscribed_to_space", userData.isSubscribedToSpace());
+        userDataResponse.put("is_subscribed_to_space", userData.getIsSubscribedToSpace());
         return userDataResponse;
     }
 

@@ -36,14 +36,14 @@ public class User implements Serializable {
 
     private String areaOfExpertise;
 
-    private boolean isSubscribedToSpace;
+    private String isSubscribedToSpace;
 
-    public boolean isSubscribedToSpace() {
+    public String getIsSubscribedToSpace() {
         return isSubscribedToSpace;
     }
 
-    public void setSubscribedToSpace(boolean subscribedToSpace) {
-        isSubscribedToSpace = subscribedToSpace;
+    public void setIsSubscribedToSpace(String isSubscribedToSpace) {
+        this.isSubscribedToSpace = isSubscribedToSpace;
     }
 
     public String getAreaOfWork() {
